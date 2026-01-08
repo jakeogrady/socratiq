@@ -5,14 +5,16 @@ from datasets import load_dataset
 from peft import LoraConfig
 
 # Use Apple GPU if available
-device = torch.device("mps") if torch.backends.mps.is_available() else torch.device("cpu")
+device = (
+    torch.device("mps") if torch.backends.mps.is_available() else torch.device("cpu")
+)
 print(f"Using device: {device}")
 
 # Load a small model for Mac-friendly training
 model_name = "microsoft/phi-2"  # smaller than 3B
 model = AutoModelForCausalLM.from_pretrained(
     model_name,
-    torch_dtype=torch.float16  # MPS supports fp16
+    torch_dtype=torch.float16,  # MPS supports fp16
 )
 model.to(device)
 
@@ -24,7 +26,9 @@ tokenizer.pad_token = tokenizer.eos_token  # ensure padding token
 model.gradient_checkpointing_enable()
 
 # Load dataset (can use a small subset for testing)
-dataset = load_dataset("HuggingFaceTB/smoltalk2_everyday_convs_think", split="train[:200]")  # first 200 examples
+dataset = load_dataset(
+    "HuggingFaceTB/smoltalk2_everyday_convs_think", split="train[:200]"
+)  # first 200 examples
 
 # LoRA configuration
 lora_config = LoraConfig(
@@ -33,7 +37,7 @@ lora_config = LoraConfig(
     target_modules=["q_proj", "k_proj", "v_proj"],  # typical attention projections
     lora_dropout=0.1,
     bias="none",
-    task_type="CAUSAL_LM"
+    task_type="CAUSAL_LM",
 )
 
 # SFT training config
