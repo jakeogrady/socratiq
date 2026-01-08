@@ -10,6 +10,12 @@ class GSM8KDataset(BaseModel):
 
     model_config = ConfigDict(arbitrary_types_allowed=True)
 
+    def train_length(self):
+        print(f"Length of Training Dataset: {len(self.train)}")
+
+    def test_length(self):
+        print(f"Length of Test Dataset: {len(self.test)}")
+
 
 def load_gsm8k(split: str = "main") -> DatasetDict:
     return load_dataset(OPENAI_GSM8K, split)
@@ -18,7 +24,9 @@ def load_gsm8k(split: str = "main") -> DatasetDict:
 def preprocess_dataset(dataset: DatasetDict) -> DatasetDict:
     return dataset.map(
         lambda example: {
-            "text": DATASET_FORMAT.format(question=example['question'], answer=example['answer'])
+            "text": DATASET_FORMAT.format(
+                question=example["question"], answer=example["answer"]
+            )
         },
         remove_columns=["question", "answer"],
     )
