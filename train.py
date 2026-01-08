@@ -2,15 +2,20 @@ from typing import Any
 
 import torch
 from pydantic import BaseModel, ConfigDict
-from transformers import AutoModelForCausalLM, AutoTokenizer, PreTrainedModel, PreTrainedTokenizer
+from transformers import (
+    AutoModelForCausalLM,
+    AutoTokenizer,
+    PreTrainedModel,
+    PreTrainedTokenizer,
+)
 from trl import SFTTrainer, SFTConfig
 from peft import LoraConfig
 
 from constants import PHI_2
 from dataset import load_and_process_gsm8k, GSM8KDataset
 
-class Model(BaseModel):
 
+class Model(BaseModel):
     name: str
     model: PreTrainedModel
     device: torch.device | None
@@ -33,8 +38,8 @@ class Model(BaseModel):
     def enable_gradient_checkpointing(self):
         self.model.gradient_checkpointing_enable()
 
-class Tokenizer(BaseModel):
 
+class Tokenizer(BaseModel):
     name: str
     model: PreTrainedTokenizer
 
@@ -42,6 +47,7 @@ class Tokenizer(BaseModel):
 
     def print_chat_template(self):
         print(self.model.chat_template)
+
 
 def finetune():
     # Load a small model for Mac-friendly training
@@ -60,6 +66,7 @@ def finetune():
 
     dataset = GSM8KDataset(**load_and_process_gsm8k())
     train_dataset = dataset.train
+    eval_dataset = dataset.validation
 
     # LoRA configuration
     lora_config = LoraConfig(
@@ -84,6 +91,7 @@ def finetune():
     trainer = SFTTrainer(
         model=phi_2.model,
         train_dataset=train_dataset,
+        eval_dataset=eval_dataset,
         args=sft_config,
         peft_config=lora_config,
     )
@@ -91,6 +99,7 @@ def finetune():
     torch.cuda.empty_cache() if torch.cuda.is_available() else None
 
     trainer.train()
+
 
 if __name__ == "__main__":
     finetune()
