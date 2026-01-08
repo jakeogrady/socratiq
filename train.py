@@ -1,27 +1,56 @@
+from typing import Any
+
 import torch
-from transformers import AutoModelForCausalLM, AutoTokenizer
+from pydantic import BaseModel, ConfigDict
+from transformers import AutoModelForCausalLM, AutoTokenizer, PreTrainedModel, PreTrainedTokenizer
 from trl import SFTTrainer, SFTConfig
-from datasets import load_dataset
 from peft import LoraConfig
 
 from constants import PHI_2
 from dataset import load_and_process_gsm8k, GSM8KDataset
 
-if __name__ == "__main__":
-    # Use Apple GPU if available
-    device = (
-        torch.device("mps")
-        if torch.backends.mps.is_available()
-        else torch.device("cpu")
-    )
-    print(f"Using device: {device}")
+class Model(BaseModel):
 
+    name: str
+    model: PreTrainedModel
+    device: torch.device | None
+
+    model_config = ConfigDict(arbitrary_types_allowed=True)
+
+    def __init__(self, /, **data: Any):
+        super().__init__(**data)
+
+        # Use Apple GPU if available
+        self.device = (
+            torch.device("mps")
+            if torch.backends.mps.is_available()
+            else torch.device("cpu")
+        )
+        self.model.to(self.device)
+
+        print(f"Using device: {self.device}")
+
+    def enable_gradient_checkpointing(self):
+        self.model.gradient_checkpointing_enable()
+
+class Tokenizer(BaseModel):
+
+    name: str
+    model: PreTrainedTokenizer
+
+    model_config = ConfigDict(arbitrary_types_allowed=True)
+
+    def print_chat_template(self):
+        print(self.model.chat_template)
+
+def finetune():
     # Load a small model for Mac-friendly training
     model = AutoModelForCausalLM.from_pretrained(
         PHI_2,
         torch_dtype=torch.float16,
     )
-    model.to(device)
+
+    phi_2 = Model(name=PHI_2, model=model)
 
     tokenizer = AutoTokenizer.from_pretrained(PHI_2)
     tokenizer.pad_token = tokenizer.eos_token
@@ -53,7 +82,7 @@ if __name__ == "__main__":
 
     # Initialize trainer
     trainer = SFTTrainer(
-        model=model,
+        model=phi_2.model,
         train_dataset=train_dataset,
         args=sft_config,
         peft_config=lora_config,
@@ -62,3 +91,6 @@ if __name__ == "__main__":
     torch.cuda.empty_cache() if torch.cuda.is_available() else None
 
     trainer.train()
+
+if __name__ == "__main__":
+    finetune()
