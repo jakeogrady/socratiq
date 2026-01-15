@@ -1,15 +1,21 @@
+import re
 from typing import Any
 
 from datasets import load_dataset, DatasetDict, Dataset
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
 
-from constants import OPENAI_GSM8K, DATASET_FORMAT
+from constants import (
+    OPENAI_GSM8K,
+    DATASET_FORMAT,
+    QUESTION_PARSE_REGEX,
+    DATASET_FORMAT_PHI_2,
+)
 
 
 class GSM8KDataset(BaseModel):
     train: Dataset
     test: Dataset
-    validation: DatasetDict | None
+    validation: DatasetDict | None = Field(default=None)
 
     model_config = ConfigDict(arbitrary_types_allowed=True)
 
@@ -24,7 +30,6 @@ class GSM8KDataset(BaseModel):
 
     def generate_validation(self):
         self.validation = self.train.train_test_split(test_size=0.1, seed=42)
-        print(self.validation)
 
 
 def load_gsm8k(split: str = "main") -> DatasetDict:
@@ -34,7 +39,7 @@ def load_gsm8k(split: str = "main") -> DatasetDict:
 def preprocess_dataset(dataset: DatasetDict) -> DatasetDict:
     return dataset.map(
         lambda example: {
-            "text": DATASET_FORMAT.format(
+            "text": DATASET_FORMAT_PHI_2.format(
                 question=example["question"], answer=example["answer"]
             )
         },
@@ -42,10 +47,11 @@ def preprocess_dataset(dataset: DatasetDict) -> DatasetDict:
     )
 
 
-def load_and_process_gsm8k():
+def load_and_process_gsm8k() -> GSM8KDataset:
     ds = load_gsm8k()
-    return preprocess_dataset(ds)
+    return GSM8KDataset(**preprocess_dataset(ds))
 
 
 if __name__ == "__main__":
     ds = load_and_process_gsm8k()
+    print(ds.generate_prompt())
