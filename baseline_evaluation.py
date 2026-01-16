@@ -12,7 +12,7 @@ MODEL_NAME = "meta-llama/Llama-3.2-3B"
 
 
 def load_model(model_name: str):
-    print(f"[DEBUG] Loading model {model_name} in FP32 on CPU...")
+    print(f"[DEBUG] Loading model {model_name} in FP16 on CPU...")
     start = time.time()
     model = AutoModelForCausalLM.from_pretrained(
         model_name,
@@ -21,7 +21,7 @@ def load_model(model_name: str):
     )
     print(f"[DEBUG] Model loaded in {time.time() - start:.2f}s")
     wrapper = Model(name=model_name, model=model)
-    # ensure wrapper has a device attribute
+
     if not hasattr(wrapper, "device"):
         wrapper.device = torch.device("cpu")
     return wrapper
@@ -35,12 +35,14 @@ def load_tokenizer(model_name: str):
     print(f"[DEBUG] Tokenizer loaded in {time.time() - start:.2f}s")
     return tokenizer
 
-def generate_prompt(test_set, few_shot_num: int = 8):
+def generate_prompt(test_set, few_shot_num: int = 4, target_question_index: int = 1):
     few_shot_texts = test_set[:few_shot_num]["text"]
     few_shot_block = "\n\n".join(few_shot_texts)
 
-    match = re.search(QUESTION_PARSE_REGEX, test_set[few_shot_num + 1]["text"], re.DOTALL)
+    match = re.search(QUESTION_PARSE_REGEX, test_set[few_shot_num + target_question_index]["text"], re.DOTALL)
     target_question = match.group(1).strip()
+
+    print(f"[DEBUG] Target Question: {target_question}")
 
     prompt = (
         few_shot_block
@@ -79,6 +81,8 @@ def generate_response(model_wrapper, tokenizer, text_prompt, max_new_tokens=256)
 
 
 if __name__ == "__main__":
+    print_answer = True
+    print_prompt = False
 
     print("[DEBUG] Loading dataset...")
     start = time.time()
@@ -88,14 +92,28 @@ if __name__ == "__main__":
     model_wrapper = load_model(MODEL_NAME)
     tokenizer = load_tokenizer(MODEL_NAME)
 
-    text_prompt = generate_prompt(dataset.test, few_shot_num=4)
+    for i in range(3):
+        text_prompt = generate_prompt(dataset.test, few_shot_num=4, target_question_index=i)
 
-    print(f"[DEBUG] Prompt generated: {text_prompt}")
+        if print_prompt:
+            print(f"[DEBUG] Prompt generated: {text_prompt}")
 
-    print("[DEBUG] Generating response...")
-    generation_start = time.time()
-    response = generate_response(model_wrapper, tokenizer, text_prompt)
-    print("\n===== Generated Response =====")
-    print(response)
-    print("==============================\n")
-    print(f"[DEBUG] Response generated in {time.time() - generation_start:.2f}s")
+        print("[DEBUG] Generating response...")
+        generation_start = time.time()
+        response = generate_response(model_wrapper, tokenizer, text_prompt)
+
+        if print_answer:
+            print("\n===== Generated Response =====")
+            print(response)
+            print("==============================\n")
+
+        print(f"[DEBUG] Response generated in {time.time() - generation_start:.2f}s")
+
+        number_regex = r"####\s*(-?\d+)"
+
+        match = re.search(number_regex, response)
+        if match:
+            answer = match.group(1)
+            print(f"[DEBUG] Extracted Answer: {answer}")
+        else:
+            print("[DEBUG] No answer found in the response.")
