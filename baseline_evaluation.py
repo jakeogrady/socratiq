@@ -1,4 +1,3 @@
-import json
 import re
 import time
 import torch
@@ -9,7 +8,7 @@ from dataset import load_and_process_gsm8k
 from train import Model
 
 
-MODEL_NAME = "meta-llama/Llama-3.2-3B-Instruct"
+MODEL_NAME = "meta-llama/Llama-3.2-3B"
 
 
 def load_model(model_name: str):
@@ -21,7 +20,11 @@ def load_model(model_name: str):
         device_map=None,
     )
     print(f"[DEBUG] Model loaded in {time.time() - start:.2f}s")
-    return Model(name=model_name, model=model)
+    wrapper = Model(name=model_name, model=model)
+    # ensure wrapper has a device attribute
+    if not hasattr(wrapper, "device"):
+        wrapper.device = torch.device("cpu")
+    return wrapper
 
 
 def load_tokenizer(model_name: str):
@@ -34,48 +37,46 @@ def load_tokenizer(model_name: str):
 
 def generate_prompt(test_set, few_shot_num: int = 8):
     few_shot_texts = test_set[:few_shot_num]["text"]
-    system_content = "".join(
-        f"{ex}" for ex in few_shot_texts
+    few_shot_block = "\n\n".join(few_shot_texts)
+
+    match = re.search(QUESTION_PARSE_REGEX, test_set[few_shot_num + 1]["text"], re.DOTALL)
+    target_question = match.group(1).strip()
+
+    prompt = (
+        few_shot_block
+        + "\n\nQuestion: "
+        + target_question
+        + "\nAnswer:"
     )
 
-    # Extract target question
-    match = re.search(
-        QUESTION_PARSE_REGEX, test_set[few_shot_num + 1]["text"], re.DOTALL
-    )
-    if not match:
-        raise Exception("Failed to extract target question for CoT prompt.")
-
-    target_question_text = match.group(1).strip()
-    user_content = f"Question: {target_question_text}\n"
-
-    return "Here are some example problems and solutions:\n\n " + system_content + "=====\nAnswer the following question\n" + user_content
+    return prompt
 
 def generate_response(model_wrapper, tokenizer, text_prompt, max_new_tokens=256):
     inputs = tokenizer(
-        text_prompt, return_tensors="pt", truncation=True, max_length=512
+        text_prompt, return_tensors="pt", truncation=True, max_length=1500
     )
     inputs = {k: v.to(model_wrapper.device) for k, v in inputs.items()}
 
-    print("[DEBUG] Generating response...")
-    start = time.time()
+    prompt_length = inputs["input_ids"].shape[1]
+
     with torch.no_grad():
         outputs = model_wrapper.model.generate(
             **inputs,
             max_new_tokens=max_new_tokens,
             do_sample=True,
-            temperature=0.7,
-            top_p=0.9
+            temperature=0.8,
+            top_p=0.9,
+            eos_token_id=tokenizer.eos_token_id,
         )
-    print(f"[DEBUG] Generation completed in {time.time() - start:.2f}s")
 
-    decoded = tokenizer.decode(outputs[0], skip_special_tokens=True)
+    generated_ids = outputs[0][prompt_length:]
+    generated_text = tokenizer.decode(generated_ids, skip_special_tokens=True)
 
-    if "===" in decoded:
-        assistant_reply = decoded.split("===", 1)[1].strip()
-    else:
-        assistant_reply = decoded.strip()
+    match = re.search(r"(####\s*-?\d+)", generated_text)
+    if match:
+        return generated_text[: match.end()].strip()
+    return generated_text.strip()
 
-    return assistant_reply
 
 if __name__ == "__main__":
 
@@ -87,25 +88,14 @@ if __name__ == "__main__":
     model_wrapper = load_model(MODEL_NAME)
     tokenizer = load_tokenizer(MODEL_NAME)
 
-    user_prompt = generate_prompt(dataset.test, few_shot_num=3)
+    text_prompt = generate_prompt(dataset.test, few_shot_num=4)
 
-    messages = [
-        {
-            "role": "system",
-            "content": f"You are a helpful maths tutor. Answer the question step-by-step"
-                       f" and finish with ### <number>.\n",
-        },
-        {"role": "user", "content": f"{user_prompt}"},
-    ]
+    print(f"[DEBUG] Prompt generated: {text_prompt}")
 
-    print(f"[DEBUG] Prompt generated: {user_prompt}")
-
-    text_prompt = tokenizer.apply_chat_template(
-        messages, add_generation_prompt=True, tokenize=False
-    )
-    print(f"[DEBUG] Text prompt generated: {text_prompt}")
-
+    print("[DEBUG] Generating response...")
+    generation_start = time.time()
     response = generate_response(model_wrapper, tokenizer, text_prompt)
     print("\n===== Generated Response =====")
     print(response)
     print("==============================\n")
+    print(f"[DEBUG] Response generated in {time.time() - generation_start:.2f}s")
