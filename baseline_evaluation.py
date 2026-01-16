@@ -79,10 +79,20 @@ def generate_response(model_wrapper, tokenizer, text_prompt, max_new_tokens=256)
         return generated_text[: match.end()].strip()
     return generated_text.strip()
 
+def validate_answer(generated_answer: str, correct_answer: str) -> bool:
+    return generated_answer.strip() == correct_answer.strip()
+
+def get_test_case_answer(dataset, index: int) -> str:
+    answer_match = re.search(r"####\s*(-?\d+)", dataset.test[index]["text"])
+    answer = answer_match.group(1).strip() if answer_match else None
+    return answer
 
 if __name__ == "__main__":
     print_answer = True
     print_prompt = False
+    test_cases = 3
+    answer_correct = 0
+    number_regex = r"####\s*(-?\d+)"
 
     print("[DEBUG] Loading dataset...")
     start = time.time()
@@ -92,7 +102,7 @@ if __name__ == "__main__":
     model_wrapper = load_model(MODEL_NAME)
     tokenizer = load_tokenizer(MODEL_NAME)
 
-    for i in range(3):
+    for i in range(test_cases):
         text_prompt = generate_prompt(dataset.test, few_shot_num=4, target_question_index=i)
 
         if print_prompt:
@@ -109,11 +119,17 @@ if __name__ == "__main__":
 
         print(f"[DEBUG] Response generated in {time.time() - generation_start:.2f}s")
 
-        number_regex = r"####\s*(-?\d+)"
-
         match = re.search(number_regex, response)
         if match:
             answer = match.group(1)
             print(f"[DEBUG] Extracted Answer: {answer}")
+            correct_answer = get_test_case_answer(dataset, i)
+            if validate_answer(answer, correct_answer):
+                answer_correct += 1
+                print("[DEBUG] Answer is correct!")
         else:
             print("[DEBUG] No answer found in the response.")
+
+    print(f"[DEBUG] Total Correct Answers: {answer_correct} out of {test_cases}")
+    accuracy = (answer_correct / test_cases) * 100
+    print(f"[DEBUG] Accuracy: {accuracy:.2f}%")
