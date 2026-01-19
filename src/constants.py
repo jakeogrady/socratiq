@@ -7,3 +7,4 @@ PHI_2 = "microsoft/phi-2"
 QUESTION_PARSE_REGEX = r"Question:\s*(.*?)\nAnswer:"
 ANSWER_REGEX = r"####\s*(-?\d+)"
 FEW_SHOT_NUM = 4
+TEST_CASES = 10

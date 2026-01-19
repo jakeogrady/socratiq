@@ -5,7 +5,7 @@ import time
 import torch
 from transformers import AutoModelForCausalLM, AutoTokenizer
 
-from constants import ANSWER_REGEX, FEW_SHOT_NUM, QUESTION_PARSE_REGEX
+from constants import ANSWER_REGEX, FEW_SHOT_NUM, QUESTION_PARSE_REGEX, TEST_CASES
 from dataset import GSM8KDataset, load_and_process_gsm8k
 from train import Model
 
@@ -16,14 +16,14 @@ logging.basicConfig(level=logging.INFO)
 
 def load_model(model_name: str) -> Model:
     """Load the specified model in FP16 on CPU."""
-    logger.info("[DEBUG] Loading model %s in FP16 on CPU...", model_name)
+    logger.info("Loading model %s in FP16 on CPU...", model_name)
     start = time.time()
     model = AutoModelForCausalLM.from_pretrained(
         model_name,
         torch_dtype=torch.float16,
         device_map=None,
     )
-    logger.info("[DEBUG] Model loaded in %ss", time.time() - start)
+    logger.info("Model loaded in %ss", time.time() - start)
     wrapper = Model(name=model_name, model=model)
 
     if not hasattr(wrapper, "device"):
@@ -33,14 +33,14 @@ def load_model(model_name: str) -> Model:
 
 def load_tokenizer(model_name: str) -> AutoTokenizer:
     """Load the tokenizer for the specified model."""
-    logger.info("[DEBUG] Loading tokenizer %ss ...", model_name)
+    logger.info("Loading tokenizer %ss ...", model_name)
     start = time.time()
 
     tokenizer = AutoTokenizer.from_pretrained(model_name)
     tokenizer.pad_token = tokenizer.eos_token
     tokenizer.padding_side = "left"
 
-    logger.info("[DEBUG] Tokenizer loaded in %ss ...", time.time() - start)
+    logger.info("Tokenizer loaded in %ss ...", time.time() - start)
     return tokenizer
 
 
@@ -58,7 +58,7 @@ def generate_prompt(
     )
     target_question = match.group(1).strip()
 
-    logger.info("[DEBUG] Target Question: %s", target_question)
+    logger.info("Target Question: %s", target_question)
 
     return few_shot_block + "\n\nQuestion: " + target_question + "\nAnswer:"
 
@@ -84,7 +84,7 @@ def generate_response(
         outputs = model_wrapper.model.generate(
             **inputs,
             max_new_tokens=max_new_tokens,
-            do_sample=False,
+            do_sample=True,
             temperature=0.8,
             top_p=0.9,
             eos_token_id=tokenizer.eos_token_id,
@@ -102,6 +102,11 @@ def generate_response(
 def validate_answer(generated_answer: str, correct_answer: str) -> bool:
     """Validate if the generated answer matches the correct answer."""
     try:
+        logger.info(
+            "Validating Generated Answer: %s against Correct Answer: %s",
+            generated_answer,
+            correct_answer,
+        )
         return int(generated_answer) == int(correct_answer)
     except Exception:  # noqa: BLE001
         return False
@@ -116,18 +121,18 @@ def get_test_case_answer(dataset: GSM8KDataset, index: int) -> str | None:
 if __name__ == "__main__":
     print_answer = True
     print_prompt = False
-    test_cases = 10
+
     answer_correct = 0
 
-    logger.info("[DEBUG] Loading dataset...")
+    logger.info("Loading dataset...")
     start = time.time()
     dataset = load_and_process_gsm8k()
-    logger.info("[DEBUG] Dataset loaded in %ss", time.time() - start)
+    logger.info("Dataset loaded in %ss", time.time() - start)
 
     model_wrapper = load_model(MODEL_NAME)
     tokenizer = load_tokenizer(MODEL_NAME)
 
-    for i in range(test_cases):
+    for i in range(TEST_CASES):
         text_prompt = generate_prompt(
             dataset.test,
             few_shot_num=FEW_SHOT_NUM,
@@ -135,9 +140,9 @@ if __name__ == "__main__":
         )
 
         if print_prompt:
-            logger.info("[DEBUG] Prompt generated: %s", text_prompt)
+            logger.info("Prompt generated: %s", text_prompt)
 
-        logger.info("[DEBUG] Generating response...")
+        logger.info("Generating response...")
         generation_start = time.time()
         response = generate_response(model_wrapper, tokenizer, text_prompt)
 
@@ -146,21 +151,19 @@ if __name__ == "__main__":
             logger.info(response)
             logger.info("==============================\n")
 
-        logger.info("[DEBUG] Response generated in %ss", time.time() - generation_start)
+        logger.info("Response generated in %ss", time.time() - generation_start)
 
         match = re.search(ANSWER_REGEX, response)
         if match:
             answer = match.group(1)
-            logger.info("[DEBUG] Extracted Answer: %s", answer)
+            logger.info("Extracted Answer: %s", answer)
             correct_answer = get_test_case_answer(dataset, i + FEW_SHOT_NUM)
             if validate_answer(answer, correct_answer):
                 answer_correct += 1
-                logger.info("[DEBUG] Answer is correct!")
+                logger.info("Answer is correct!")
         else:
-            logger.info("[DEBUG] No answer found in the response.")
+            logger.info("No answer found in the response.")
 
-    logger.info(
-        "[DEBUG] Total Correct Answers: %d out of %d", answer_correct, test_cases
-    )
-    accuracy = (answer_correct / test_cases) * 100
-    logger.info("[DEBUG] Accuracy: %.2f%%", accuracy)
+    logger.info("Total Correct Answers: %d out of %d", answer_correct, TEST_CASES)
+    accuracy = (answer_correct / TEST_CASES) * 100
+    logger.info("Accuracy: %.2f%%", accuracy)
