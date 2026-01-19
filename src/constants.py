@@ -8,3 +8,4 @@ QUESTION_PARSE_REGEX = r"Question:\s*(.*?)\nAnswer:"
 ANSWER_REGEX = r"####\s*(-?\d+)"
 FEW_SHOT_NUM = 4
 TEST_CASES = 10
+MODEL_NAME = "meta-llama/Llama-3.2-3B-Instruct"

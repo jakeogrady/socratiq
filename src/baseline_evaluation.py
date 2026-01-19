@@ -1,15 +1,17 @@
+import argparse
 import logging
 import re
 import time
 
 import torch
+from datasets import Dataset
 from transformers import AutoModelForCausalLM, AutoTokenizer
 
-from constants import ANSWER_REGEX, FEW_SHOT_NUM, QUESTION_PARSE_REGEX, TEST_CASES
+from constants import ANSWER_REGEX, MODEL_NAME, QUESTION_PARSE_REGEX
 from dataset import GSM8KDataset, load_and_process_gsm8k
+from src.constants import FEW_SHOT_NUM, TEST_CASES
 from train import Model
 
-MODEL_NAME = "meta-llama/Llama-3.2-3B-Instruct"
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
 
@@ -45,7 +47,7 @@ def load_tokenizer(model_name: str) -> AutoTokenizer:
 
 
 def generate_prompt(
-    test_set: dict, few_shot_num: int = 4, target_question_index: int = 1
+    test_set: Dataset, few_shot_num: int = 4, target_question_index: int = 1
 ) -> str:
     """Generate a few-shot prompt for the model."""
     few_shot_texts = test_set[:few_shot_num]["text"]
@@ -119,8 +121,32 @@ def get_test_case_answer(dataset: GSM8KDataset, index: int) -> str | None:
 
 
 if __name__ == "__main__":
-    print_answer = True
-    print_prompt = False
+    parser = argparse.ArgumentParser()
+
+    parser.add_argument(
+        "--model_name", type=str, default=MODEL_NAME, help="Model name or path"
+    )
+    parser.add_argument(
+        "--test_cases",
+        type=int,
+        default=TEST_CASES,
+        help="Number of test cases to evaluate",
+    )
+    parser.add_argument(
+        "--few_shot_num",
+        type=int,
+        default=FEW_SHOT_NUM,
+        help="Number of few-shot examples",
+    )
+    parser.add_argument(
+        "--print_answer",
+        action="store_true",
+        help="Whether to print the generated answers",
+    )
+    parser.add_argument(
+        "--print_prompt", action="store_true", help="Whether to print the prompts"
+    )
+    args = parser.parse_args()
 
     answer_correct = 0
 
@@ -129,24 +155,24 @@ if __name__ == "__main__":
     dataset = load_and_process_gsm8k()
     logger.info("Dataset loaded in %ss", time.time() - start)
 
-    model_wrapper = load_model(MODEL_NAME)
-    tokenizer = load_tokenizer(MODEL_NAME)
+    model_wrapper = load_model(args.model_name)
+    tokenizer = load_tokenizer(args.model_name)
 
-    for i in range(TEST_CASES):
+    for i in range(args.test_cases):
         text_prompt = generate_prompt(
             dataset.test,
-            few_shot_num=FEW_SHOT_NUM,
+            few_shot_num=args.few_shot_num,
             target_question_index=i,
         )
 
-        if print_prompt:
+        if args.print_prompt:
             logger.info("Prompt generated: %s", text_prompt)
 
         logger.info("Generating response...")
         generation_start = time.time()
         response = generate_response(model_wrapper, tokenizer, text_prompt)
 
-        if print_answer:
+        if args.print_answer:
             logger.info("\n===== Generated Response =====")
             logger.info(response)
             logger.info("==============================\n")
@@ -157,13 +183,13 @@ if __name__ == "__main__":
         if match:
             answer = match.group(1)
             logger.info("Extracted Answer: %s", answer)
-            correct_answer = get_test_case_answer(dataset, i + FEW_SHOT_NUM)
+            correct_answer = get_test_case_answer(dataset, i + args.few_shot_num)
             if validate_answer(answer, correct_answer):
                 answer_correct += 1
                 logger.info("Answer is correct!")
         else:
             logger.info("No answer found in the response.")
 
-    logger.info("Total Correct Answers: %d out of %d", answer_correct, TEST_CASES)
-    accuracy = (answer_correct / TEST_CASES) * 100
+    logger.info("Total Correct Answers: %d out of %d", answer_correct, args.test_cases)
+    accuracy = (answer_correct / args.test_cases) * 100
     logger.info("Accuracy: %.2f%%", accuracy)
