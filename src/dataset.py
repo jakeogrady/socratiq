@@ -1,9 +1,11 @@
 import logging
+import re
 
 from datasets import Dataset, DatasetDict, load_dataset
 from pydantic import BaseModel, ConfigDict, Field
 
 from constants import (
+    ANSWER_REGEX,
     DATASET_FORMAT_PHI_2,
     OPENAI_GSM8K,
 )
@@ -35,6 +37,11 @@ class GSM8KDataset(BaseModel):
     def generate_validation(self) -> None:
         """Generate a validation set from the training set."""
         self.validation = self.train.train_test_split(test_size=0.1, seed=42)
+
+    def get_test_case_answer(self, index: int) -> str | None:
+        """Extract the correct answer from the dataset for a given test case index."""
+        answer_match = re.search(ANSWER_REGEX, self.test[index]["text"])
+        return answer_match.group(1).strip() if answer_match else None
 
 
 def load_gsm8k(split: str = "main") -> DatasetDict:

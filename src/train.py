@@ -1,4 +1,5 @@
 import logging
+import re
 import time
 
 import torch
@@ -12,6 +13,7 @@ from transformers import (
 )
 from trl import SFTConfig, SFTTrainer
 
+from src.constants import MODEL_NAME
 from src.dataset import load_and_process_gsm8k
 
 logger = logging.getLogger(__name__)
@@ -40,9 +42,58 @@ class Model(BaseModel):
         """Enable gradient checkpointing for memory-efficient training."""
         self.model.gradient_checkpointing_enable()
 
-    def generate_response(self, inputs: dict) -> torch.Tensor:
-        """Generate a response from the model given the inputs."""
-        return self.model.generate(**inputs, max_new_tokens=256)
+    @staticmethod
+    def create_model(name: str = MODEL_NAME) -> "Model":
+        """Create a Model instance."""
+        logger.info("Loading model %s in FP16 on CPU...", name)
+        start = time.time()
+        model = AutoModelForCausalLM.from_pretrained(
+            name,
+            torch_dtype=torch.float16,
+            device_map=None,
+        )
+        logger.info("Model loaded in %ss", time.time() - start)
+        wrapper = Model(name=name, model=model)
+
+        if not hasattr(wrapper, "device"):
+            wrapper.device = torch.device("cpu")
+        return wrapper
+
+    def generate_response(
+        self,
+        tokenizer: AutoTokenizer,
+        text_prompt: str,
+        max_new_tokens: int = 256,
+    ) -> str:
+        """Generate a response from the model given a text prompt."""
+        inputs = tokenizer(
+            text_prompt,
+            return_tensors="pt",
+            truncation=True,
+            max_length=1500,
+        )
+
+        inputs = {k: v.to(self.device) for k, v in inputs.items()}
+
+        prompt_length = inputs["input_ids"].shape[1]
+
+        with torch.no_grad():
+            outputs = self.model.generate(
+                **inputs,
+                max_new_tokens=max_new_tokens,
+                do_sample=True,
+                temperature=0.8,
+                top_p=0.9,
+                eos_token_id=tokenizer.eos_token_id,
+            )
+
+        generated_ids = outputs[0][prompt_length:]
+        generated_text = tokenizer.decode(generated_ids, skip_special_tokens=True)
+
+        match = re.search(r"(####\s*-?\d+)", generated_text)
+        if match:
+            return generated_text[: match.end()].strip()
+        return generated_text.strip()
 
 
 class Tokenizer(BaseModel):
