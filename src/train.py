@@ -1,4 +1,5 @@
 import logging
+import time
 
 import torch
 from peft import LoraConfig
@@ -11,7 +12,7 @@ from transformers import (
 )
 from trl import SFTConfig, SFTTrainer
 
-from dataset import load_and_process_gsm8k
+from src.dataset import load_and_process_gsm8k
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
@@ -111,11 +112,6 @@ def finetune() -> None:
 
 
 if __name__ == "__main__":
-    import time
-
-    import torch
-    from transformers import AutoModelForCausalLM, AutoTokenizer
-
     torch.set_num_threads(4)
     model_name = "TinyLlama/TinyLlama-1.1B-Chat-v1.0"
 
@@ -126,7 +122,7 @@ if __name__ == "__main__":
 
     start = time.time()
     logger.info("Loading model...")
-    model = AutoModelForCausalLM.from_pretrained(
+    model: PreTrainedModel = AutoModelForCausalLM.from_pretrained(
         model_name,
         torch_dtype=torch.float16,
         device_map=None,
@@ -135,7 +131,7 @@ if __name__ == "__main__":
 
     start = time.time()
     logger.info("Moving model to CPU...")
-    model = model.to("cpu")
+    model.to("cpu")
     logger.info("Model on CPU: %s", time.time() - start)
 
     start = time.time()
