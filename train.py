@@ -1,6 +1,7 @@
-from typing import Any
+import logging
 
 import torch
+from peft import LoraConfig
 from pydantic import BaseModel, ConfigDict, Field
 from transformers import (
     AutoModelForCausalLM,
@@ -8,54 +9,56 @@ from transformers import (
     PreTrainedModel,
     PreTrainedTokenizer,
 )
-from trl import SFTTrainer, SFTConfig
-from peft import LoraConfig
+from trl import SFTConfig, SFTTrainer
 
-from constants import PHI_2
 from dataset import load_and_process_gsm8k
+
+logger = logging.getLogger(__name__)
+logging.basicConfig(level=logging.INFO)
 
 
 class Model(BaseModel):
+    """Model wrapper class."""
+
     name: str
     model: PreTrainedModel
     device: torch.device | None = Field(default=None)
 
     model_config = ConfigDict(arbitrary_types_allowed=True)
 
-    def __init__(self, /, **data: Any):
+    def __init__(self, /, **data: dict) -> None:
         super().__init__(**data)
 
-        # Use Apple GPU if available
-        # self.device = (
-        #     torch.device("mps")
-        #     if torch.backends.mps.is_available() and torch.backends.mps.is_built()
-        #     else torch.device("cpu")
-        # )
         self.device = torch.device("cpu")
         self.model.to(self.device)
         torch.set_num_threads(4)
 
-        print(f"Using device: {self.device}")
+        logger.info("Using device: %s", self.device)
 
-    def enable_gradient_checkpointing(self):
+    def enable_gradient_checkpointing(self) -> None:
+        """Enable gradient checkpointing for memory-efficient training."""
         self.model.gradient_checkpointing_enable()
 
-    def generate_response(self, inputs: Any, tokenizer):
+    def generate_response(self, inputs: dict) -> torch.Tensor:
+        """Generate a response from the model given the inputs."""
         return self.model.generate(**inputs, max_new_tokens=256)
 
 
 class Tokenizer(BaseModel):
+    """Tokenizer wrapper class."""
+
     name: str
     model: PreTrainedTokenizer
 
     model_config = ConfigDict(arbitrary_types_allowed=True)
 
-    def print_chat_template(self):
-        print(self.model.chat_template)
+    def print_chat_template(self) -> None:
+        """Print the chat template of the tokenizer, if available."""
+        logger.info(self.model.chat_template)
 
 
-def finetune():
-    # Load a small model for Mac-friendly training
+def finetune() -> None:
+    """Load a small model for Mac-friendly training."""
     model_name = "Qwen/Qwen3-0.6B"
     model = AutoModelForCausalLM.from_pretrained(
         model_name,
@@ -108,41 +111,43 @@ def finetune():
 
 
 if __name__ == "__main__":
-    # finetune()
-    import torch
-    from transformers import AutoTokenizer, AutoModelForCausalLM
     import time
+
+    import torch
+    from transformers import AutoModelForCausalLM, AutoTokenizer
 
     torch.set_num_threads(4)
     model_name = "TinyLlama/TinyLlama-1.1B-Chat-v1.0"
 
     start = time.time()
-    print("Loading tokenizer...")
+    logger.info("Loading tokenizer...")
     tokenizer = AutoTokenizer.from_pretrained(model_name)
-    print("Tokenizer loaded!", time.time() - start)
+    logger.info("Tokenizer loaded: %s", time.time() - start)
 
     start = time.time()
-    print("Loading model...")
+    logger.info("Loading model...")
     model = AutoModelForCausalLM.from_pretrained(
-        model_name, torch_dtype=torch.float16, device_map=None
+        model_name,
+        torch_dtype=torch.float16,
+        device_map=None,
     )
-    print("Model loaded!", time.time() - start)
+    logger.info("Model loaded: %s", time.time() - start)
 
     start = time.time()
-    print("Moving model to CPU...")
+    logger.info("Moving model to CPU...")
     model = model.to("cpu")
-    print("Model on CPU!", time.time() - start)
+    logger.info("Model on CPU: %s", time.time() - start)
 
     start = time.time()
     prompt = "Hello from my Mac!"
-    print("Tokenizing input...")
+    logger.info("Tokenizing input...")
     inputs = tokenizer(prompt, return_tensors="pt")
-    print("Tokenized!", time.time() - start)
+    logger.info("Tokenized: %s", time.time() - start)
 
     start = time.time()
-    print("Generating output...")
+    logger.info("Generating output...")
     with torch.no_grad():
         output = model.generate(**inputs, max_new_tokens=64)
-    print("Generation done!", time.time() - start)
+    logger.info("Generation done! %s", time.time() - start)
 
-    print(tokenizer.decode(output[0], skip_special_tokens=True))
+    logger.info(tokenizer.decode(output[0], skip_special_tokens=True))

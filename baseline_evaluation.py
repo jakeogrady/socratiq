@@ -1,25 +1,29 @@
+import logging
 import re
 import time
-import torch
-from transformers import AutoTokenizer, AutoModelForCausalLM
 
-from constants import QUESTION_PARSE_REGEX
-from dataset import load_and_process_gsm8k
+import torch
+from transformers import AutoModelForCausalLM, AutoTokenizer
+
+from constants import ANSWER_REGEX, FEW_SHOT_NUM, QUESTION_PARSE_REGEX
+from dataset import GSM8KDataset, load_and_process_gsm8k
 from train import Model
 
+MODEL_NAME = "meta-llama/Llama-3.2-3B-Instruct"
+logger = logging.getLogger(__name__)
+logging.basicConfig(level=logging.INFO)
 
-MODEL_NAME = "meta-llama/Llama-3.2-3B"
 
-
-def load_model(model_name: str):
-    print(f"[DEBUG] Loading model {model_name} in FP16 on CPU...")
+def load_model(model_name: str) -> Model:
+    """Load the specified model in FP16 on CPU."""
+    logger.info("[DEBUG] Loading model %s in FP16 on CPU...", model_name)
     start = time.time()
     model = AutoModelForCausalLM.from_pretrained(
         model_name,
         torch_dtype=torch.float16,
         device_map=None,
     )
-    print(f"[DEBUG] Model loaded in {time.time() - start:.2f}s")
+    logger.info("[DEBUG] Model loaded in %ss", time.time() - start)
     wrapper = Model(name=model_name, model=model)
 
     if not hasattr(wrapper, "device"):
@@ -27,35 +31,50 @@ def load_model(model_name: str):
     return wrapper
 
 
-def load_tokenizer(model_name: str):
-    print(f"[DEBUG] Loading tokenizer {model_name}...")
+def load_tokenizer(model_name: str) -> AutoTokenizer:
+    """Load the tokenizer for the specified model."""
+    logger.info("[DEBUG] Loading tokenizer %ss ...", model_name)
     start = time.time()
+
     tokenizer = AutoTokenizer.from_pretrained(model_name)
     tokenizer.pad_token = tokenizer.eos_token
-    print(f"[DEBUG] Tokenizer loaded in {time.time() - start:.2f}s")
+    tokenizer.padding_side = "left"
+
+    logger.info("[DEBUG] Tokenizer loaded in %ss ...", time.time() - start)
     return tokenizer
 
-def generate_prompt(test_set, few_shot_num: int = 4, target_question_index: int = 1):
+
+def generate_prompt(
+    test_set: dict, few_shot_num: int = 4, target_question_index: int = 1
+) -> str:
+    """Generate a few-shot prompt for the model."""
     few_shot_texts = test_set[:few_shot_num]["text"]
     few_shot_block = "\n\n".join(few_shot_texts)
 
-    match = re.search(QUESTION_PARSE_REGEX, test_set[few_shot_num + target_question_index]["text"], re.DOTALL)
+    match = re.search(
+        QUESTION_PARSE_REGEX,
+        test_set[few_shot_num + target_question_index]["text"],
+        re.DOTALL,
+    )
     target_question = match.group(1).strip()
 
-    print(f"[DEBUG] Target Question: {target_question}")
+    logger.info("[DEBUG] Target Question: %s", target_question)
 
-    prompt = (
-        few_shot_block
-        + "\n\nQuestion: "
-        + target_question
-        + "\nAnswer:"
-    )
+    return few_shot_block + "\n\nQuestion: " + target_question + "\nAnswer:"
 
-    return prompt
 
-def generate_response(model_wrapper, tokenizer, text_prompt, max_new_tokens=256):
+def generate_response(
+    model_wrapper: Model,
+    tokenizer: AutoTokenizer,
+    text_prompt: str,
+    max_new_tokens: int = 256,
+) -> str:
+    """Generate a response from the model given a text prompt."""
     inputs = tokenizer(
-        text_prompt, return_tensors="pt", truncation=True, max_length=1500
+        text_prompt,
+        return_tensors="pt",
+        truncation=True,
+        max_length=1500,
     )
     inputs = {k: v.to(model_wrapper.device) for k, v in inputs.items()}
 
@@ -65,7 +84,7 @@ def generate_response(model_wrapper, tokenizer, text_prompt, max_new_tokens=256)
         outputs = model_wrapper.model.generate(
             **inputs,
             max_new_tokens=max_new_tokens,
-            do_sample=True,
+            do_sample=False,
             temperature=0.8,
             top_p=0.9,
             eos_token_id=tokenizer.eos_token_id,
@@ -79,57 +98,69 @@ def generate_response(model_wrapper, tokenizer, text_prompt, max_new_tokens=256)
         return generated_text[: match.end()].strip()
     return generated_text.strip()
 
-def validate_answer(generated_answer: str, correct_answer: str) -> bool:
-    return generated_answer.strip() == correct_answer.strip()
 
-def get_test_case_answer(dataset, index: int) -> str:
-    answer_match = re.search(r"####\s*(-?\d+)", dataset.test[index]["text"])
-    answer = answer_match.group(1).strip() if answer_match else None
-    return answer
+def validate_answer(generated_answer: str, correct_answer: str) -> bool:
+    """Validate if the generated answer matches the correct answer."""
+    try:
+        return int(generated_answer) == int(correct_answer)
+    except Exception:  # noqa: BLE001
+        return False
+
+
+def get_test_case_answer(dataset: GSM8KDataset, index: int) -> str | None:
+    """Extract the correct answer from the dataset for a given test case index."""
+    answer_match = re.search(ANSWER_REGEX, dataset.test[index]["text"])
+    return answer_match.group(1).strip() if answer_match else None
+
 
 if __name__ == "__main__":
     print_answer = True
     print_prompt = False
-    test_cases = 3
+    test_cases = 10
     answer_correct = 0
-    number_regex = r"####\s*(-?\d+)"
 
-    print("[DEBUG] Loading dataset...")
+    logger.info("[DEBUG] Loading dataset...")
     start = time.time()
     dataset = load_and_process_gsm8k()
-    print(f"[DEBUG] Dataset loaded in {time.time() - start:.2f}s")
+    logger.info("[DEBUG] Dataset loaded in %ss", time.time() - start)
 
     model_wrapper = load_model(MODEL_NAME)
     tokenizer = load_tokenizer(MODEL_NAME)
 
     for i in range(test_cases):
-        text_prompt = generate_prompt(dataset.test, few_shot_num=4, target_question_index=i)
+        text_prompt = generate_prompt(
+            dataset.test,
+            few_shot_num=FEW_SHOT_NUM,
+            target_question_index=i,
+        )
 
         if print_prompt:
-            print(f"[DEBUG] Prompt generated: {text_prompt}")
+            logger.info("[DEBUG] Prompt generated: %s", text_prompt)
 
-        print("[DEBUG] Generating response...")
+        logger.info("[DEBUG] Generating response...")
         generation_start = time.time()
         response = generate_response(model_wrapper, tokenizer, text_prompt)
 
         if print_answer:
-            print("\n===== Generated Response =====")
-            print(response)
-            print("==============================\n")
+            logger.info("\n===== Generated Response =====")
+            logger.info(response)
+            logger.info("==============================\n")
 
-        print(f"[DEBUG] Response generated in {time.time() - generation_start:.2f}s")
+        logger.info("[DEBUG] Response generated in %ss", time.time() - generation_start)
 
-        match = re.search(number_regex, response)
+        match = re.search(ANSWER_REGEX, response)
         if match:
             answer = match.group(1)
-            print(f"[DEBUG] Extracted Answer: {answer}")
-            correct_answer = get_test_case_answer(dataset, i)
+            logger.info("[DEBUG] Extracted Answer: %s", answer)
+            correct_answer = get_test_case_answer(dataset, i + FEW_SHOT_NUM)
             if validate_answer(answer, correct_answer):
                 answer_correct += 1
-                print("[DEBUG] Answer is correct!")
+                logger.info("[DEBUG] Answer is correct!")
         else:
-            print("[DEBUG] No answer found in the response.")
+            logger.info("[DEBUG] No answer found in the response.")
 
-    print(f"[DEBUG] Total Correct Answers: {answer_correct} out of {test_cases}")
+    logger.info(
+        "[DEBUG] Total Correct Answers: %d out of %d", answer_correct, test_cases
+    )
     accuracy = (answer_correct / test_cases) * 100
-    print(f"[DEBUG] Accuracy: {accuracy:.2f}%")
+    logger.info("[DEBUG] Accuracy: %.2f%%", accuracy)
