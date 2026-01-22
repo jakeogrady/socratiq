@@ -1,6 +1,7 @@
 import logging
 import re
 from collections.abc import Generator
+from typing import T
 
 from datasets import Dataset, DatasetDict, load_dataset
 from pydantic import BaseModel, ConfigDict, Field
@@ -10,7 +11,6 @@ from constants import (
     DATASET_FORMAT_PHI_2,
     OPENAI_GSM8K,
 )
-from src.constants import QUESTION_REGEX
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
@@ -45,12 +45,14 @@ class GSM8KDataset(BaseModel):
         answer_match = re.search(ANSWER_REGEX, self.test[index]["text"])
         return answer_match.group(1).strip() if answer_match else None
 
-    def yield_train_cases(self) -> Generator:
+    def yield_train_cases(self, length: T | None) -> Generator:
         """Yield training cases one by one."""
-        for i in range(len(self.train)):
-            question_match = re.search(QUESTION_REGEX, self.train[i]["text"])
-            if question_match:
-                yield self.train[i]["question"]
+        length = length if length is not None else len(self.train)
+
+        for i in range(length):
+            training_task = self.train[i]["answer"]
+
+            yield training_task
 
 
 def load_gsm8k(split: str = "main") -> DatasetDict:

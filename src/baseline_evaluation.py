@@ -3,34 +3,13 @@ import logging
 import re
 import time
 
-from datasets import Dataset
-
-from constants import ANSWER_REGEX, MODEL_NAME, QUESTION_REGEX
+from constants import ANSWER_REGEX, MODEL_NAME
 from dataset import load_and_process_gsm8k
 from src.constants import FEW_SHOT_NUM, TEST_CASES
 from train import Model, Tokenizer
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
-
-
-def generate_prompt(
-    test_set: Dataset, few_shot_num: int = 4, target_question_index: int = 1
-) -> str:
-    """Generate a few-shot prompt for the model."""
-    few_shot_texts = test_set[:few_shot_num]["text"]
-    few_shot_block = "\n\n".join(few_shot_texts)
-
-    match = re.search(
-        QUESTION_REGEX,
-        test_set[few_shot_num + target_question_index]["text"],
-        re.DOTALL,
-    )
-    target_question = match.group(1).strip()
-
-    logger.info("Target Question: %s", target_question)
-
-    return few_shot_block + "\n\nQuestion: " + target_question + "\nAnswer:"
 
 
 def validate_answer(generated_answer: str, correct_answer: str) -> bool:
@@ -85,7 +64,7 @@ if __name__ == "__main__":
     tokenizer = Tokenizer.load_tokenizer(args.model_name)
 
     for i in range(args.test_cases):
-        text_prompt = generate_prompt(
+        text_prompt = model.generate_prompt(
             dataset.test,
             few_shot_num=args.few_shot_num,
             target_question_index=i,

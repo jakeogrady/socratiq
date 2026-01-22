@@ -3,6 +3,7 @@ import re
 import time
 
 import torch
+from datasets import Dataset
 from peft import LoraConfig
 from pydantic import BaseModel, ConfigDict, Field
 from transformers import (
@@ -13,7 +14,7 @@ from transformers import (
 )
 from trl import SFTConfig, SFTTrainer
 
-from src.constants import MODEL_NAME
+from src.constants import MODEL_NAME, QUESTION_REGEX
 from src.dataset import load_and_process_gsm8k
 
 logger = logging.getLogger(__name__)
@@ -59,11 +60,30 @@ class Model(BaseModel):
             wrapper.device = torch.device("cpu")
         return wrapper
 
+    def generate_prompt(
+        self, test_set: Dataset, few_shot_num: int = 4, target_question_index: int = 1
+    ) -> str:
+        """Generate a few-shot prompt for the model."""
+        few_shot_texts = test_set[:few_shot_num]["text"]
+        few_shot_block = "\n\n".join(few_shot_texts)
+
+        match = re.search(
+            QUESTION_REGEX,
+            test_set[few_shot_num + target_question_index]["text"],
+            re.DOTALL,
+        )
+        target_question = match.group(1).strip()
+
+        logger.info("Target Question: %s", target_question)
+
+        return few_shot_block + "\n\nQuestion: " + target_question + "\nAnswer:"
+
     def generate_response(
         self,
         tokenizer: AutoTokenizer,
         text_prompt: str,
         max_new_tokens: int = 256,
+        temperature: float = 0.8,
     ) -> str:
         """Generate a response from the model given a text prompt."""
         inputs = tokenizer(
@@ -82,7 +102,7 @@ class Model(BaseModel):
                 **inputs,
                 max_new_tokens=max_new_tokens,
                 do_sample=True,
-                temperature=0.8,
+                temperature=temperature,
                 top_p=0.9,
                 eos_token_id=tokenizer.eos_token_id,
             )
