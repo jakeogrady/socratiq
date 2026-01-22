@@ -4,7 +4,7 @@ import re
 import time
 
 from constants import ANSWER_REGEX, MODEL_NAME
-from dataset import load_and_process_gsm8k
+from models import load_and_process_gsm8k
 from src.constants import FEW_SHOT_NUM, TEST_CASES
 from train import Model, Tokenizer
 
