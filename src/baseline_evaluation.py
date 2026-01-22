@@ -4,28 +4,14 @@ import re
 import time
 
 from datasets import Dataset
-from transformers import AutoTokenizer
 
-from constants import ANSWER_REGEX, MODEL_NAME, QUESTION_PARSE_REGEX
+from constants import ANSWER_REGEX, MODEL_NAME, QUESTION_REGEX
 from dataset import load_and_process_gsm8k
 from src.constants import FEW_SHOT_NUM, TEST_CASES
-from train import Model
+from train import Model, Tokenizer
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
-
-
-def load_tokenizer(model_name: str) -> AutoTokenizer:
-    """Load the tokenizer for the specified model."""
-    logger.info("Loading tokenizer %ss ...", model_name)
-    start = time.time()
-
-    tokenizer = AutoTokenizer.from_pretrained(model_name)
-    tokenizer.pad_token = tokenizer.eos_token
-    tokenizer.padding_side = "left"
-
-    logger.info("Tokenizer loaded in %ss ...", time.time() - start)
-    return tokenizer
 
 
 def generate_prompt(
@@ -36,7 +22,7 @@ def generate_prompt(
     few_shot_block = "\n\n".join(few_shot_texts)
 
     match = re.search(
-        QUESTION_PARSE_REGEX,
+        QUESTION_REGEX,
         test_set[few_shot_num + target_question_index]["text"],
         re.DOTALL,
     )
@@ -96,7 +82,7 @@ if __name__ == "__main__":
     logger.info("Dataset loaded in %ss", time.time() - start)
 
     model = Model.create_model(name=args.model_name)
-    tokenizer = load_tokenizer(args.model_name)
+    tokenizer = Tokenizer.load_tokenizer(args.model_name)
 
     for i in range(args.test_cases):
         text_prompt = generate_prompt(

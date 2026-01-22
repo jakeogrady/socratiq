@@ -108,6 +108,19 @@ class Tokenizer(BaseModel):
         """Print the chat template of the tokenizer, if available."""
         logger.info(self.model.chat_template)
 
+    @staticmethod
+    def load_tokenizer(model_name: str = MODEL_NAME) -> AutoTokenizer:
+        """Load the tokenizer for the specified model."""
+        logger.info("Loading tokenizer %ss ...", model_name)
+        start = time.time()
+
+        tokenizer = AutoTokenizer.from_pretrained(model_name)
+        tokenizer.pad_token = tokenizer.eos_token
+        tokenizer.padding_side = "left"
+
+        logger.info("Tokenizer loaded in %ss ...", time.time() - start)
+        return tokenizer
+
 
 def finetune() -> None:
     """Load a small model for Mac-friendly training."""
