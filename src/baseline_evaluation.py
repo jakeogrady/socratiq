@@ -4,9 +4,8 @@ import re
 import time
 
 from constants import ANSWER_REGEX, MODEL_NAME
-from models import load_and_process_gsm8k
+from models import Model, Tokenizer, load_and_process_gsm8k
 from src.constants import FEW_SHOT_NUM, TEST_CASES
-from train import Model, Tokenizer
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)

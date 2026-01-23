@@ -6,8 +6,7 @@ from pathlib import Path
 from datasets import Dataset
 from transformers import AutoTokenizer
 
-from src.models import GSM8KDataset, load_gsm8k
-from src.train import Model, Tokenizer
+from src.models import GSM8KDataset, Model, Tokenizer, load_gsm8k
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
