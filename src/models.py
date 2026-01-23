@@ -14,7 +14,7 @@ from transformers import (
     PreTrainedTokenizer,
 )
 
-from constants import (
+from .constants import (
     ANSWER_REGEX,
     DATASET_FORMAT_PHI_2,
     MODEL_NAME,
@@ -67,8 +67,9 @@ class Model(BaseModel):
             wrapper.device = torch.device("cpu")
         return wrapper
 
+    @staticmethod
     def generate_prompt(
-        self, test_set: Dataset, few_shot_num: int = 4, target_question_index: int = 1
+        test_set: Dataset, few_shot_num: int = 4, target_question_index: int = 1
     ) -> str:
         """Generate a few-shot prompt for the model."""
         few_shot_texts = test_set[:few_shot_num]["text"]
@@ -208,7 +209,12 @@ def preprocess_dataset(dataset: DatasetDict) -> DatasetDict:
 
 def load_and_process_gsm8k() -> GSM8KDataset:
     """Load and preprocess the GSM8K dataset."""
+    logger.info("Loading dataset...")
+    start = time.time()
+
     ds = load_gsm8k()
+    logger.info("Dataset loaded in %ss", time.time() - start)
+
     return GSM8KDataset(**preprocess_dataset(ds))
 
 
