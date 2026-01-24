@@ -1,107 +1,35 @@
 import logging
-import time
 
-import torch
-from peft import LoraConfig
-from transformers import (
-    AutoModelForCausalLM,
-    AutoTokenizer,
-    PreTrainedModel,
-)
-from trl import SFTConfig, SFTTrainer
-
-from src.models import Model, load_and_process_gsm8k
+import mlx.optimizers as optim
+from mlx_lm import load
+from mlx_lm.tuner import TrainingArgs, train
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
 
 
 def finetune() -> None:
-    """Load a small model for Mac-friendly training."""
-    model_name = "Qwen/Qwen3-0.6B"
-    model = AutoModelForCausalLM.from_pretrained(
-        model_name,
-        torch_dtype=torch.float32,
+    """Fine-tune model on a custom dataset."""
+    model_name = "mlx-community/Mistral-7B-v0.1-4bit"
+
+    model, _ = load(model_name)
+
+    training_args = TrainingArgs(
+        batch_size=1,
+        iters=200,
+        grad_checkpoint=True,
     )
 
-    phi_2 = Model(name=model_name, model=model)
-
-    tokenizer = AutoTokenizer.from_pretrained(model_name)
-    tokenizer.pad_token = tokenizer.eos_token
-
-    dataset = load_and_process_gsm8k()
-    train_dataset = dataset.train
-    eval_dataset = dataset.validation
-
-    # LoRA configuration
-    lora_config = LoraConfig(
-        r=8,
-        lora_alpha=16,
-        target_modules=["up_proj", "down_proj", "gate_proj"],
-        lora_dropout=0.1,
-        bias="none",
-        task_type="CAUSAL_LM",
+    metrics = train(
+        model=model,
+        optimizer=optim.Adam(learning_rate=1e-5),
+        args=training_args,
+        train_dataset="data/train.jsonl",  # temp paths
+        val_dataset="data/val.jsonl",  # temp paths
     )
 
-    # SFT training config
-    sft_config = SFTConfig(
-        output_dir="./smollm_lora_test",
-        per_device_train_batch_size=1,
-        learning_rate=5e-5,
-        max_steps=100,
-        logging_steps=10,
-        gradient_checkpointing=False,
-        bf16=False,
-        fp16=False,
-    )
-
-    # Initialize trainer
-    trainer = SFTTrainer(
-        model=phi_2.model,
-        train_dataset=train_dataset,
-        eval_dataset=eval_dataset,
-        args=sft_config,
-        peft_config=lora_config,
-    )
-
-    torch.cuda.empty_cache() if torch.cuda.is_available() else None
-
-    trainer.train()
+    logger.info("Training complete: %s", metrics)
 
 
 if __name__ == "__main__":
-    torch.set_num_threads(4)
-    model_name = "TinyLlama/TinyLlama-1.1B-Chat-v1.0"
-
-    start = time.time()
-    logger.info("Loading tokenizer...")
-    tokenizer = AutoTokenizer.from_pretrained(model_name)
-    logger.info("Tokenizer loaded: %s", time.time() - start)
-
-    start = time.time()
-    logger.info("Loading model...")
-    model: PreTrainedModel = AutoModelForCausalLM.from_pretrained(
-        model_name,
-        torch_dtype=torch.float16,
-        device_map=None,
-    )
-    logger.info("Model loaded: %s", time.time() - start)
-
-    start = time.time()
-    logger.info("Moving model to CPU...")
-    model.to("cpu")
-    logger.info("Model on CPU: %s", time.time() - start)
-
-    start = time.time()
-    prompt = "Hello from my Mac!"
-    logger.info("Tokenizing input...")
-    inputs = tokenizer(prompt, return_tensors="pt")
-    logger.info("Tokenized: %s", time.time() - start)
-
-    start = time.time()
-    logger.info("Generating output...")
-    with torch.no_grad():
-        output = model.generate(**inputs, max_new_tokens=64)
-    logger.info("Generation done! %s", time.time() - start)
-
-    logger.info(tokenizer.decode(output[0], skip_special_tokens=True))
+    finetune()

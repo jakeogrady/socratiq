@@ -15,6 +15,7 @@ dev = [
     "gradio>=6.2.0",
     "huggingface-hub>=0.36.0",
     "mlx-lm>=0.29.1",
+    "mlx-lm-lora>=1.0.0",
     "peft>=0.18.0",
     "pre-commit>=4.5.1",
     "ruff>=0.14.10",

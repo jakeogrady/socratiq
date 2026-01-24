@@ -11,7 +11,7 @@ from src.constants import (
     MISTRAL_7B_Q4,
     TEST_CASES,
 )
-from src.models import Model, load_and_process_gsm8k
+from src.models import generate_prompt, load_and_process_gsm8k
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
@@ -72,7 +72,7 @@ if __name__ == "__main__":
     dataset = load_and_process_gsm8k()
 
     for i in range(args.test_cases):
-        text_prompt = Model.generate_prompt(
+        text_prompt = generate_prompt(
             dataset.test,
             few_shot_num=args.few_shot_num,
             target_question_index=i,

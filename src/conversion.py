@@ -84,4 +84,4 @@ if __name__ == "__main__":
     dataset = GSM8KDataset(**load_gsm8k())
 
     ds = generate_new_dataset(dataset)
-    ds.to_json("data/converted_gsm8k.jsonl")
+    ds.to_json("data/train.jsonl")
