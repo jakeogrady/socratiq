@@ -1,9 +1,7 @@
 """Constants used across the project."""
 
 OPENAI_GSM8K = "openai/gsm8k"
-DATASET_FORMAT = "### Question\n{question}\n\n### Answer\n{answer}"
-DATASET_FORMAT_PHI_2 = "Question: {question}\nAnswer: {answer}\n\n"
-PHI_2 = "microsoft/phi-2"
+DATASET_FORMAT = "Question:\n{question}\nAnswer:\n{answer}"
 QUESTION_REGEX = r"Question:\s*(.*?)\nAnswer:"
 ANSWER_REGEX = r"####\s*(-?\d+)"
 FEW_SHOT_NUM = 4

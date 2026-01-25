@@ -11,9 +11,9 @@ from transformers import (
     PreTrainedModel,
 )
 
-from .constants import (
+from src.constants import (
     ANSWER_REGEX,
-    DATASET_FORMAT_PHI_2,
+    DATASET_FORMAT,
     OPENAI_GSM8K,
     QUESTION_REGEX,
 )
@@ -67,12 +67,15 @@ class GSM8KDataset(BaseModel):
 
     train: Dataset
     test: Dataset
-    validation: DatasetDict | None = Field(default=None)
+    valid: Dataset | None = Field(default=None)
 
     model_config = ConfigDict(arbitrary_types_allowed=True)
 
     def __init__(self, /, **data: dict) -> None:
         super().__init__(**data)
+
+        if self.valid is None:
+            self.generate_validation()
 
     def train_length(self) -> None:
         """Log the length of the training dataset."""
@@ -84,7 +87,9 @@ class GSM8KDataset(BaseModel):
 
     def generate_validation(self) -> None:
         """Generate a validation set from the training set."""
-        self.validation = self.train.train_test_split(test_size=0.1, seed=42)
+        split = self.train.train_test_split(test_size=0.1, seed=42)
+        self.train = split["train"]
+        self.valid = split["test"]
 
     def get_test_case_answer(self, index: int) -> str | None:
         """Extract the correct answer from the dataset for a given test case index."""
@@ -100,6 +105,15 @@ class GSM8KDataset(BaseModel):
 
             yield training_task
 
+    def convert_to_jsonl(self) -> None:
+        """Convert datasets to JSONL format and save to files."""
+        for name in []:
+            dataset = getattr(self, name)
+            dataset = preprocess_dataset(dataset)
+            if dataset is not None:
+                logger.info("Converting %s dataset to JSONL format...", name)
+                dataset.to_json(f"data/{name}.jsonl", orient_records=True)
+
 
 def load_gsm8k(split: str = "main") -> DatasetDict:
     """Load the GSM8K dataset from Hugging Face."""
@@ -110,7 +124,7 @@ def preprocess_dataset(dataset: DatasetDict) -> DatasetDict:
     """Preprocess the GSM8K dataset to the desired format."""
     return dataset.map(
         lambda example: {
-            "text": DATASET_FORMAT_PHI_2.format(
+            "text": DATASET_FORMAT.format(
                 question=example["question"],
                 answer=example["answer"],
             ),
@@ -131,5 +145,5 @@ def load_and_process_gsm8k() -> GSM8KDataset:
 
 
 if __name__ == "__main__":
-    ds = load_and_process_gsm8k()
-    logger.info(ds.generate_prompt())
+    ds = load_gsm8k()
+    preprocess_dataset(ds)

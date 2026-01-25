@@ -16,4 +16,6 @@ wandb/
 smollm_lora_test/
 
 # converted dataset
-data/**
+src/data/**.jsonl
+
+src/adapters/**

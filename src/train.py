@@ -10,9 +10,7 @@ logging.basicConfig(level=logging.INFO)
 
 def finetune() -> None:
     """Fine-tune model on a custom dataset."""
-    model_name = "mlx-community/Mistral-7B-v0.1-4bit"
-
-    model, _ = load(model_name)
+    model, _ = load("mlx-community/Mistral-7B-Instruct-v0.3-8bit")
 
     training_args = TrainingArgs(
         batch_size=1,
@@ -24,8 +22,8 @@ def finetune() -> None:
         model=model,
         optimizer=optim.Adam(learning_rate=1e-5),
         args=training_args,
-        train_dataset="data/train.jsonl",  # temp paths
-        val_dataset="data/val.jsonl",  # temp paths
+        train_dataset="data/train.jsonl",
+        val_dataset="data/valid.jsonl",
     )
 
     logger.info("Training complete: %s", metrics)
