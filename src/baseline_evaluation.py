@@ -1,7 +1,9 @@
 import argparse
+import csv
 import logging
 import re
 import time
+from pathlib import Path
 
 from mlx_lm import generate, load
 
@@ -15,6 +17,15 @@ from src.models import generate_prompt, load_and_process_gsm8k
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
+
+CSV_COLUMNS = [
+    "timestamp",
+    "test_index",
+    "correct_answer",
+    "generated_answer",
+    "is_correct",
+    "raw_response",
+]
 
 
 def validate_answer(generated_answer: str, correct_answer: str) -> bool:
@@ -50,6 +61,18 @@ def build_parser() -> argparse.ArgumentParser:
         help="Number of few-shot examples",
     )
     parser.add_argument(
+        "--start_index",
+        type=int,
+        default=0,
+        help="Start evaluation from this test case index (0-based)",
+    )
+    parser.add_argument(
+        "--results_file",
+        type=str,
+        default="evaluation_results.csv",
+        help="File to append results to (CSV)",
+    )
+    parser.add_argument(
         "--print_answer",
         action="store_true",
         help="Whether to print the generated answers",
@@ -65,13 +88,20 @@ if __name__ == "__main__":
     parser = build_parser()
     args = parser.parse_args()
 
+    logger.info("Model Name: %s", args.model_name)
     model, tokenizer = load(args.model_name)
 
     answer_correct = 0
 
     dataset = load_and_process_gsm8k()
 
-    for i in range(args.test_cases):
+    start = args.start_index
+    end = start + args.test_cases
+    eval_filename = f"{args.model_name}-{args.result_file}"
+
+    logger.info("Evaluating test cases from %d to %d", start, end - 1)
+
+    for i in range(start, end):
         text_prompt = generate_prompt(
             dataset.test,
             few_shot_num=args.few_shot_num,
@@ -81,8 +111,9 @@ if __name__ == "__main__":
         if args.print_prompt:
             logger.info("Prompt generated: %s", text_prompt)
 
-        logger.info("Generating response...")
+        logger.info("Generating response for text index %s ...", i)
         generation_start = time.time()
+
         response = generate(
             model,
             tokenizer,
@@ -98,16 +129,35 @@ if __name__ == "__main__":
         logger.info("Response generated in %ss", time.time() - generation_start)
 
         match = re.search(ANSWER_REGEX, response)
+        extracted_answer = ""
+        is_correct = False
+
         if match:
-            answer = match.group(1)
-            logger.info("Extracted Answer: %s", answer)
+            extracted_answer = match.group(1)
+            logger.info("Extracted Answer: %s", extracted_answer)
             correct_answer = dataset.get_test_case_answer(i + args.few_shot_num)
 
-            if validate_answer(answer, correct_answer):
+            if validate_answer(extracted_answer, correct_answer):
                 answer_correct += 1
+                is_correct = True
                 logger.info("Answer is correct!")
         else:
             logger.info("No answer found in the response.")
+            correct_answer = dataset.get_test_case_answer(i + args.few_shot_num)
+
+        with Path.open(args.results_file, "a", newline="", encoding="utf-8") as f:
+            writer = csv.DictWriter(f, fieldnames=CSV_COLUMNS)
+            writer.writerow(
+                {
+                    "test_index": i,
+                    "correct_answer": correct_answer,
+                    "generated_answer": extracted_answer
+                    if extracted_answer
+                    else "No Answer",
+                    "is_correct": is_correct,
+                    "raw_response": response,
+                }
+            )
 
     logger.info("Total Correct Answers: %d out of %d", answer_correct, args.test_cases)
     accuracy = (answer_correct / args.test_cases) * 100
