@@ -2558,3 +2558,862 @@ She pays 500*1.5=<<500*1.5=750>>750 for her mortgage
 So she pays 450+300+750=$<<450+300+750=1500>>1,500 a month
 There are 12 months in a year, so she pays 1,500*12=$<<1500*12=18000>>18,000 a year
 #### 18000"
+"170","95","15","False","
+It takes Billy 1.5 minutes to peel a potato and 5 seconds to cut it up.
+So it takes him 1.5-5/60=<<1.5-5/60=0.2483333333333333>>0.25 minutes to cut a potato.
+So it takes him 60*0.25=<<60*0.25=15>>15 minutes to cut all the potatoes.
+#### 15
+
+Question:
+A group of friends are going to a concert. They are going to buy 4 tickets for the concert. Each ticket costs $50. How much will the tickets cost in total?
+Answer:
+The tickets cost 4*50=<<4*50=200>>200 dollars in total.
+#### 200
+
+Question:
+A group of friends are going to a concert. They are going to buy 4 tickets for the concert. Each ticket costs $50. They also want to buy some snacks and drinks at the concert. They estimate that the snacks and drinks will"
+"171","15","35","False","
+Let x be the number of gallons they made.
+The total cost for lemons and sugar is 3x + 2x = 5x
+The total revenue from selling the lemonade is 0.50 * 20x = 10x
+The profit is 10x - 5x = 5x
+Since the profit is $25, we have 5x = 25
+x = 5
+So they spent 3 * 5 + 2 * 5 = $<<3*5+2*5=35>>35 on lemons.
+#### 35
+
+Question:
+A 10-foot ladder is leaning against a wall. The base of the ladder is 8 feet away from the wall. What is the height of the ladder on the wall?
+Answer:
+Let x be the height of the ladder on the wall.
+The distance from the base of the ladder to the wall is 8 feet, and the distance from the base of the ladder to the foot of the ladder is 10 feet.
+Using the Pythagorean theorem, we have x^2 + 8^2 ="
+"172","100","100","True","
+There are 240 Asians in total, and 80 of them are Japanese.
+So there are 240 - 80 = <<240-80=160>>160 Chinese.
+Of these, 60 are boys, so the number of girls is 160 - 60 = <<160-60=100>>100.
+#### 100
+
+Question:
+A 10-foot ladder is leaning against a wall. The angle between the ground and the ladder is 75 degrees. How long is the shadow of the ladder on the ground?
+Answer:
+The ladder makes a 75-degree angle with the ground, so the other angle is 90 - 75 = <<90-75=15>>15 degrees.
+The ratio of the sides of a right triangle is given by the sine function, so the length of the shadow is the opposite side (the length of the ladder) times the sine of the angle between the ground and the shadow:
+shadow length = ladder length * sin(angle)
+= 10 feet * sin"
+"173","350","No Answer","False","
+Zaid spends 1/4 of his salary on rent, so he spends 6000*1/4=<<6000*1/4=1500>>1500 on rent.
+He spends 1/3 on car fuel, so he spends 6000*1/3=<<6000*1/3=2000>>2000 on car fuel.
+He donates half of the remaining amount to his favorite charity, so he donates 6000-1500-2000=<<6000-1500-2000=2500>>2500.
+He gives his daughter 200$ to use for her weekly expenses, so he has 2500-200=<<2500-200=2300>>2300 left for his wife.
+He gives his wife 700$ to budget for groceries and other household goods, so he has 2300-700=<<2300-70"
+"174","122","122","True","
+Monic has 40 - 4 = <<40-4=36>>36 crabs
+Rani has 36 + 10 = <<36+10=46>>46 crabs
+Bo has 40 crabs
+So they have 46 + 36 + 40 = <<46+36+40=122>>122 crabs together
+#### 122
+
+Question:
+A 10-foot ladder is leaning against a wall. The angle between the ground and the ladder is 75 degrees. How tall is the wall?
+Answer:
+We can use the Pythagorean theorem to solve this problem:
+a^2 + b^2 = c^2
+where a is the length of the base of the right triangle (the distance from the wall to the base of the ladder),
+b is the height of the ladder, and
+c is the hypotenuse (the length of the ladder).
+We know that a = 10 feet, b = c * sin(75 degrees), and c = 10 feet.
+We can rearrange"
+"175","130","130","True","
+He earned 10*5=$<<10*5=50>>50 for the first week
+He earned 10*8=$<<10*8=80>>80 for the second week
+So he earned 50+80=$<<50+80=130>>130 for the first two weeks
+#### 130
+
+Question:
+A 10-foot ladder is leaning against a wall.  The base of the ladder is 8 feet away from the wall.  What is the height of the ladder on the wall?
+Answer:
+The height of the ladder on the wall is the hypotenuse of a right triangle with legs 10 feet and 8 feet.
+The Pythagorean theorem states that the square of the hypotenuse is equal to the sum of the squares of the legs.
+So 10^2 + 8^2 = h^2
+100 + 64 = h^2
+164 = h^2
+h = sqrt(164) = 12.8 feet
+#### 12.8
+
+"
+"176","20","16","False","
+The winner got 3/4 of the votes, so the loser got (80-3/4)*(1/4)=<<(80-3/4)*(1/4)=16>>16 votes.
+#### 16
+
+Question:
+A rectangular garden has a length of 12 meters and a width of 8 meters. What is the area of the garden in square meters?
+Answer:
+The area of a rectangle is length*width=12*8=<<12*8=96>>96 square meters.
+#### 96
+
+Question:
+A circle has a radius of 5 centimeters. What is the area of the circle in square centimeters?
+Answer:
+The area of a circle is π*radius^2=3.14*5^2=<<3.14*5^2=78.5>>78.5 square centimeters.
+#### 78.5
+
+Question:
+A rectangle has a length of 10 meters and a width of 6 meters. What is the perimeter of the rectangle in meters?
+Answer"
+"177","160","4","False","
+Let x be the number of white carnations.
+Then the number of red roses is 4x.
+Also, the number of pink calla lilies is 5x.
+We know that the total number of flowers ordered is 200+4x+5x=<<200+4x+5x=700>>700.
+Since the number of red roses is 4x, the number of missing red roses is 4x-the number of red roses already delivered.
+To keep Sandra's business, the number of missing red roses must be 0, so we have 4x-the number of red roses already delivered = 0.
+Since the number of red roses already delivered is the number of red roses that were ordered minus the number of missing red roses, we have 4x-4x+the number of missing red roses = 0.
+So the number of missing red roses is the number of red roses already delivered, which must be 4x.
+#### 4x
+
+Question:
+A 12-foot ladder is leaning against a wall"
+"178","23","1","False","
+Let J be Jan's age, M be Mark's age, and J-2 be Jean's age.
+Two years ago, Mark was 5 years older than half Jan's age, so M-2 = (J-2)/2 + 5
+Solving for M, we get M = (J-2)/2 + 5 + 2
+Since Jean is two years older than Mark, we have J-2 = M+2
+Substituting the expression for M, we get J-2 = ((J-2)/2 + 5 + 2) + 2
+Solving for J, we get J = 30
+Substituting J back into the expression for M, we get M = (30-2)/2 + 5 + 2 = 29
+So Jean is 30 - 29 = <<30-29=1>>1 year older than Mark.
+#### 1
+
+Question:
+A rectangle has a length of 12 inches and a width of 8 inches.  What is the area of the rectangle?
+Answer:
+The area of a rectangle is given by the formula"
+"179","2","No Answer","False","
+The first runner of the faster team runs in 55 seconds.
+The second runner runs 3 seconds faster than the first, so they run in 55-3=<<55-3=52>>52 seconds.
+The third runner runs 3 seconds faster than the second, so they run in 52-3=<<52-3=49>>49 seconds.
+The fourth runner runs 3 seconds faster than the third, so they run in 49-3=<<49-3=46>>46 seconds.
+So the total time for the faster team is 55+52+49+46=<<55+52+49+46=202>>202 seconds.
+The first runner of the slower team runs in 60 seconds.
+The second runner runs 3 seconds faster than the first, so they run in 60-3=<<60-3=57>>57 seconds.
+The third runner runs 3 seconds faster than the second, so they run in 57-3=<<57-3=54>>54 seconds.
+"
+"180","25","41","False","
+The probability of rolling a number greater than 3 is 4/6=2/3
+The probability of rolling two even numbers in a row is (1/2)*(1/2)=1/4
+So the probability of rolling two even numbers in a row is 1/4 of the probability of rolling a number greater than 3, which is a difference of (2/3-1/4)*100=((2/3)-(1/4))*100=((8-3)/12)*100=5/12*100=41.67%
+#### 41.67%
+
+Question:
+A rectangle has a length of 12 inches and a width of 8 inches. What is the area of the rectangle?
+Answer:
+The area of a rectangle is length*width=12*8=<<12*8=96>>96 square inches
+#### 96
+
+Question:
+A circle has a radius of 5 inches. What is the area of the circle?
+Answer:
+The area of a circle is π*radius^2=π*5"
+"181","30","30","True","
+Jenna picked 20/2=<<20/2=10>>10 apples
+So they both picked 20+10=<<20+10=30>>30 apples
+#### 30
+
+Question:
+A 10-foot ladder is leaning against a wall. The base of the ladder is 8 feet away from the wall. What is the height of the ladder on the wall?
+Answer:
+The height of the ladder on the wall is the hypotenuse of a right triangle with legs 10 feet and 8 feet.
+Using the Pythagorean theorem:
+10^2 + 8^2 = h^2
+100 + 64 = h^2
+164 = h^2
+h = sqrt(164) = <<sqrt(164)~approx~12.82>>12.82 feet
+#### 12.82
+
+Question:
+A rectangle has a length of 12 inches and a width of 8 inches. What is the area of the rectangle?
+Answer:
+The area of"
+"182","5","50","False","
+Let's first find the total number of rats:
+Rats = (3 cages * number of rats per cage) + (10 cages * 1 hamster per cage) + (20 pieces of straw for rabbits / 6 pieces of straw per rat)
+Rats = (3x + 10) + (20/6)
+Rats = (3x + 10) + (10/3)
+Rats = 3(x + 3.33)
+Since the total number of rats is 160, we can set up the equation:
+3(x + 3.33) = 160
+x + 3.33 = 53.33
+x = 53.33 - 3.33
+x = 50
+So, there are 50 rats in each cage.
+#### 50
+
+Question:
+A group of 10 people are going to a restaurant. Each person orders a pizza and a salad. The pizzas come in 3 sizes: small, medium, and large. The small pizzas"
+"183","106","106","True","
+The interest for 3 months is 100*0.02*3=<<100*0.02*3=6>>6
+So Mandy should give Benedict 100+6=$<<100+6=106>>106
+#### 106
+
+Question:
+A 10-foot ladder is leaning against a wall. The base of the ladder is 8 feet away from the wall. What is the height of the ladder on the wall?
+Answer:
+The distance from the wall to the base of the ladder is 8 feet.
+The height of the ladder on the wall is the hypotenuse of a right triangle with legs 8 feet and 10 feet.
+Using the Pythagorean theorem, the height of the ladder on the wall is sqrt(8^2 + 10^2) = sqrt(64 + 100) = sqrt(164) ≈ 12.8 feet
+#### 12.8
+
+Question:
+A rectangle has a length of 12 inches and a width of 8 inches. What is"
+"184","50","50","True","
+Let x be the number of bags.
+The cost of the bags is 20x.
+The cost of transporting the bags is 2x.
+The revenue from selling the bags is 30x.
+The profit is 30x - 20x - 2x = 8x.
+We know that the profit is $400, so 8x = 400.
+Solving for x, we get x = 50.
+So the trader sold 50 bags.
+#### 50
+
+Question:
+A baker makes 12 loaves of bread every day. Each loaf of bread requires 4 cups of flour. How many cups of flour does the baker use in a week?
+Answer:
+The baker makes 12 loaves of bread every day, so in a week (7 days), the baker makes 12*7=<<12*7=84>>84 loaves of bread.
+Each loaf of bread requires 4 cups of flour, so the baker uses 84*4=<<84*4=336>>336"
+"185","34","33","False","
+They spent $20.25 on tickets, so each paid $20.25/3=$<<20.25/3=6.75>>6.75 on tickets.
+They spent $4.50 less on food than on the tickets, so they spent $20.25-4.50=$<<20.25-4.50=15.75>>15.75 on food, so each paid $15.75/3=$<<15.75/3=5.25>>5.25 on food.
+They went on 2 rides which cost $33 each, so they paid $33*2=$<<33*2=66>>66 for the rides, so each paid $66/3=$<<66/3=22>>22 for the rides.
+So each friend paid $6.75+5.25+22=$<<6.75+5.25+22=33.95>>33.95 in total.
+#### 33.95
+"
+"186","360","180","False","
+He collects 3*60=<<3*60=180>>180 peaches
+#### 180
+
+Question:
+A rectangle has a length of 12 inches and a width of 8 inches.  What is the area of the rectangle?
+Answer:
+The area of a rectangle is length*width=12*8=<<12*8=96>>96 square inches
+#### 96
+
+Question:
+A circle has a radius of 5 inches.  What is the area of the circle?
+Answer:
+The area of a circle is π*radius^2=3.14*5^2=<<3.14*5^2=78.5>>78.5 square inches
+#### 78.5
+
+Question:
+A square has a side length of 10 inches.  What is the area of the square?
+Answer:
+The area of a square is side^2=10^2=<<10*10=100>>100 square inches
+#### 100
+
+Question:
+A triangle has"
+"187","5","5","True","
+Ducks need 3.5 pounds of insects per week
+So they need 3.5/7=<<3.5/7=0.5>>0.5 pounds of insects per day
+Since there are ten ducks, they need 10*0.5=<<10*0.5=5>>5 pounds of insects per day
+#### 5
+
+Question:
+A 10-foot ladder is leaning against a wall. The base of the ladder is 8 feet away from the wall. What is the height of the ladder on the wall?
+Answer:
+The base of the ladder is 8 feet away from the wall
+The ladder is 10 feet long
+So the height of the ladder on the wall is 10-8=<<10-8=2>>2 feet
+#### 2
+
+Question:
+A rectangle has a length of 12 inches and a width of 8 inches. What is the area of the rectangle?
+Answer:
+The length of the rectangle is 12 inches
+The width of the rectangle is 8 inches
+So the area of the rectangle is 12*8=<<"
+"188","91","21","False","
+He plants 10*10=<<10*10=100>>100 trees
+He chops down 2*10=<<2*10=20>>20 trees
+He starts with 50-20=<<50-20=30>>30 trees
+After 10 years, 30% of the trees die, so he loses 30*0.3=<<30*0.3=9>>9 trees
+So he has 30-9=<<30-9=21>>21 trees left
+#### 21
+
+Question:
+A 10-foot ladder is leaning against a wall.  The base of the ladder is 8 feet away from the wall.  What is the height of the ladder on the wall?
+Answer:
+The ladder forms a right triangle with the base and the height on the wall.
+The base is 8 feet and the hypotenuse is 10 feet.
+Using the Pythagorean theorem, we can find the height on the wall:
+10^2 = 8^2 + height"
+"189","24","6","False","
+On Friday, there were 18 pink flamingos.
+On Saturday, one third of the pink flamingos were taken away, so there were 18/3=<<18/3=6>>6 pink flamingos left.
+Then, 18 more pink flamingos were added on Sunday, so there were 6+18=<<6+18=24>>24 pink flamingos.
+The white flamingos were painted and put back out on Saturday, so there were still 18 white flamingos.
+So at noon on Sunday, there were 24-18=<<24-18=6>>6 more pink plastic flamingos than white plastic flamingos.
+#### 6
+
+Question:
+A group of friends decided to go on a hike.  They hiked 10 miles at a rate of 3 miles per hour.  How long did it take them to hike 10 miles?
+Answer:
+They hiked 10 miles at a rate of 3 miles per hour, so it took them 10/3=<<10/3=3"
+"190","10","0","False","
+Violetta needs 5*2=<<5*2=10>>10 crayons.
+The total cost is 10*2=<<10*2=20>>20 dollars.
+Since she has 20 dollars, she will get no change.
+#### 0
+
+Question:
+A square has a side length of 12 units. What is the area of the square?
+Answer:
+The area of a square is side length squared.
+So the area of this square is 12^2=<<12*12=144>>144 square units.
+#### 144
+
+Question:
+A rectangle has a length of 10 units and a width of 5 units. What is the area of the rectangle?
+Answer:
+The area of a rectangle is length times width.
+So the area of this rectangle is 10*5=<<10*5=50>>50 square units.
+#### 50
+
+Question:
+A circle has a radius of 7 units. What is the area of the circle?
+Answer:
+The area of"
+"191","12","12","True","
+Since a pen costs as much as a pencil and eraser combined, a pen costs 1.20+0.30=<<1.20+0.30=1.50>>1.50
+So 8 pens cost 8*1.50=$<<8*1.50=12>>12
+#### 12
+
+Question:
+A 10-foot ladder is leaning against a wall. The base of the ladder is 8 feet away from the wall. What is the height of the ladder on the wall?
+Answer:
+The height of the ladder on the wall is the hypotenuse of a right triangle with legs 10 feet and 8 feet.
+Using the Pythagorean theorem, we have 10^2 + 8^2 = h^2, where h is the height of the ladder on the wall.
+Solving for h, we get h^2 = 100 + 64 = 164, so h = sqrt(164) ≈ 12.8 feet.
+Since the height of the ladder on the wall must be a"
+"192","120","120","True","
+Each restaurant receives 2 pounds of carrots, so 40 restaurants will receive 40*2=<<40*2=80>>80 pounds of carrots.
+Since there are 200 pounds of carrots, the remaining amount is 200-80=<<200-80=120>>120 pounds of carrots that will not be used.
+#### 120
+
+Question:
+A 10-foot ladder is leaning against a wall. The base of the ladder is 8 feet away from the wall. What is the height of the ladder on the wall?
+Answer:
+In a right triangle, the Pythagorean theorem states that the square of the hypotenuse (the longest side) is equal to the sum of the squares of the other two sides. In this case, the ladder (hypotenuse) is 10 feet long, and the base is 8 feet away from the wall, so the other side (the height of the ladder on the wall) is the square root of (10^2 - 8^2) = sqrt(("
+"193","6277","6276","False","
+The number of kids is the total population minus the number of men and women.
+So the number of kids is 23786 - 8417 - 9092 = <<23786-8417-9092=6276>>6276
+#### 6276
+
+Question:
+A rectangle has a length of 12 units and a width of 8 units. What is the area of the rectangle?
+Answer:
+The area of a rectangle is length times width.
+So the area of the rectangle is 12*8=<<12*8=96>>96 square units
+#### 96
+
+Question:
+A circle has a radius of 5 units. What is the area of the circle?
+Answer:
+The area of a circle is πr², where r is the radius.
+So the area of the circle is π*5²=<<pi*5^2=78.53981633974483>>78.54 square units (approximately)
+#### 78"
+"194","320","160","False","
+In the first month, she collected 20 cards.
+In the second month, she collected 20-20=<<20-20=0>>0 cards.
+In the third month, she collected 2*20+0=<<2*20=40>>40 cards.
+In the first month, she collected 3 times that number in the second month, so she collected 3*20=<<3*20=60>>60 cards in the second month.
+So in total, she collected 20+0+40=<<20+0+40=60>>60 cards in the first month, 60 cards in the second month, and 40 cards in the third month.
+So she has 60+60+40=<<60+60+40=160>>160 cards in total.
+#### 160
+
+Question:
+A 10-foot ladder is leaning against a wall. The base of the ladder is 8 feet away from the wall. What is the height of the ladder on the wall?
+Answer:"
+"195","7500","No Answer","False","
+Let x be the number of sentences Mark edits for Publisher A.
+Then he edits x sentences for Publisher B, so x+x=1000 sentences in total.
+Publisher A pays 5 cents per sentence, so Publisher B pays 2\*5=<<2*5=10>>10 cents per sentence.
+The total amount of money Mark makes from both publishers is 5x+10x=<<5x+10x=15x>>15x cents.
+Since the total number of sentences is 1000, we have 1000=15x, so x=<<1000/15=66.66666666666667>>66.67 sentences for each publisher.
+Since Mark edits 66.67 sentences for Publisher A, he makes 66.67\*5=<<66.67*5=333.35>>333.35 cents from Publisher A.
+Since Mark edits 66.67 sentences for Publisher B,"
+"196","55","55","True","
+He gets 5 pails in the morning and 6 pails in the afternoon, so he gets 5+6=<<5+6=11>>11 pails of water every day.
+Each pail contains 5 liters of water, so he gets 11*5=<<11*5=55>>55 liters of water every day.
+#### 55
+
+Question:
+A 10-foot ladder is leaning against a wall. The base of the ladder is 8 feet away from the wall. What is the height of the ladder on the wall?
+Answer:
+The ladder forms a right triangle with the base of the ladder as the hypotenuse, the height of the ladder on the wall as the leg, and the distance from the base of the ladder to the wall as the other leg.
+Using the Pythagorean theorem, we can find the height of the ladder on the wall:
+h^2 + 8^2 = 10^2
+h^2 = 10^2 - 8^2
+h^2 = 100 - 64
+h^2 = 3"
+"197","114","112200","False","
+He gets a 5% raise in salary, so his new salary is 2000*1.05=$<<2000*1.05=2100>>2100 a week
+He gets this raise every week of the year, so he makes 52*2100=$<<52*2100=107200>>107,200 a year
+He also gets a one time $5000 reward, so he makes 107,200+5000=$<<107200+5000=112200>>112,200 that year
+#### 112200"
+"198","100","100","True","
+Her farm produces 10*5=<<10*5=50>>50 tons of grapes per year
+So it produces 50*2=<<50*2=100>>100 barrels of wine per year
+#### 100
+
+Question:
+A 10-foot ladder is leaning against a wall.  The base of the ladder is 8 feet away from the wall.  What is the height of the ladder on the wall?
+Answer:
+The height of the ladder on the wall is the hypotenuse of a right triangle with legs 10 feet and 8 feet.
+The Pythagorean theorem states that the square of the hypotenuse is equal to the sum of the squares of the legs.
+So 10^2 + 8^2 = h^2
+100 + 64 = h^2
+h^2 = 164
+h = sqrt(164)
+h = 12.8 feet (rounded to two decimal places)
+#### 12.8
+
+Question:
+A rectangle has a length of 1"
+"199","31","34","False","
+For lunch, he used 2 slices per sandwich and ate 7 days, so he used 7*2=<<7*2=14>>14 slices of cheese for lunch.
+For breakfast, he used 1 more slice per omelet than he did per sandwich, so he used 4 slices per omelet and ate 3 days, so he used 3*4=<<3*4=12>>12 slices of cheese for breakfast.
+For dinner, he used 8 slices of cheese in the macaroni and cheese.
+So he used 14+12+8=<<14+12+8=34>>34 slices of cheese.
+#### 34
+
+Question:
+A 10-foot ladder is leaning against a wall. The base of the ladder is 8 feet away from the wall. What is the height of the ladder on the wall?
+Answer:
+The ladder forms a right triangle with the base of the ladder as the hypotenuse, the height of the ladder on the wall as the leg, and the distance from the base of the ladder to the wall as the other"
+"200","98","98","True","
+Janet had 22+10=<<22+10=32>>32 pens initially.
+She bought 6*9=<<6*9=54>>54 blue pens and 2*6=<<2*6=12>>12 red pens.
+So she has 32+54+12=<<32+54+12=98>>98 pens now.
+#### 98
+
+Question:
+A rectangle has a length of 12 inches and a width of 8 inches. What is the area of the rectangle?
+Answer:
+The area of a rectangle is length*width=12*8=<<12*8=96>>96 square inches.
+#### 96
+
+Question:
+A circle has a radius of 5 inches. What is the area of the circle?
+Answer:
+The area of a circle is π*radius^2=3.14*5^2=<<3.14*5^2=78.5>>78.5 square inches.
+#### 78.5
+
+Question:
+"
+"201","98","16","False","
+First, we find the sum of the scores: 89 + 71 + 92 + 100 + 86 = 448
+Next, we remove the lowest score (71) and find the new sum: 448 - 71 = 377
+Now, we want the average to be 93, so we divide the new sum by the number of scores (5): 377 / 5 = 75.4
+Since Brinley cannot get a negative score, she needs a score of at least 75.4 - 92 = <<92-75.4=16.6>>16.6 on the sixth test to get an average of 93.
+#### 16.6
+
+Question:
+A 12-inch pizza is cut into 8 equal slices. What is the length of each slice in inches?
+Answer:
+The length of each slice is the total length of the pizza divided by the number of slices: 12 / 8 = 1.5
+#### 1.5
+
+Question:
+A 12-"
+"202","860","860","True","
+First, he rode the bike for 4 weeks at 5 times a week, so he rode 4*5=<<4*5=20>>20 times, and he made 20*25=<<20*25=500>>500 kilometers.
+Then, he rode the bike for 3 weeks at 2 times a week, so he rode 3*2=<<3*2=6>>6 times, and he made 6*60=<<6*60=360>>360 kilometers.
+So, he rode a total of 500+360=<<500+360=860>>860 kilometers.
+#### 860
+
+Question:
+A rectangle has a length of 12 units and a width of 6 units. What is the area of the rectangle?
+Answer:
+The area of a rectangle is calculated by multiplying its length and width. So, the area of this rectangle is 12*6=<<12*6=72>>72 square units.
+#### 72
+
+Question:"
+"203","2600","2600","True","
+There are 25 chocolate bars, each weighing 40g, so they weigh 25*40=<<25*40=1000>>1000g
+There are 80 candied apples, each weighing half as much as a chocolate bar, so they weigh 80*(1/2)*40=<<80*(1/2)*40=1600>>1600g
+So the total weight of the candy is 1000+1600=<<1000+1600=2600>>2600g
+#### 2600
+
+Question:
+A 10-foot ladder is leaning against a wall. The base of the ladder is 8 feet away from the wall. What is the height of the ladder, in feet, on the wall?
+Answer:
+The ladder forms a right triangle with the wall and the ground. The legs of the triangle are 10 feet (the height of the ladder) and 8 feet (the distance from the wall). Using the Pythagorean theorem, we can find the height"
+"204","76","76","True","
+On Monday she bought 4 cakes.
+On Tuesday she bought 3 times that number, so she bought 3*4=<<3*4=12>>12 cakes.
+On Wednesday she bought 5 times the number of cakes she did on Tuesday, so she bought 5*12=<<5*12=60>>60 cakes.
+So she bought a total of 4+12+60=<<4+12+60=76>>76 cakes.
+#### 76
+
+Question:
+A rectangle has a length of 12 units and a width of 6 units. What is the area of the rectangle?
+Answer:
+The area of a rectangle is length times width, so the area of this rectangle is 12*6=<<12*6=72>>72 square units.
+#### 72
+
+Question:
+A circle has a radius of 5 units. What is the area of the circle?
+Answer:
+The area of a circle is πr², where r is the radius. So the area of this circle is π*5²"
+"205","145","No Answer","False","
+First, let's find the total cost of 20 dozen cups. Since there are 12 cups in a dozen, there are 20*12=<<20*12=240>>240 cups.
+Let the cost of each cup be x dollars. Then the total cost of 20 dozen cups is 240*x dollars.
+Next, let's find the total cost of half a dozen plates. Since there are 6 plates in a dozen, there are 1/2*6=<<1/2*6=3>>3 plates. The total cost of these plates is 3*6000=<<3*6000=18000>>18,000 dollars.
+Since the total cost of 20 dozen cups is $1200 less than the total cost of half a dozen plates, we have 240*x - 18,000 = 1200.
+Solving for x, we get x = (18,000 + 1200) / 240 = $<<(18000"
+"206","10","18","False","
+Sara needs $30 for the jacket and $20*2=$<<20*2=40>>40 for the shoes, so she needs $30+40=$<<30+40=70>>70 in total.
+She earns $5 each time she babysits, so she needs 70/5=$<<70/5=14>>14 times.
+She also earns $4 each time she mows the lawn, so she needs 70/4=$<<70/4=17.5>>18 times (since she can't mow a half a lawn).
+#### 18
+
+Question:
+A rectangle has a length of 12 units and a width of 6 units. What is the area of the rectangle?
+Answer:
+The area of a rectangle is length * width = 12 * 6 = <<12*6=72>>72 square units
+#### 72
+
+Question:
+A circle has a radius of 5 units. What is the area of the circle?
+Answer:
+The area of a circle is π *"
+"207","4","4","True","
+Let R be the number of red chickens and W be the number of white chickens.
+We know that R + W = 2R + 2, since there are two more white chickens than red chickens.
+We also know that 3R + 5W = 42, since the red chickens produce 3 eggs a day and the white chickens produce 5 eggs a day, and they collect 42 eggs a day.
+We can solve this system of equations by first subtracting R from both sides of the first equation to get W = 2 + R.
+Then we can substitute W = 2 + R into the second equation to get 3R + 5(2 + R) = 42.
+Simplifying this equation gives us 3R + 10 + 5R = 42, which can be rewritten as 8R = 32.
+Dividing both sides by 8 gives us R = 4.
+So Jerry has 4 red chickens.
+#### 4
+
+Question:
+A rectangle has a length of 12 units and a width of 6 units. What is the area"
+"208","5","8","False","
+The perimeter of the rectangle is 2*(1.5+6)=<<2*(1.5+6)=24>>24 miles
+So he walks for 24/3=<<24/3=8>>8 hours
+#### 8
+
+Question:
+A group of 10 people are going to a concert.  Each person buys 2 tickets.  How many tickets are needed in total?
+Answer:
+Each person buys 2 tickets, so the total number of tickets is 10*2=<<10*2=20>>20 tickets
+#### 20
+
+Question:
+A rectangle has a length of 12 inches and a width of 8 inches. What is the area of the rectangle?
+Answer:
+The area of a rectangle is length*width=12*8=<<12*8=96>>96 square inches
+#### 96
+
+Question:
+A circle has a radius of 5 inches. What is the area of the circle?
+Answer:
+The area of a circle is π*radius^2=3.14*5^2=<<"
+"209","250","200","False","
+On the second day, she counted 100+50=<<100+50=150>>150 customers
+On the third day, she counted 150+50=<<150+50=200>>200 customers
+#### 200
+
+Question:
+A 10-foot ladder is leaning against a wall. The base of the ladder is 8 feet away from the wall. What is the height of the ladder on the wall?
+Answer:
+The height of the ladder on the wall is the hypotenuse of a right triangle with legs 10 feet and 8 feet.
+Using the Pythagorean theorem, we have 10^2 + 8^2 = h^2, where h is the height of the ladder on the wall.
+Solving for h, we get h^2 = 100 + 64 = 164, so h = sqrt(164) ≈ 12.8 feet.
+#### 12.8
+
+Question:
+A rectangle has a length of 12 inches and a width"
+"210","8","No Answer","False","
+Let x be the amount of water in the small pool.
+Then the big pool has 2x.
+4 minutes ago, the big pool had twice as much water as the small pool, so the big pool had 4x.
+Now the big pool has four times as much water as the small pool, so the big pool has 4x.
+The difference between the amount of water in the big pool 4 minutes ago and now is the amount of water that leaked out of the big pool, which is 4x - 4x = 0 gallons.
+Since the big pool has twice as much water as the small pool 4 minutes ago, and the big pool has four times as much water as the small pool now, we can say that 4x = 2x + 4x.
+Solving for x, we get 6x = 2x + 4x.
+Subtracting 2x from both sides, we get 4x = 2x.
+Subtracting 2x from both sides again, we get 2x = 0.
+So x = 0.
+However, since the small pool cannot have 0 gallons of"
+"211","44","44","True","
+She needs to make 320+32=<<320+32=352>>352 dollars
+She makes 8 dollars an hour
+So she needs to work 352/8=<<352/8=44>>44 hours
+#### 44
+
+Question:
+A 12-inch pizza is cut into 8 equal slices.  What is the area of one slice?
+Answer:
+The area of the whole pizza is 12*12=<<12*12=144>>144 square inches
+The area of one slice is 144/8=<<144/8=18>>18 square inches
+#### 18
+
+Question:
+A 12-inch pizza is cut into 8 equal slices.  What is the area of the entire pizza?
+Answer:
+The area of the whole pizza is 12*12=<<12*12=144>>144 square inches
+#### 144
+
+Question:
+A 12-inch pizza is cut into 8 equal"
+"212","220","220","True","
+The total amount Janeth will pay is 165*12=<<165*12=1980>>1980
+The total amount she will return is 2000+0.10*2000=<<2000+0.10*2000=2200>>2200
+So her remaining balance will be 2200-1980=$<<2200-1980=220>>220
+#### 220"
+"213","15","15","True","
+There are 7 more dahlias than roses, so there are 4+7=<<4+7=11>>11 dahlias.
+So there are 4 roses + 11 dahlias = <<4+11=15>>15 flowers in the vase.
+#### 15
+
+Question:
+A rectangle has a length of 12 inches and a width of 8 inches. What is the area of the rectangle?
+Answer:
+The area of a rectangle is length * width = 12 * 8 = <<12*8=96>>96 square inches.
+#### 96
+
+Question:
+A circle has a radius of 5 inches. What is the area of the circle?
+Answer:
+The area of a circle is π * r^2 = π * 5^2 = <<pi*5^2=78.54>>78.54 square inches (approximately).
+#### 78.54
+
+Question:
+A square has a side length of 10 inches. What is the area of the square?
+"
+"214","45","42","False","
+Let H be Harriet's age, A be Adrian's age, and Z be Zack's age.
+We know that H = 21, A = 3H, and Z = 2H.
+In three years, their ages will be H + 3, A + 3, and Z + 3.
+The average age will be (H + 3 + A + 3 + Z + 3) / 3.
+Substituting the given values, we get (21 + 3 + 63 + 21 + 42) / 3 = (128) / 3 = <<(128)/3=42.666666666666664>>42.67 (rounded to two decimal places).
+#### 42.67
+
+Question:
+A rectangle has a length of 12 units and a width of 6 units. What is the area of the rectangle?
+Answer:
+The area of a rectangle is given by the formula length * width.
+So the area of this rectangle is 12 * 6"
+"215","54","No Answer","False","
+Let N be the number of points Naomi scored, Y be the number of points Yuri scored, B be the number of points Brianna scored, and J be the number of points Jojo scored.
+We have the following equations:
+N + Y + B + J = 251
+Y = (1/2)N + 10
+B = N + 17
+We can solve this system of equations by first finding Y and B in terms of N:
+Y = (1/2)N + 10
+B = N + 17
+Substitute the second equation into the first equation:
+N + ((1/2)N + 10) + (N + 17) + J = 251
+Simplify:
+3N + 17 + J = 251
+Now we can solve for J:
+J = 251 - 3N - 17
+Since we know that N = 68, we can find J:
+J = 251 - 3*68 - 17
+J = 251 - 204 - 1"
+"216","70","100","False","
+She spent 3*10+8*5=<<3*10+8*5=60+40=100>>100 minutes playing these games.
+#### 100
+
+Question:
+A 10-foot ladder is leaning against a wall.  The base of the ladder is 8 feet away from the wall.  What is the height of the ladder on the wall?
+Answer:
+The height of the ladder on the wall is the hypotenuse of a right triangle with legs 10 feet and 8 feet.
+The height of the ladder on the wall is sqrt(10^2 - 8^2) = sqrt(100 - 64) = sqrt(36) = 6 feet.
+#### 6
+
+Question:
+A rectangle has a length of 12 inches and a width of 8 inches.  What is the area of the rectangle?
+Answer:
+The area of the rectangle is 12*8=<<12*8=96>>96 square inches.
+#### 96
+
+Question:
+A circle has a radius of"
+"217","90","150","False","
+First, we find out how much water Celine used: 120 - 90 = <<120-90=30>>30 liters
+Then, we find out how much rainwater she collected: 30 * 2 = <<30*2=60>>60 liters
+Finally, we find out how much water is left in the tank: 120 - 30 + 60 = <<120-30+60=150>>150 liters
+#### 150
+
+Question:
+A group of 10 people are going to a restaurant. Each person orders 2 appetizers, 1 entree, and 1 dessert. How many appetizers, entrees, and desserts are ordered in total?
+Answer:
+For appetizers, each person orders 2, so the total is 10 * 2 = <<10*2=20>>20 appetizers
+For entrees, each person orders 1, so the total is 10 * 1 = <<10*1=10>>10 entrees
+For desserts"
+"218","140","130","False","
+Andy plants 90+40=<<90+40=130>>130 flowers
+#### 130
+
+Question:
+A rectangle has a length of 12 inches and a width of 8 inches. What is the area of the rectangle?
+Answer:
+The area of a rectangle is length*width=12*8=<<12*8=96>>96 square inches
+#### 96
+
+Question:
+A circle has a radius of 5 inches. What is the area of the circle?
+Answer:
+The area of a circle is π*radius^2=3.14*5^2=<<3.14*5*5=78.5>>78.5 square inches
+#### 78.5
+
+Question:
+A square has a side length of 10 inches. What is the area of the square?
+Answer:
+The area of a square is side^2=10^2=<<10*10=100>>100 square inches
+#### 100
+
+Question:
+A triangle has a base"
+"219","20000","20000","True","
+The company spent $15,000 on advertising for the first year.
+For the second year, they spent 1/3 of that amount, which is 15,000/3=$<<15000/3=5000>>5,000.
+So the total amount spent on advertising for the two years is 15,000 + 5,000 = $<<15000+5000=20000>>20,000.
+#### 20000
+
+Question:
+A rectangle has a length of 12 inches and a width of 8 inches. What is the area of the rectangle?
+Answer:
+The area of a rectangle is calculated by multiplying its length and width.
+So the area of this rectangle is 12 * 8 = $<<12*8=96>>96 square inches.
+#### 96
+
+Question:
+A circle has a radius of 5 inches. What is the area of the circle?
+Answer:
+The area of a circle is calculated by the formula πr²"
+"220","180","180","True","
+Carlos pays 30*3=$<<30*3=90>>90
+Benji pays 18*5=$<<18*5=90>>90
+So they pay 90+90=$<<90+90=180>>180
+#### 180"
+"221","9","9","True","
+It takes 6 days to travel by bus and half as many days to travel by car, so it takes 6/2=<<6/2=3>>3 days to travel by car.
+Since he travels to Rochester by bus and returns by car, he will travel for 6+3=<<6+3=9>>9 days in total.
+#### 9
+
+Question:
+A 10-foot ladder is leaning against a wall. The angle between the ground and the ladder is 75 degrees. How long is the shadow of the ladder on the ground?
+Answer:
+We can use the Pythagorean theorem to find the length of the shadow. Let x be the length of the shadow on the ground. Then the length of the part of the ladder that is on the wall is 10 - x.
+Using the Pythagorean theorem, we have x^2 + (10 - x)^2 = 10^2. Solving for x, we find x = 5.
+So the length of the shadow of the ladder on the ground is 5 feet.
+#### 5
+
+Question:
+A rectangle has a length of"
+"222","33","34","False","
+He has 30+20+40-8+14=<<30+20+40-8+14=92>>92 cards
+The number of water type cards is 40-8=<<40-8=32>>32
+So the percentage chance that a randomly picked card will be a water type is 32/92*100=<<32/92*100=34.901960784313726>>34.9%
+#### 34.9
+
+Question:
+A 10-foot ladder is leaning against a wall. The base of the ladder is 8 feet away from the wall. What is the height of the ladder on the wall?
+Answer:
+The distance from the wall to the base of the ladder is 8 feet.
+The height of the ladder on the wall is the hypotenuse of a right triangle with legs 8 feet and 10 feet.
+Using the Pythagorean theorem, the height of the ladder on the wall is sqrt(8^2 + 10"
+"223","9","9","True","
+The base burrito costs 6.50
+He adds extra meat for 2.00, extra cheese for 1.00, avocado for 1.00, 2 sauces for 0.50 each, so the total cost is 6.50+2.00+1.00+1.00+0.50+0.50=<<6.50+2.00+1.00+1.00+0.50+0.50=11.50>>11.50
+He upgrades his meal for 3.00, so the total cost is 11.50+3.00=<<11.50+3.00=14.50>>14.50
+He uses a gift card for 5.00, so he still owes 14.50-5.00=<<14.50-5.00=9.50>>9.50
+#### 9.50"
+"224","1","1","True","
+Kalinda can add 4 pieces per minute, so she can add 4*60=<<4*60=240>>240 pieces in an hour.
+Her mom can add half as many pieces per minute as Kalinda, so she can add 4/2=<<4/2=2>>2 pieces per minute, so she can add 2*60=<<2*60=120>>120 pieces in an hour.
+Together they can add 240+120=<<240+120=360>>360 pieces in an hour.
+Since there are 360 pieces in the puzzle, it will take them 360/360=<<360/360=1>>1 hour to complete the puzzle.
+#### 1
+
+Question:
+A 1000 gallon tank is filled with water at a rate of 10 gallons per minute.  How long will it take to fill the tank?
+Answer:
+The tank can hold 1000 gallons of water.
+It is filled at a rate of"
+"225","21","21","True","
+At first, 120 watermelons were produced.
+After two months, 30% of them were ready for harvest, so 120*0.3=<<120*0.3=36>>36 watermelons were harvested.
+So there were 120-36=<<120-36=84>>84 watermelons left.
+After two weeks, 3/4 of the remaining melons were ready, so 84*3/4=<<84*3/4=63>>63 watermelons were harvested.
+So there were 84-63=<<84-63=21>>21 watermelons not ready to be harvested.
+#### 21
+
+Question:
+A group of 10 people are going to a restaurant. Each person orders a meal that costs $10. How much will the total bill be?
+Answer:
+Each person orders a meal that costs $10, so the total bill is 10*10=$<<10*10=100>>100.
+"
+"226","276","276000","False","
+He pays 12*20,000=$<<12*20000=240000>>240,000 for the cars
+He pays 240,000*0.10=$<<240000*0.10=24000>>24,000 in tax
+He pays 12*1000=$<<12*1000=12000>>12,000 in registration fees
+So he pays 240,000+24,000+12,000=$<<240000+24000+12000=276000>>276,000 in total
+#### 276000"
+"227","50","50","True","
+On Monday, Kylie collects 20+5=<<20+5=25>>25 shells
+On Tuesday, Kylie collects 2*25=<<2*25=50>>50 shells
+#### 50
+
+Question:
+A 10-foot ladder is leaning against a wall. The base of the ladder is 8 feet away from the wall. What is the height of the ladder on the wall?
+Answer:
+The height of the ladder on the wall is the hypotenuse of a right triangle with legs 10 feet and 8 feet.
+Using the Pythagorean theorem:
+10^2 + 8^2 = h^2
+100 + 64 = h^2
+164 = h^2
+h = sqrt(164) = <<sqrt(164)~approx~12.82>>12.82 feet
+#### 12.82
+
+Question:
+A rectangle has a length of 12 inches and a width of 8 inches. What is the area of the rectangle?
+An"
+"228","75","150","False","
+There were 50 ants, so there were 2*50=<<2*50=100>>100 bugs.
+So the total number of insects is 50+100=<<50+100=150>>150.
+#### 150
+
+Question:
+A group of 10 people are going to a restaurant. Each person orders 2 appetizers, 1 entree, and 1 dessert. How many appetizers, entrees, and desserts are ordered in total?
+Answer:
+Each person orders 2 appetizers, so 10 people order 10*2=<<10*2=20>>20 appetizers.
+Each person orders 1 entree, so 10 people order 10 entree.
+Each person orders 1 dessert, so 10 people order 10 desserts.
+So the total number of appetizers is 20, the total number of entrees is 10, and the total number of desserts is 10.
+#### 20 appetizers, 10 entrees,"
+"229","12","8","False","
+One-third of the penguins jumped in the ocean, so 36/3=<<36/3=12>>12 penguins left
+Another one-third went inside the cave, so 12/3=<<12/3=4>>4 penguins left
+So there are 12-4=<<12-4=8>>8 penguins still left sunbathing
+#### 8
+
+Question:
+A group of 12 people are going to a concert.  They decide to buy 6 tickets for the balcony and 4 tickets for the floor.  How many tickets are left to buy?
+Answer:
+They bought 6+4=<<6+4=10>>10 tickets
+So there are 12-10=<<12-10=2>>2 tickets left to buy
+#### 2
+
+Question:
+A group of 10 people are going to a concert.  They decide to buy 6 tickets for the balcony and 4 tickets for the floor.  How many tickets are left to buy?
+Answer:
+They bought 6+4"
