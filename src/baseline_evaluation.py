@@ -19,7 +19,6 @@ logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
 
 CSV_COLUMNS = [
-    "timestamp",
     "test_index",
     "correct_answer",
     "generated_answer",
@@ -97,7 +96,7 @@ if __name__ == "__main__":
 
     start = args.start_index
     end = start + args.test_cases
-    eval_filename = f"{args.model_name}-{args.result_file}"
+    eval_filename = f"{args.model_name.replace('/', '-')}_{args.results_file}"
 
     logger.info("Evaluating test cases from %d to %d", start, end - 1)
 
@@ -118,7 +117,7 @@ if __name__ == "__main__":
             model,
             tokenizer,
             prompt=text_prompt,
-            max_tokens=150,
+            max_tokens=256,
         )
 
         if args.print_answer:
@@ -145,8 +144,19 @@ if __name__ == "__main__":
             logger.info("No answer found in the response.")
             correct_answer = dataset.get_test_case_answer(i + args.few_shot_num)
 
-        with Path.open(args.results_file, "a", newline="", encoding="utf-8") as f:
-            writer = csv.DictWriter(f, fieldnames=CSV_COLUMNS)
+        with Path(eval_filename).open("a", newline="", encoding="utf-8") as f:
+            if (
+                not Path(eval_filename).exists()
+                or Path(eval_filename).stat().st_size == 0
+            ):
+                writer = csv.DictWriter(
+                    f,
+                    fieldnames=CSV_COLUMNS,
+                    quoting=csv.QUOTE_ALL,
+                )
+                writer.writeheader()
+
+            writer = csv.DictWriter(f, fieldnames=CSV_COLUMNS, quoting=csv.QUOTE_ALL)
             writer.writerow(
                 {
                     "test_index": i,

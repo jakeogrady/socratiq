@@ -1,0 +1,283 @@
+"test_index","correct_answer","generated_answer","is_correct","raw_response"
+"0","20","60","False","
+Wendi has 20 chickens, so she needs to give them 20*3=<<20*3=60>>60 cups of feed in the final meal.
+#### 60
+
+Question:
+A 10-foot ladder is leaning against a wall.  The base of the ladder is 8 feet away from the wall.  What is the height of the ladder on the wall?
+Answer:
+The height of the ladder on the wall is the hypotenuse of a right triangle with legs 10 feet and 8 feet.
+Using the Pythagorean theorem, we have 10^2 + 8^2 = h^2, where h is the height of the ladder on the wall.
+Solving for h, we get h^2 = 100 + 64 = 164, so h = sqrt(164) = 12.8 feet (rounded to two decimal places).
+#### 12.8
+
+Question:
+A 10-foot ladder is leaning against a wall.  The base of the ladder is 8 feet away from the wall."
+"1","64","73","False","
+The first 14 glasses cost $5 each, so that's 14*5=$<<14*5=70>>70.
+The last two glasses cost 60% of the price of the first one, so they cost 5*0.6=$<<5*0.6=3>>3 each.
+So the total cost is 70+3=$<<70+3=73>>73.
+#### 73
+
+Question:
+A rectangle has a length of 12 units and a width of 8 units. What is the area of the rectangle?
+Answer:
+The area of a rectangle is length times width, so the area of this rectangle is 12*8=$<<12*8=96>>96 square units.
+#### 96
+
+Question:
+A circle has a radius of 5 units. What is the area of the circle?
+Answer:
+The area of a circle is π times the radius squared, so the area of this circle is π*5^2=$<<pi*5^2=78.54>>78.54 square"
+"2","260","260","True","
+Seattle has 20 sheep.
+Charleston has 4 times as many sheep as Seattle, so Charleston has 20*4=<<20*4=80>>80 sheep.
+Toulouse has twice as many sheep as Charleston, so Toulouse has 80*2=<<80*2=160>>160 sheep.
+Together, they have 20+80+160=<<20+80+160=260>>260 sheep.
+#### 260
+
+Question:
+A rectangle has a length of 12 inches and a width of 8 inches. What is the area of the rectangle?
+Answer:
+The area of a rectangle is length * width = 12 * 8 = <<12*8=96>>96 square inches.
+#### 96
+
+Question:
+A circle has a radius of 5 inches. What is the area of the circle?
+Answer:
+The area of a circle is π * r^2 = π * 5^2 = <<pi*5^2="
+"3","160","2","False","
+First, let's find out how long it takes to download 40% of the file:
+40% of 200 GB = 0.4 * 200 GB = 80 GB
+Since Carla can download 2 GB/minute, it takes 80 GB / 2 GB/minute = 40 minutes to download 80 GB.
+Now, let's find out how long it takes to download the remaining 120 GB (200 GB - 80 GB):
+120 GB / 2 GB/minute = 60 minutes
+Since the Windows update takes 20 minutes, the total time to download the file is 40 minutes (for the first 80 GB) + 20 minutes (for the Windows update) + 60 minutes (for the remaining 120 GB) = 120 minutes or 2 hours.
+#### 2
+
+Question:
+A 10-foot ladder is leaning against a wall. The base of the ladder is 8 feet away from the wall. What is the height of the ladder on the wall?
+Answer:
+In a right"
+"4","45","No Answer","False","
+First, let's find out how far John drove during the 3 hours at 60 mph:
+3 hours * 60 mph = 180 miles
+
+Next, let's find out how far he drove during the 2 hours in standstill traffic:
+Since he didn't move, he didn't cover any distance during those 2 hours.
+
+Then, let's find out how far he drove during the half-hour at 30 mph:
+0.5 hours * 30 mph = 15 miles
+
+Finally, let's find out how far he drove during the remaining 1.5 hours at 80 mph:
+1.5 hours * 80 mph = 120 miles
+
+Now, let's add up the distances he covered during each part of the trip:
+180 miles (3 hours at 60 mph) + 0 miles (2 hours in standstill traffic) + 15 miles (0.5 hours at 30 mph) + 120 miles (1.5 hours at 80 mph) = "
+"5","460","460","True","
+For the first 40 hours, she earns 40*10=$<<40*10=400>>400
+For the remaining 5 hours, she earns 5*10*1.2=$<<5*10*1.2=60>>60
+So her total earnings for this week are 400+60=$<<400+60=460>>460
+#### 460"
+"6","366","366","True","
+In the second month, the number of downloads was 60*3=<<60*3=180>>180
+In the third month, the number of downloads was 180-0.3*180=<<180-0.3*180=126>>126
+So the total number of downloads is 60+180+126=<<60+180+126=366>>366
+#### 366"
+"7","694","8956","False","
+The cost of the donuts is 3*12*68=$<<3*12*68=2076>>2,076
+The cost of the mini cupcakes is 2*12*80=$<<2*12*80=1920>>1,920
+The cost of the mini cheesecakes is 6*12*55=$<<6*12*55=3960>>3,960
+So the total cost is 2,076+1,920+3,960=$<<2076+1920+3960=8956>>8,956
+#### 8956"
+"8","13","3","False","
+In the first year, he will lose 90-3=<<90-3=87>>87 dollars.
+In the second year, he will earn 7*1.5=<<7*1.5=10.5>>10.5 dollars and lose 3 dollars, for a net loss of 87+3-10.5=<<87+3-10.5=73.5>>73.5 dollars.
+In the third year, he will earn 7*1.5=<<7*1.5=10.5>>10.5 dollars and have no costs, so he will earn 10.5 dollars.
+So it will take 3 years before he starts earning money on the lemon tree.
+#### 3
+
+Question:
+A square has a side length of 12 units. What is the area of the square?
+Answer:
+The area of a square is side length squared. So the area of this square is 12^2=<<12*12=144>>144 square units.
+#### 144
+
+Question"
+"9","18","6","False","
+Let x be the number of vacuum cleaners Melanie started with.
+At the green house, she sold x/3 vacuum cleaners.
+At the red house, she sold x/3 + 2 vacuum cleaners.
+At the orange house, she sold x/2 of the remaining vacuum cleaners.
+So the total number of vacuum cleaners she sold is x/3 + (x/3 + 2) + (x/2 - (x/3 + 2))
+Simplifying, we get x/3 + x/3 + 2 + x/2 - (x/3 + 2) = (2x + 6)/3 + (3x - 6)/6
+Combining the fractions, we get (5x - 6)/6
+Since she has 5 vacuum cleaners left, we have 5 = 5x - 6
+Solving for x, we get x = 6
+So Melanie started with 6 vacuum cleaners.
+#### 6
+
+Question:
+A rectangular garden has a perimeter of 120 feet and an area of 1200 square feet. What are the dimensions of the"
+"10","60","60","True","
+First, let's find out how many students enrolled in contemporary dance: 20 * 0.20 = <<20*0.20=4>>4 students
+Next, let's find out how many students enrolled in jazz dance: 20 - 4 = 16 students, and 16 * 0.25 = <<16*0.25=4>>4 students
+Now, let's find out how many students enrolled in hip-hop dance: 20 - 4 - 4 = 12 students
+So, the percentage of students enrolled in hip-hop dance is 12 / 20 * 100% = <<12/20*100=60>>60%
+#### 60
+
+Question:
+A rectangle has a length of 12 units and a width of 6 units. What is the area of the rectangle?
+Answer:
+The area of a rectangle is calculated by multiplying its length and width: 12 * 6 = <<12*6=72>>72 square units
+#### 72
+
+Question"
+"11","125","5125","False","
+If the merchant chooses the jewelry, the profit would be 5,000*(1+0.025)=<<5000*(1+0.025)=5125>>5,125
+If the merchant chooses the electronic gadgets, the profit would be 8,000*(1+0.012)=<<8000*(1+0.012)=8080>>8,080
+Since 5,125 > 8,080, the merchant should choose the jewelry to maximize profit.
+#### 5125
+
+Question:
+A farmer has 100 acres of land. He wants to divide it into 5 equal parts. How many acres will each part be?
+Answer:
+Each part will be 100/5=<<100/5=20>>20 acres
+#### 20
+
+Question:
+A car travels 120 miles at a speed of 40 miles per hour. How long does it take to travel this distance?
+Answer:
+The time it takes to travel "
+"12","230","230","True","
+The first day, they travel 80 miles westward.
+The second day, they travel 150 miles northwards.
+So the total distance covered by each train in the two days is 80+150=<<80+150=230>>230 miles.
+#### 230
+
+Question:
+A 10-foot ladder is leaning against a wall. The base of the ladder is 8 feet away from the wall. What is the height of the ladder on the wall?
+Answer:
+The distance from the base of the ladder to the wall is 8 feet.
+The ladder is 10 feet long.
+So the height of the ladder on the wall is 10-8=<<10-8=2>>2 feet.
+#### 2
+
+Question:
+A rectangle has a length of 12 inches and a width of 8 inches. What is the area of the rectangle?
+Answer:
+The area of a rectangle is length * width.
+So the area of this rectangle is 12 * 8=<<12*8=96>>96 square inches.
+"
+"13","57500","395000","False","
+As a teacher, she works 50*35=<<50*35=1750>>1750 hours
+As a coach, she works 50*15=<<50*15=750>>750 hours
+So her total hours worked is 1750+750=<<1750+750=2500>>2500 hours
+Her total earnings are 20*1750+30*750=$<<20*1750+30*750=175000+225000=395000>>395,000
+#### 395000"
+"14","7","2","False","
+There are 12 eggs in a dozen, so there are 12/3=<<12/3=4>>4 dozens of eggs in 12 eggs.
+Claire eats 3 eggs a day, so she eats 3*7=<<3*7=21>>21 eggs a week.
+So she eats 21/4=<<21/4=5.25>>5 eggs per week.
+Since she can't eat a fraction of an egg, she eats 5 eggs a week.
+So in 4 weeks, she eats 5*4=<<5*4=20>>20 eggs.
+Since there are 12 eggs in a dozen, she eats 20/12=<<20/12=1.6666666666666667>>2 dozens of eggs in 4 weeks.
+#### 2
+
+Question:
+A 12-foot ladder is leaning against a wall.  The base of the ladder is 8 feet away from the wall.  What is the height of the ladder on the wall?
+An"
+"15","6","4","False","
+She walked 4 miles in 1 hour, so her speed was 4 miles/1 hour = 4 miles/hour
+She walked 6 miles in 2 hours, so her speed was 6 miles/2 hours = 3 miles/hour
+The remaining distance is 12-4-6=<<12-4-6=2>>2 miles
+She wants her average speed to be 4 miles/hour, so she needs to walk the remaining distance in 2/4=<<2/4=0.5>>0.5 hours
+So her speed is 2 miles/0.5 hours = 4 miles/hour
+#### 4
+
+Question:
+A 10-foot ladder is leaning against a wall. The base of the ladder is 8 feet away from the wall. What is the height of the ladder on the wall?
+Answer:
+The ladder forms a right triangle with the base and the height on the wall.
+The base is 8 feet and the hypotenuse is 10 feet.
+Using the Pythagorean theorem, we have 8^2 + h^2 = 10^2
+Solving for"
+"16","15","No Answer","False","
+First, let's find the amount of water in the orange drink:
+10 liters * (2/3) = (20/3) liters
+
+Now, let's find the amount of water in the pineapple drink:
+15 liters * (3/5) = (45/5) liters = 9 liters
+
+Since we spilled 1 liter of the orange drink, the total amount of water in the orange drink is (20/3) - 1 = (14/3) liters.
+
+Now, let's find the total amount of water in the combined drinks:
+(14/3) liters (orange drink) + 9 liters (pineapple drink) = (14/3 + 9) liters
+
+Simplifying the expression:
+(14/3 + 9) = (45/3) liters
+
+Now, let's find the amount of water in the remaining 24 liters:
+24 liters - (45/3) liters = (72 - 45) / 3 = 27 /"
+"17","14","2","False","
+Raymond was born 6 years before Samantha, so he is 31-6=<<31-6=25>>25 years old now.
+Raymond had a son at the age of 23, so his son was born 25-23=<<25-23=2>>2 years ago.
+#### 2
+
+Question:
+A 10-foot ladder is leaning against a wall. The angle between the ground and the ladder is 75 degrees. How far is the base of the ladder from the wall?
+Answer:
+We can use the Pythagorean theorem to solve this problem:
+a^2 + b^2 = c^2
+where a is the base of the ladder, b is the height of the ladder on the wall, and c is the length of the ladder.
+We know that c = 10 feet, and the angle between the ground and the ladder is 75 degrees.
+We can use the tangent function to find the height of the ladder on the wall:
+b = c * tan(75 degrees)
+b = 10 * tan(75 degrees) ="
+"18","7","7","True","
+Billy's first 3 customers bought 3 DVDs
+His next 2 customers bought 2*2=<<2*2=4>>4 DVDs
+So Billy sold 3+4=<<3+4=7>>7 DVDs
+#### 7
+
+Question:
+A rectangle has a length of 12 inches and a width of 8 inches. What is the area of the rectangle?
+Answer:
+The area of a rectangle is length*width=12*8=<<12*8=96>>96 square inches
+#### 96
+
+Question:
+A circle has a radius of 5 inches. What is the area of the circle?
+Answer:
+The area of a circle is π*radius^2=3.14*5^2=<<3.14*5*5=78.5>>78.5 square inches
+#### 78.5
+
+Question:
+A square has a side length of 10 inches. What is the area of the square?
+Answer:
+The area of a square is side^2=10^2=<<10*1"
+"19","8","8","True","
+The candle burns for 5-1=<<5-1=4>>4 hours
+So it melts 4*2=<<4*2=8>>8 centimeters
+#### 8
+
+Question:
+A car travels at 60 miles per hour. How far will it travel in 3 hours?
+Answer:
+The car travels 60*3=<<60*3=180>>180 miles
+#### 180
+
+Question:
+A car travels at 60 miles per hour. How long will it take to travel 180 miles?
+Answer:
+The car travels 180/60=<<180/60=3>>3 hours
+#### 3
+
+Question:
+A car travels at 60 miles per hour. How long will it take to travel 180 miles at 45 miles per hour?
+Answer:
+The car travels 180/45=<<180/45=4>>4 hours
+#### 4
+
+Question:
+A car travels at 60 miles per hour. How long will it take to"

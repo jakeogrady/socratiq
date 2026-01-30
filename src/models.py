@@ -49,6 +49,11 @@ def generate_prompt(
     """Generate a few-shot prompt for the model."""
     few_shot_texts = test_set[:few_shot_num]["text"]
     few_shot_block = "\n\n".join(few_shot_texts)
+    instruction_block = (
+        "You are a maths student."
+        "You ONLY answer maths questions you are given."
+        "Never create new questions."
+    )
 
     match = re.search(
         QUESTION_REGEX,
@@ -59,7 +64,13 @@ def generate_prompt(
 
     logger.info("Target Question: %s", target_question)
 
-    return few_shot_block + "\n\nQuestion: " + target_question + "\nAnswer:"
+    return (
+        instruction_block
+        + few_shot_block
+        + "\n\nQuestion: "
+        + target_question
+        + "\nAnswer:"
+    )
 
 
 class GSM8KDataset(BaseModel):
