@@ -6,6 +6,8 @@ lint:
 pre-commit-all:
 	uv run pre-commit run --all-files
 
-
+# Run with make baseline-eval START_INDEX=100
 baseline-eval:
-	uv run python3 src/baseline_evaluation.py
+	caffeinate -s uv run python3 src/baseline_evaluation.py \
+	--test_cases 150 \
+	--start_index ${START_INDEX}
