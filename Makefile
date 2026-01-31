@@ -9,5 +9,5 @@ pre-commit-all:
 # Run with make baseline-eval START_INDEX=100
 baseline-eval:
 	caffeinate -s uv run python3 src/baseline_evaluation.py \
-	--test_cases 150 \
+	--test_cases ${TEST_CASES} \
 	--start_index ${START_INDEX}
