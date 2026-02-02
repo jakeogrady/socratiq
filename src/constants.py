@@ -7,6 +7,7 @@ ANSWER_REGEX = r"####\s*(-?\d+)"
 FEW_SHOT_NUM = 4
 TEST_CASES = 10
 MODEL_NAME = "meta-llama/Llama-3.2-3B-Instruct"
+LLAMA_3_2_3B = "mlx-community/Llama-3.2-3B-8bit"
 MISTRAL_7B_Q4 = "mlx-community/Mistral-7B-Instruct-v0.3-8bit"
 DATASET_CONVERSION_PROMPT = """
     You are converting GSM8K-style math solutions into Socratic worked solutions.

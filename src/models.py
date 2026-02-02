@@ -4,12 +4,8 @@ import time
 from collections.abc import Generator
 from typing import TypeVar
 
-import torch
 from datasets import Dataset, DatasetDict, load_dataset
 from pydantic import BaseModel, ConfigDict, Field
-from transformers import (
-    PreTrainedModel,
-)
 
 from src.constants import (
     ANSWER_REGEX,
@@ -24,45 +20,31 @@ logging.basicConfig(level=logging.INFO)
 T = TypeVar("T")
 
 
-class Model(BaseModel):
-    """Model wrapper class."""
-
-    name: str
-    model: PreTrainedModel
-    device: torch.device | None = Field(default=None)
-
-    model_config = ConfigDict(arbitrary_types_allowed=True)
-
-    def __init__(self, /, **data: dict) -> None:
-        super().__init__(**data)
-
-        self.device = torch.device("cpu")
-        self.model.to(self.device)
-        torch.set_num_threads(4)
-
-        logger.info("Using device: %s", self.device)
-
-
 def generate_prompt(
-    test_set: Dataset, few_shot_num: int = 4, target_question_index: int = 1
+    train_set: Dataset,
+    test_set: Dataset,
+    few_shot_num: int = 4,
+    target_question_index: int = 0,
 ) -> str:
-    """Generate a few-shot prompt for the model."""
-    few_shot_texts = test_set[:few_shot_num]["text"]
+    """Generate a few-shot prompt for GSM8K evaluation."""
+    few_shot_texts = train_set[:few_shot_num]["text"]
     few_shot_block = "\n\n".join(few_shot_texts)
+
     instruction_block = (
-        "You are a maths student."
-        "You ONLY answer maths questions you are given."
-        "Never create new questions."
+        "You are a helpful math tutor. Solve the following problems step by step.\n\n"
     )
 
     match = re.search(
         QUESTION_REGEX,
-        test_set[few_shot_num + target_question_index]["text"],
+        test_set[target_question_index]["text"],
         re.DOTALL,
     )
-    target_question = match.group(1).strip()
 
-    logger.info("Target Question: %s", target_question)
+    if not match:
+        msg = "Could not extract question at index {target_question_index}"
+        raise ValueError(msg)
+
+    target_question = match.group(1).strip()
 
     return (
         instruction_block

@@ -10,7 +10,7 @@ from mlx_lm import generate, load
 from src.constants import (
     ANSWER_REGEX,
     FEW_SHOT_NUM,
-    MISTRAL_7B_Q4,
+    LLAMA_3_2_3B,
     TEST_CASES,
 )
 from src.models import generate_prompt, load_and_process_gsm8k
@@ -45,7 +45,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser()
 
     parser.add_argument(
-        "--model_name", type=str, default=MISTRAL_7B_Q4, help="Model name or path"
+        "--model_name", type=str, default=LLAMA_3_2_3B, help="Model name or path"
     )
     parser.add_argument(
         "--test_cases",
@@ -102,6 +102,7 @@ if __name__ == "__main__":
 
     for i in range(start, end):
         text_prompt = generate_prompt(
+            dataset.train,
             dataset.test,
             few_shot_num=args.few_shot_num,
             target_question_index=i,
@@ -144,26 +145,19 @@ if __name__ == "__main__":
             logger.info("No answer found in the response.")
             correct_answer = dataset.get_test_case_answer(i + args.few_shot_num)
 
+        file_exists = Path(eval_filename).exists()
+
         with Path(eval_filename).open("a", newline="", encoding="utf-8") as f:
-            if (
-                not Path(eval_filename).exists()
-                or Path(eval_filename).stat().st_size == 0
-            ):
-                writer = csv.DictWriter(
-                    f,
-                    fieldnames=CSV_COLUMNS,
-                    quoting=csv.QUOTE_ALL,
-                )
+            writer = csv.DictWriter(f, fieldnames=CSV_COLUMNS, quoting=csv.QUOTE_ALL)
+
+            if not file_exists:
                 writer.writeheader()
 
-            writer = csv.DictWriter(f, fieldnames=CSV_COLUMNS, quoting=csv.QUOTE_ALL)
             writer.writerow(
                 {
                     "test_index": i,
                     "correct_answer": correct_answer,
-                    "generated_answer": extracted_answer
-                    if extracted_answer
-                    else "No Answer",
+                    "generated_answer": extracted_answer or "No Answer",
                     "is_correct": is_correct,
                     "raw_response": response,
                 }
