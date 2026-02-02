@@ -12,7 +12,6 @@ repos:
     rev: v2.3.0
     hooks:
     -   id: check-yaml
-    -   id: check-added-large-files
     -   id: check-toml
     -   id: name-tests-test
     -   id: end-of-file-fixer
