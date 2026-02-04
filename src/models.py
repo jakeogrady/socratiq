@@ -11,48 +11,12 @@ from src.constants import (
     ANSWER_REGEX,
     DATASET_FORMAT,
     OPENAI_GSM8K,
-    QUESTION_REGEX,
 )
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
 
 T = TypeVar("T")
-
-
-def generate_prompt(
-    train_set: Dataset,
-    test_set: Dataset,
-    few_shot_num: int = 4,
-    target_question_index: int = 0,
-) -> str:
-    """Generate a few-shot prompt for GSM8K evaluation."""
-    few_shot_texts = train_set[:few_shot_num]["text"]
-    few_shot_block = "\n\n".join(few_shot_texts)
-
-    instruction_block = (
-        "You are a helpful math tutor. Solve the following problems step by step.\n\n"
-    )
-
-    match = re.search(
-        QUESTION_REGEX,
-        test_set[target_question_index]["text"],
-        re.DOTALL,
-    )
-
-    if not match:
-        msg = "Could not extract question at index {target_question_index}"
-        raise ValueError(msg)
-
-    target_question = match.group(1).strip()
-
-    return (
-        instruction_block
-        + few_shot_block
-        + "\n\nQuestion: "
-        + target_question
-        + "\nAnswer:"
-    )
 
 
 class GSM8KDataset(BaseModel):

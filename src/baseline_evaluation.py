@@ -5,15 +5,17 @@ import re
 import time
 from pathlib import Path
 
+from datasets import Dataset
 from mlx_lm import generate, load
 
 from src.constants import (
     ANSWER_REGEX,
     FEW_SHOT_NUM,
-    LLAMA_3_2_3B,
+    LLAMA_3_2_3B_INSTRUCT,
+    QUESTION_REGEX,
     TEST_CASES,
 )
-from src.models import generate_prompt, load_and_process_gsm8k
+from src.models import load_and_process_gsm8k
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
@@ -25,6 +27,41 @@ CSV_COLUMNS = [
     "is_correct",
     "raw_response",
 ]
+
+
+def generate_prompt(
+    train_set: Dataset,
+    test_set: Dataset,
+    few_shot_num: int = 4,
+    target_question_index: int = 0,
+) -> str:
+    """Generate a few-shot prompt for GSM8K evaluation."""
+    few_shot_texts = train_set[:few_shot_num]["text"]
+    few_shot_block = "\n\n".join(few_shot_texts)
+
+    instruction_block = (
+        "You are a helpful math tutor. Solve the following problems step by step.\n\n"
+    )
+
+    match = re.search(
+        QUESTION_REGEX,
+        test_set[target_question_index]["text"],
+        re.DOTALL,
+    )
+
+    if not match:
+        msg = "Could not extract question at index {target_question_index}"
+        raise ValueError(msg)
+
+    target_question = match.group(1).strip()
+
+    return (
+        instruction_block
+        + few_shot_block
+        + "\n\nQuestion: "
+        + target_question
+        + "\nAnswer:"
+    )
 
 
 def validate_answer(generated_answer: str, correct_answer: str) -> bool:
@@ -45,7 +82,10 @@ def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser()
 
     parser.add_argument(
-        "--model_name", type=str, default=LLAMA_3_2_3B, help="Model name or path"
+        "--model_name",
+        type=str,
+        default=LLAMA_3_2_3B_INSTRUCT,
+        help="Model name or path",
     )
     parser.add_argument(
         "--test_cases",
@@ -95,7 +135,7 @@ if __name__ == "__main__":
     dataset = load_and_process_gsm8k()
 
     start = args.start_index
-    end = start + args.test_cases
+    end = min(start + args.test_cases, len(dataset.test))
     eval_filename = f"{args.model_name.replace('/', '-')}_{args.results_file}"
 
     logger.info("Evaluating test cases from %d to %d", start, end - 1)
@@ -135,7 +175,7 @@ if __name__ == "__main__":
         if match:
             extracted_answer = match.group(1)
             logger.info("Extracted Answer: %s", extracted_answer)
-            correct_answer = dataset.get_test_case_answer(i + args.few_shot_num)
+            correct_answer = dataset.get_test_case_answer(i)
 
             if validate_answer(extracted_answer, correct_answer):
                 answer_correct += 1
@@ -143,7 +183,7 @@ if __name__ == "__main__":
                 logger.info("Answer is correct!")
         else:
             logger.info("No answer found in the response.")
-            correct_answer = dataset.get_test_case_answer(i + args.few_shot_num)
+            correct_answer = dataset.get_test_case_answer(i)
 
         file_exists = Path(eval_filename).exists()
 
