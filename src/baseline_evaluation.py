@@ -5,17 +5,18 @@ import re
 import time
 from pathlib import Path
 
+import pandas as pd
 from datasets import Dataset
 from mlx_lm import generate, load
 
 from src.constants import (
     ANSWER_REGEX,
     FEW_SHOT_NUM,
-    LLAMA_3_2_3B_INSTRUCT,
     QUESTION_REGEX,
     TEST_CASES,
 )
 from src.models import load_and_process_gsm8k
+from src.summarize import summarize_results
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
@@ -73,7 +74,7 @@ def validate_answer(generated_answer: str, correct_answer: str) -> bool:
             correct_answer,
         )
         return int(generated_answer) == int(correct_answer)
-    except Exception:  # noqa: BLE001
+    except Exception:
         return False
 
 
@@ -84,7 +85,6 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "--model_name",
         type=str,
-        default=LLAMA_3_2_3B_INSTRUCT,
         help="Model name or path",
     )
     parser.add_argument(
@@ -135,8 +135,17 @@ if __name__ == "__main__":
     dataset = load_and_process_gsm8k()
 
     start = args.start_index
-    end = min(start + args.test_cases, len(dataset.test))
     eval_filename = f"{args.model_name.replace('/', '-')}_{args.results_file}"
+
+    try:
+        df = pd.read_csv(eval_filename)
+        start = max(start, len(df))
+        logger.info("Resuming from index %d", start)
+    except Exception:
+        logger.warning("CSV corrupted — restarting from scratch")
+        start = args.start_index
+
+    end = min(start + args.test_cases, len(dataset.test))
 
     logger.info("Evaluating test cases from %d to %d", start, end - 1)
 
@@ -204,5 +213,10 @@ if __name__ == "__main__":
             )
 
     logger.info("Total Correct Answers: %d out of %d", answer_correct, args.test_cases)
-    accuracy = (answer_correct / args.test_cases) * 100
+    df = pd.read_csv(eval_filename)
+    accuracy = df["is_correct"].mean() * 100
+
+    if end == len(dataset.test):
+        summarize_results(eval_filename)
+
     logger.info("Accuracy: %.2f%%", accuracy)

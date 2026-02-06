@@ -19,3 +19,7 @@ smollm_lora_test/
 src/data/**.jsonl
 
 src/adapters/**
+
+data/
+
+*evaluation_results.csv

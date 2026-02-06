@@ -42,20 +42,19 @@ def summarize_results(filename: str) -> dict:
 
 
 if __name__ == "__main__":
-    file_exists = Path(
-        "../mlx-community-Llama-3.2-3B-8bit_evaluation_results.csv"
-    ).exists()
+    evaluation_file = (
+        "../mlx-community-Mistral-7B-Instruct-v0.3-8bit_evaluation_results.csv"
+    )
+    summary_file = "../evaluation_summary.csv"
 
-    with Path("../mlx-community-Llama-3.2-3B-8bit_evaluation_results.csv").open(
-        "a", newline="", encoding="utf-8"
-    ) as f:
+    results = summarize_results(evaluation_file)
+
+    file_exists = Path(summary_file).exists()
+
+    with Path(summary_file).open("a", newline="", encoding="utf-8") as f:
         writer = csv.DictWriter(f, fieldnames=RESULTS_CSV_HEADER, quoting=csv.QUOTE_ALL)
 
         if not file_exists:
             writer.writeheader()
-
-        results = summarize_results(
-            "../mlx-community-Llama-3.2-3B-8bit_evaluation_results.csv"
-        )
 
         writer.writerow(results)
