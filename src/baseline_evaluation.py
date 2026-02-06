@@ -216,7 +216,7 @@ if __name__ == "__main__":
     df = pd.read_csv(eval_filename)
     accuracy = df["is_correct"].mean() * 100
 
-    if end == len(dataset.test):
+    if len(df) == len(dataset.test):
         summarize_results(eval_filename)
 
     logger.info("Accuracy: %.2f%%", accuracy)
