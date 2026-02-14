@@ -12,3 +12,6 @@ baseline-eval:
 	--test_cases ${TEST_CASES} \
 	--start_index ${START_INDEX} \
 	--model_name ${MODEL_NAME}
+
+conversion:
+	caffeinate -s uv run python3 src/conversion.py
