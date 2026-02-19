@@ -40,7 +40,7 @@ Socratic worked version:
 3. How many pencils does he have after giving 1 to a friend? 5 - 1 = 4.
 #### 4
 
-Remember: 
+Remember:
 - The numbered steps must correspond to the original solution.
 - The final answer must always appear in the correct format as #### <number>.
 - Do not include any text before or after the worked solution.
