@@ -6,6 +6,7 @@ import re
 import time
 from pathlib import Path
 
+import openai
 from datasets import Dataset
 from dotenv import load_dotenv
 from openai import OpenAI
@@ -121,7 +122,51 @@ def download_results(output_file_id: str, save_path: Path) -> None:
     logger.info("Results saved to %s", save_path)
 
 
-if __name__ == "__main__":
+def immediate_prompt() -> None:
+    """Prompt GPT5-Mini with immediate to improve wording."""
+    prompt = """
+    You convert worked solutions into Socratic questions.
+    Each question must include the calculation for that step.
+    Generate 3 concise questions.
+    Do not add explanations outside the questions.
+    """
+
+    question = (
+        "Natalia sold clips to 48 of her friends in April,"
+        " and then she sold half as many clips in May."
+        " How many clips did Natalia sell altogether in April and May?"
+    )
+    answer = (
+        "Natalia sold 48/2 = <<48/2=24>>24 clips in May. "
+        "Natalia sold 48+24 = <<48+24=72>>72 clips altogether in April and May."
+        "#### 72"
+    )
+
+    user_input = (
+        f"Problem:\n{question}\n\nSolution:\n{answer}\n"
+        f"Convert the solution into Socratic questions."
+    )
+
+    response = openai.responses.create(
+        model="gpt-5-mini",
+        input=[
+            {"role": "system", "content": prompt},
+            {"role": "user", "content": user_input},
+        ],
+        reasoning={"effort": "low"},
+        max_output_tokens=700,
+    )
+
+    logger.info("Full response:")
+    logger.info(response.model_dump())
+
+    with Path("test.jsonl").open("a", encoding="utf-8") as f:
+        f.write(json.dumps(response.output_text) + "\n")
+        logger.info("Response Text %s", response.output_text)
+
+
+def batch_prompt() -> None:
+    """Prompt GPT5-Mini with batching to improve wording."""
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "--output_file", type=str, default="gsm8k_socratic_results.jsonl"
@@ -143,3 +188,7 @@ if __name__ == "__main__":
         download_results(batch.output_file_id, Path(args.output_file))
     else:
         logger.error("Batch failed.")
+
+
+if __name__ == "__main__":
+    immediate_prompt()

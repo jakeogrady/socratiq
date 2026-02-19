@@ -23,3 +23,5 @@ src/adapters/**
 data/
 
 *evaluation_results.csv
+
+**.jsonl
