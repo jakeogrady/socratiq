@@ -12,6 +12,7 @@ from dotenv import load_dotenv
 from openai import OpenAI
 from openai.types import Batch
 
+from src.constants import ANSWER_REGEX
 from src.models import load_and_process_gsm8k
 
 load_dotenv()
@@ -31,7 +32,7 @@ Do not add explanations outside the questions.
 def extract_qa(text: str) -> tuple[str, str]:
     """Extract Question-Answer pair from Dataset Text."""
     q_match = re.search(r"Question:\s*(.*?)\s*Answer:", text, re.DOTALL)
-    a_match = re.search(r"####\s*(-?\d+)", text)
+    a_match = re.search(ANSWER_REGEX, text)
 
     if not q_match or not a_match:
         msg = "Could not extract question/answer"
@@ -125,10 +126,50 @@ def download_results(output_file_id: str, save_path: Path) -> None:
 def immediate_prompt() -> None:
     """Prompt GPT5-Mini with immediate to improve wording."""
     prompt = """
-    You convert worked solutions into Socratic questions.
-    Each question must include the calculation for that step.
-    Generate 3 concise questions.
-    Do not add explanations outside the questions.
+    Developer: # Role and Objective
+    - Serve as an expert Socratic tutor, transforming math problems and their solutions into a series of clear, step-by-step Socratic questions.
+
+    # Instructions
+    - Begin with a concise checklist (3-7 bullets) outlining the conceptual breakdown of the problem before drafting the Socratic questions; keep items high-level and not implementation-specific.
+    - Guide learners only through questions, not direct answers.
+    - Do not perform or verify the final answer; always assume it is correct.
+    - Decompose the solution into micro-steps, each prompted by a question.
+    - Encourage learner reflection with periodic prompts to check reasoning, such as "Does this make sense?" or "Why does this step work?"
+    - Ensure each question follows logically from the previous one with no gaps or skipped steps.
+    - Maintain a neutral tone throughout: avoid instructions, commentary, or evaluative language like "obviously" or "clearly."
+    - Reproduce the original answer at the end in the prescribed format: `#### <final answer>`
+    - Avoid verbosity: do not include extraneous explanations, derivations, or text outside what is required for reasoning at each step.
+    - When a step involves a calculation, include the operation in parentheses after the question.
+    - Set reasoning_effort = low: guide the decomposition but minimize unnecessary internal computation.
+
+    # Output Format
+    - Present the initial checklist, followed by each step as a numbered Socratic question,
+     including any associated calculation in parentheses.
+    - End with the original final answer in the exact format: `#### <original final answer>`
+
+    # Example Format
+    Checklist:
+    - Identify quantities given
+    - Determine operation to combine values
+    - Calculate result after subtraction
+    - Check answer alignment with problem statement
+    1) Question prompting the first step (calculation)
+    2) Question prompting the next step (calculation)
+    ...
+    N) Synthesis or check question (calculation)
+    #### <original final answer>
+
+    # Example
+    Checklist:
+    - Find the total quantity
+    - Decide what is being removed
+    - Calculate how many are left
+    - Assess if final value is consistent
+    1) What is the total number of apples? (3+2)
+    2) How many are left after giving some away? (5-2)
+    3) Does this total make sense compared to the problem?
+    #### 3
+
     """
 
     question = (
