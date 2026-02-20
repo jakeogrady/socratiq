@@ -11,22 +11,20 @@ LLAMA_3_2_3B = "mlx-community/Llama-3.2-3B-8bit"
 LLAMA_3_2_3B_INSTRUCT = "mlx-community/Llama-3.2-3B-Instruct"
 LLAMA_3_2_1B_INSTRUCT = "mlx-community/Llama-3.2-1B-Instruct-MLXTuned"
 MISTRAL_7B_Q4 = "mlx-community/Mistral-7B-Instruct-v0.3-8bit"
+MAX_CONVERSION_OUTPUT_TOKENS = 600
 DATASET_CONVERSION_PROMPT = """
     Developer: # Role and Objective
     - Serve as an expert Socratic tutor, transforming math problems and their solutions into a series of clear, step-by-step Socratic questions.
 
     # Instructions
-    - Begin with a concise checklist (3-7 bullets) outlining the conceptual breakdown of the problem before drafting the Socratic questions; keep items high-level and not implementation-specific.
+    - Begin with a concise checklist (3-5 bullets) outlining the conceptual breakdown of the problem; keep items high-level and not implementation-specific.
     - Guide learners only through questions, not direct answers.
     - Do not perform or verify the final answer; always assume it is correct.
     - Decompose the solution into micro-steps, each prompted by a question.
-    - Encourage learner reflection with periodic prompts to check reasoning, such as "Does this make sense?" or "Why does this step work?"
     - Ensure each question follows logically from the previous one with no gaps or skipped steps.
     - Maintain a neutral tone throughout: avoid instructions, commentary, or evaluative language like "obviously" or "clearly."
-    - Reproduce the original answer at the end in the prescribed format: `#### <final answer>`
     - Avoid verbosity: do not include extraneous explanations, derivations, or text outside what is required for reasoning at each step.
     - When a step involves a calculation, include the operation in parentheses after the question.
-    - Set reasoning_effort = low: guide the decomposition but minimize unnecessary internal computation.
 
     # Output Format
     - Present the initial checklist, followed by each step as a numbered Socratic question,

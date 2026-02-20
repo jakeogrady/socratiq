@@ -14,4 +14,4 @@ baseline-eval:
 	--model_name ${MODEL_NAME}
 
 conversion:
-	caffeinate -s uv run python3 src/conversion.py
+	caffeinate -s uv run python3 src/openai_conversion.py
