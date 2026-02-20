@@ -6,12 +6,15 @@ import re
 import time
 from pathlib import Path
 
-import openai
-from datasets import Dataset
 from dotenv import load_dotenv
 from openai import OpenAI
 from openai.types import Batch
 
+from src.constants import (
+    ANSWER_REGEX,
+    DATASET_CONVERSION_PROMPT,
+    MAX_CONVERSION_OUTPUT_TOKENS,
+)
 from src.models import load_and_process_gsm8k
 
 load_dotenv()
@@ -21,17 +24,10 @@ logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
 
 
-SYSTEM_PROMPT = """You convert worked solutions into Socratic questions.
-Each question must include the calculation for that step.
-Generate 3-5 concise questions.
-Do not add explanations outside the questions.
-"""
-
-
 def extract_qa(text: str) -> tuple[str, str]:
     """Extract Question-Answer pair from Dataset Text."""
     q_match = re.search(r"Question:\s*(.*?)\s*Answer:", text, re.DOTALL)
-    a_match = re.search(r"####\s*(-?\d+)", text)
+    a_match = re.search(ANSWER_REGEX, text)
 
     if not q_match or not a_match:
         msg = "Could not extract question/answer"
@@ -40,48 +36,46 @@ def extract_qa(text: str) -> tuple[str, str]:
     return q_match.group(1).strip(), a_match.group(1).strip()
 
 
-def build_batch_file(dataset: Dataset, output_jsonl: Path) -> None:
-    """Build batch file from GSM8K Dataset."""
+def build_batch_file(output_jsonl: Path, limit: int = 50) -> None:
+    """Build batch file from GSM8K Dataset (for testing, limit entries)."""
     logger.info("Building batch JSONL file...")
 
+    dataset = load_and_process_gsm8k()
+
     with output_jsonl.open("w", encoding="utf-8") as f:
-        for i in range(len(dataset)):
-            raw_text = dataset[i]["text"]
+        for i in range(min(limit, len(dataset.train))):
+            raw_text = dataset.train[i]["text"]
             try:
                 question, answer = extract_qa(raw_text)
             except Exception:
-                logger.exception("Could not extract Q-A pair from %s", raw_text)
-
-            user_prompt = f"""Problem:
-                {question}
-
-                Solution:
-                {answer}
-
-                Convert the solution into Socratic questions.
-                """
+                logger.exception("Could not extract Q-A pair from entry %d", i)
+                continue
 
             entry = {
                 "custom_id": f"gsm8k_{i}",
                 "method": "POST",
                 "url": "/v1/responses",
                 "body": {
-                    "model": "gpt-5-mini",
+                    "model": "gpt-5-mini-2025-08-07",
                     "input": [
-                        {"role": "system", "content": SYSTEM_PROMPT},
-                        {"role": "user", "content": user_prompt},
+                        {"role": "system", "content": DATASET_CONVERSION_PROMPT},
+                        {
+                            "role": "user",
+                            "content": f"Problem:\n{question}\n\nSolution:\n{answer}\nConvert the solution into Socratic questions.",
+                        },
                     ],
-                    "max_output_tokens": 400,
+                    "max_output_tokens": MAX_CONVERSION_OUTPUT_TOKENS,
+                    "reasoning": {"effort": "low"},
                 },
             }
 
             f.write(json.dumps(entry) + "\n")
 
-    logger.info("Batch file created.")
+    logger.info("Batch file created at %s", output_jsonl)
 
 
 def submit_batch(batch_file: Path) -> str:
-    """Submit branch to OpenAI."""
+    """Submit batch to OpenAI."""
     logger.info("Uploading batch file...")
 
     file = client.files.create(file=batch_file.open("rb"), purpose="batch")
@@ -89,7 +83,9 @@ def submit_batch(batch_file: Path) -> str:
     logger.info("Creating batch job...")
 
     batch = client.batches.create(
-        input_file_id=file.id, endpoint="/v1/responses", completion_window="24h"
+        input_file_id=file.id,
+        endpoint="/v1/responses",
+        completion_window="24h",
     )
 
     logger.info("Batch submitted: %s", batch.id)
@@ -106,6 +102,7 @@ def wait_for_batch(batch_id: str) -> Batch | None:
         logger.info("Status: %s", status)
 
         if status in ["completed", "failed", "cancelled"]:
+            logger.info("Status achieved %s", status)
             return batch
 
         time.sleep(15)
@@ -114,81 +111,36 @@ def wait_for_batch(batch_id: str) -> Batch | None:
 def download_results(output_file_id: str, save_path: Path) -> None:
     """Download results of conversion."""
     logger.info("Downloading results...")
-
     content = client.files.content(output_file_id)
-    text = content.text
-
-    save_path.write_text(text, encoding="utf-8")
+    save_path.write_text(content.text, encoding="utf-8")
     logger.info("Results saved to %s", save_path)
 
 
-def immediate_prompt() -> None:
-    """Prompt GPT5-Mini with immediate to improve wording."""
-    prompt = """
-    You convert worked solutions into Socratic questions.
-    Each question must include the calculation for that step.
-    Generate 3 concise questions.
-    Do not add explanations outside the questions.
-    """
+def batch_prompt(output_file: str = "gsm8k_socratic_results.jsonl") -> None:
+    """Full batch pipeline: build, submit, wait, download."""
+    batch_input_path = Path("batch_input.jsonl")
+    build_batch_file(batch_input_path, limit=50)
 
-    question = (
-        "Natalia sold clips to 48 of her friends in April,"
-        " and then she sold half as many clips in May."
-        " How many clips did Natalia sell altogether in April and May?"
-    )
-    answer = (
-        "Natalia sold 48/2 = <<48/2=24>>24 clips in May. "
-        "Natalia sold 48+24 = <<48+24=72>>72 clips altogether in April and May."
-        "#### 72"
-    )
+    batch_id = submit_batch(batch_input_path)
+    batch = wait_for_batch(batch_id)
 
-    user_input = (
-        f"Problem:\n{question}\n\nSolution:\n{answer}\n"
-        f"Convert the solution into Socratic questions."
-    )
+    logger.info("Batch %s", batch)
 
-    response = openai.responses.create(
-        model="gpt-5-mini",
-        input=[
-            {"role": "system", "content": prompt},
-            {"role": "user", "content": user_input},
-        ],
-        reasoning={"effort": "low"},
-        max_output_tokens=700,
-    )
+    if batch.status != "completed":
+        logger.error("Batch failed with status: %s", batch.status)
+        return
 
-    logger.info("Full response:")
-    logger.info(response.model_dump())
-
-    with Path("test.jsonl").open("a", encoding="utf-8") as f:
-        f.write(json.dumps(response.output_text) + "\n")
-        logger.info("Response Text %s", response.output_text)
+    if batch.output_file_id:
+        download_results(batch.output_file_id, Path(output_file))
+    else:
+        logger.error("No output_file_id found in batch")
 
 
-def batch_prompt() -> None:
-    """Prompt GPT5-Mini with batching to improve wording."""
+if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "--output_file", type=str, default="gsm8k_socratic_results.jsonl"
     )
     args = parser.parse_args()
 
-    dataset = load_and_process_gsm8k()
-    train_set: Dataset = dataset.train
-
-    batch_input_path = Path("batch_input.jsonl")
-
-    build_batch_file(train_set, batch_input_path)
-
-    batch_id = submit_batch(batch_input_path)
-
-    batch = wait_for_batch(batch_id)
-
-    if batch.status == "completed":
-        download_results(batch.output_file_id, Path(args.output_file))
-    else:
-        logger.error("Batch failed.")
-
-
-if __name__ == "__main__":
-    immediate_prompt()
+    batch_prompt(output_file=args.output_file)

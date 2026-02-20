@@ -1,7 +1,6 @@
 import logging
 import re
 import time
-from collections.abc import Generator
 from typing import TypeVar
 
 from datasets import Dataset, DatasetDict, load_dataset
@@ -34,14 +33,6 @@ class GSM8KDataset(BaseModel):
         if self.valid is None:
             self.generate_validation()
 
-    def train_length(self) -> None:
-        """Log the length of the training dataset."""
-        logger.info("Length of Training Dataset: %s", len(self.train))
-
-    def test_length(self) -> None:
-        """Log the length of the test dataset."""
-        logger.info("Length of Test Dataset: %s", len(self.test))
-
     def generate_validation(self) -> None:
         """Generate a validation set from the training set."""
         split = self.train.train_test_split(test_size=0.1, seed=42)
@@ -52,24 +43,6 @@ class GSM8KDataset(BaseModel):
         """Extract the correct answer from the dataset for a given test case index."""
         answer_match = re.search(ANSWER_REGEX, self.test[index]["text"])
         return answer_match.group(1).strip() if answer_match else None
-
-    def yield_train_cases(self, length: T | None) -> Generator:
-        """Yield training cases one by one."""
-        length = length if length is not None else len(self.train)
-
-        for i in range(length):
-            training_task = self.train[i]["answer"]
-
-            yield training_task
-
-    def convert_to_jsonl(self) -> None:
-        """Convert datasets to JSONL format and save to files."""
-        for name in []:
-            dataset = getattr(self, name)
-            dataset = preprocess_dataset(dataset)
-            if dataset is not None:
-                logger.info("Converting %s dataset to JSONL format...", name)
-                dataset.to_json(f"data/{name}.jsonl", orient_records=True)
 
 
 def load_gsm8k(split: str = "main") -> DatasetDict:
