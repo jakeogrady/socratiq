@@ -33,7 +33,6 @@ def finetune() -> None:
         "{% if add_generation_prompt %}{{ '<start_of_turn>assistant\n' }}{% endif %}"
     )
 
-    # Prepare MLX dataset configuration
     config = DatasetConfig(prompt_feature="prompt", completion_feature="answer")
 
     # Path to folder containing train.jsonl, valid.jsonl, test.jsonl

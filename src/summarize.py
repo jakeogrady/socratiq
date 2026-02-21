@@ -42,7 +42,9 @@ def summarize_results(filename: str) -> dict:
 
 
 if __name__ == "__main__":
-    evaluation_file = "../mlx-community-Qwen3-0.6B-bf16_evaluation_results.csv"
+    evaluation_file = (
+        "../eval_results/mlx-community-Qwen3-0.6B-bf16_evaluation_results.csv"
+    )
     summary_file = "../evaluation_summary.csv"
 
     results = summarize_results(evaluation_file)

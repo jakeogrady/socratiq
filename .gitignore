@@ -25,3 +25,5 @@ data/
 *evaluation_results.csv
 
 **.jsonl
+
+eval_results/**.csv

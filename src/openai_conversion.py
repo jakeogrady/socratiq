@@ -36,7 +36,11 @@ def extract_qa(text: str) -> tuple[str, str]:
     return q_match.group(1).strip(), a_match.group(1).strip()
 
 
-def build_batch_file(output_jsonl: Path, limit: int = 50) -> None:
+def build_batch_file(
+    output_jsonl: Path,
+    limit: int = 8000,
+    max_tokens: int = MAX_CONVERSION_OUTPUT_TOKENS,
+) -> None:
     """Build batch file from GSM8K Dataset (for testing, limit entries)."""
     logger.info("Building batch JSONL file...")
 
@@ -64,7 +68,7 @@ def build_batch_file(output_jsonl: Path, limit: int = 50) -> None:
                             "content": f"Problem:\n{question}\n\nSolution:\n{answer}\nConvert the solution into Socratic questions.",
                         },
                     ],
-                    "max_output_tokens": MAX_CONVERSION_OUTPUT_TOKENS,
+                    "max_output_tokens": max_tokens,
                     "reasoning": {"effort": "low"},
                 },
             }
@@ -116,15 +120,19 @@ def download_results(output_file_id: str, save_path: Path) -> None:
     logger.info("Results saved to %s", save_path)
 
 
-def batch_prompt(output_file: str = "gsm8k_socratic_results.jsonl") -> None:
-    """Full batch pipeline: build, submit, wait, download."""
-    batch_input_path = Path("batch_input.jsonl")
-    build_batch_file(batch_input_path, limit=50)
+def batch_prompt(
+    batch_input_path: str,
+    output_file: str,
+) -> None:
+    """Submit batching to OpenAI."""
+    batch_input_path = Path(batch_input_path)
+
+    if not batch_input_path.exists():
+        msg = "Batch input file not found"
+        raise ValueError(msg)
 
     batch_id = submit_batch(batch_input_path)
     batch = wait_for_batch(batch_id)
-
-    logger.info("Batch %s", batch)
 
     if batch.status != "completed":
         logger.error("Batch failed with status: %s", batch.status)
@@ -133,7 +141,74 @@ def batch_prompt(output_file: str = "gsm8k_socratic_results.jsonl") -> None:
     if batch.output_file_id:
         download_results(batch.output_file_id, Path(output_file))
     else:
-        logger.error("No output_file_id found in batch")
+        logger.error("No output_file_id found")
+
+
+def rerun_truncated_requests() -> None:
+    """Rerun previous requests that were truncated."""
+    failed_ids = []
+
+    with Path("gsm8k_socratic_results.jsonl").open() as f:
+        for line in f:
+            item = json.loads(line)
+
+            response = item.get("response", {})
+            body = response.get("body", {})
+
+            if body.get("status") == "incomplete":
+                reason = body.get("incomplete_details", {}).get("reason")
+
+                if reason == "max_output_tokens":
+                    failed_ids.append(item["custom_id"])
+
+    logger.info("Found %d truncated samples", len(failed_ids))
+
+    rerun_items = []
+
+    if not Path("batch_input.jsonl").exists():
+        msg = "Original batch_input.jsonl not found"
+        raise ValueError(msg)
+
+    new_max_tokens = 2000
+
+    with Path("batch_input.jsonl").open() as f:
+        for line in f:
+            item = json.loads(line)
+
+            if item.get("custom_id") in failed_ids:
+                item["body"]["max_output_tokens"] = new_max_tokens
+
+                rerun_items.append(item)
+
+    logger.info("Preparing %d rerun requests", len(rerun_items))
+
+    rerun_path = Path("rerun_requests.jsonl")
+
+    with rerun_path.open("w") as f:
+        for item in rerun_items:
+            f.write(json.dumps(item) + "\n")
+
+    if len(rerun_items) == 0:
+        logger.warning("No rerun items found")
+        return
+
+    logger.info("Submitting rerun batch...")
+
+    batch_prompt(
+        batch_input_path=str(rerun_path),
+        output_file="reran_socratic_results.jsonl",
+    )
+
+
+def load_completed(path: str) -> list[dict]:
+    """Find lines in a .jsonl file that have been completed."""
+    completed = []
+    with Path(path).open() as f:
+        for line in f:
+            obj = json.loads(line)
+            if obj["response"]["body"].get("status") == "completed":
+                completed.append(obj)
+    return completed
 
 
 if __name__ == "__main__":
@@ -144,3 +219,12 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     batch_prompt(output_file=args.output_file)
+    rerun_truncated_requests()
+
+    data1 = load_completed("gsm8k_socratic_results.jsonl")
+    data2 = load_completed("reran_socratic_results.jsonl")
+
+    final = data1 + data2
+
+    with Path("socratic_results_final.jsonl").open("w") as f:
+        f.writelines(json.dumps(obj) + "\n" for obj in final)

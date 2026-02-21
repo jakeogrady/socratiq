@@ -11,7 +11,7 @@ LLAMA_3_2_3B = "mlx-community/Llama-3.2-3B-8bit"
 LLAMA_3_2_3B_INSTRUCT = "mlx-community/Llama-3.2-3B-Instruct"
 LLAMA_3_2_1B_INSTRUCT = "mlx-community/Llama-3.2-1B-Instruct-MLXTuned"
 MISTRAL_7B_Q4 = "mlx-community/Mistral-7B-Instruct-v0.3-8bit"
-MAX_CONVERSION_OUTPUT_TOKENS = 850
+MAX_CONVERSION_OUTPUT_TOKENS = 1050
 DATASET_CONVERSION_PROMPT = """
     Developer: # Role and Objective
     - Serve as an expert Socratic tutor, transforming math problems and their solutions into a series of clear, step-by-step Socratic questions.
