@@ -21,4 +21,4 @@ train:
 	--model_name ${MODEL_NAME} \
 	--lr ${LR} \
 	--rank ${RANK} \
-	--results_file ../data/summary.jsonl
+	--results_file data/summary.jsonl

@@ -1,13 +1,13 @@
 import argparse
 import json
 import logging
-import random
 import re
 from argparse import Namespace
 from datetime import UTC, datetime
 from pathlib import Path
 
 import mlx.optimizers as optim
+from huggingface_hub import HfApi
 from mlx.nn import Module
 from mlx_lm import load
 from mlx_lm.tuner import linear_to_lora_layers
@@ -20,6 +20,8 @@ from transformers import PreTrainedTokenizer
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
+
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
 
 
 class ValLossRecorder(TrainingCallback):
@@ -57,7 +59,7 @@ def create_run_directory(args: Namespace) -> tuple[str, Path]:
 
     run_name = f"{model_short}_lr{args.lr}_rank{args.rank}_seed{args.seed}_{timestamp}"
 
-    run_dir = Path("../data") / run_name
+    run_dir = PROJECT_ROOT / "data" / run_name
     run_dir.mkdir(parents=True, exist_ok=True)
 
     logger.info("Starting run: %s", run_name)
@@ -88,7 +90,7 @@ def load_datasets(tokenizer: PreTrainedTokenizer) -> tuple[CacheDataset, CacheDa
         completion_feature="answer",
     )
 
-    dataset_path = Path("../data")
+    dataset_path = PROJECT_ROOT / "data"
 
     train_ds, val_ds, _ = load_local_dataset(dataset_path, tokenizer, config)
 
@@ -161,7 +163,8 @@ def save_run_artifacts(
         "metrics": metrics,
     }
 
-    results_path = Path(args.results_file)
+    results_path = PROJECT_ROOT / args.results_file
+
     with results_path.open("a") as f:
         f.write(json.dumps(record) + "\n")
 
@@ -217,32 +220,6 @@ def write_jsonl(path: Path, data: list) -> None:
         for row in data:
             json.dump(row, f)
             f.write("\n")
-
-
-def build_train_valid_split(
-    batch_input_path: Path,
-    results_path: Path,
-    output_dir: Path,
-    train_ratio: float = 0.9,
-    seed: int = 42,
-) -> None:
-    """Split .jsonl into train.jsonl and valid.jsonl."""
-    random.seed(seed)
-    output_dir.mkdir(parents=True, exist_ok=True)
-
-    question_map = read_batch_jsonl(batch_input_path)
-
-    samples = construct_final_socratic_file(results_path, question_map)
-
-    random.shuffle(samples)
-
-    split_idx = int(len(samples) * train_ratio)
-
-    train_samples = samples[:split_idx]
-    valid_samples = samples[split_idx:]
-
-    write_jsonl(output_dir / "train.jsonl", train_samples)
-    write_jsonl(output_dir / "valid.jsonl", valid_samples)
 
 
 def read_batch_jsonl(batch_input_path: Path) -> dict:
@@ -361,7 +338,7 @@ def finetune(args: Namespace) -> None:
 
     training_args = build_training_args(run_dir)
 
-    metrics = run_training(
+    run_training(
         model=model,
         train_dataset=train_dataset,
         val_dataset=val_dataset,
@@ -369,10 +346,6 @@ def finetune(args: Namespace) -> None:
         lr=args.lr,
         run_dir=run_dir,
     )
-
-    logger.info("Training complete: %s", metrics)
-
-    save_run_artifacts(run_name, run_dir, metrics, args)
 
     merged_model_dir = run_dir / "merged_model"
     merged_model_dir.mkdir(exist_ok=True, parents=True)
@@ -385,6 +358,25 @@ def finetune(args: Namespace) -> None:
 
     # Save tokenizer
     tokenizer.save_pretrained(str(merged_model_dir))
+
+    upload_to_hf(merged_model_dir=merged_model_dir, repo_id=f"Jakeog123/{run_name}")
+
+
+def upload_to_hf(merged_model_dir: Path, repo_id: str) -> None:
+    """Upload model to HuggingFace Hub."""
+    logger.info("Uploading model to HF: %s", repo_id)
+
+    api = HfApi()
+
+    api.create_repo(repo_id=repo_id, exist_ok=True, repo_type="model")
+
+    api.upload_folder(
+        repo_id=repo_id,
+        folder_path=str(merged_model_dir),
+        repo_type="model",
+    )
+
+    logger.info("HF upload complete.")
 
 
 if __name__ == "__main__":
