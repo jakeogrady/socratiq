@@ -4,7 +4,7 @@ import time
 from typing import TypeVar
 
 from datasets import Dataset, DatasetDict, load_dataset
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict
 
 from src.constants import (
     ANSWER_REGEX,
@@ -23,21 +23,11 @@ class GSM8KDataset(BaseModel):
 
     train: Dataset
     test: Dataset
-    valid: Dataset | None = Field(default=None)
 
     model_config = ConfigDict(arbitrary_types_allowed=True)
 
     def __init__(self, /, **data: dict) -> None:
         super().__init__(**data)
-
-        if self.valid is None:
-            self.generate_validation()
-
-    def generate_validation(self) -> None:
-        """Generate a validation set from the training set."""
-        split = self.train.train_test_split(test_size=0.1, seed=42)
-        self.train = split["train"]
-        self.valid = split["test"]
 
     def get_test_case_answer(self, index: int) -> str | None:
         """Extract the correct answer from the dataset for a given test case index."""

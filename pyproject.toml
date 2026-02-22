@@ -65,7 +65,7 @@ target-version = "py313"
 [tool.ruff.lint]
 
 select = ["ALL"]
-ignore = ["D203", "D213", "COM812", "D107", "D100", "D104", "BLE001", "RUF001", "E501"]
+ignore = ["D203", "D213", "COM812", "D107", "D100", "D104", "BLE001", "RUF001", "E501", "PLR0913"]
 
 fixable = ["ALL"]
 unfixable = []

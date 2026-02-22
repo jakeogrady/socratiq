@@ -15,3 +15,10 @@ baseline-eval:
 
 conversion:
 	caffeinate -s uv run python3 src/openai_conversion.py
+
+train:
+	caffeinate -s uv run python3 src/train.py \
+	--model_name ${MODEL_NAME} \
+	--lr ${LR} \
+	--rank ${RANK} \
+	--results_file ../data/summary.jsonl
