@@ -13,6 +13,7 @@ from mlx_lm import load
 from mlx_lm.tuner import linear_to_lora_layers
 from mlx_lm.tuner.callbacks import TrainingCallback
 from mlx_lm.tuner.datasets import CacheDataset, load_local_dataset
+from mlx_lm.utils import save_model
 from mlx_lm_lora.trainer.sft_trainer import SFTTrainingArgs, train_sft
 from pydantic import BaseModel
 from transformers import PreTrainedTokenizer
@@ -372,6 +373,18 @@ def finetune(args: Namespace) -> None:
     logger.info("Training complete: %s", metrics)
 
     save_run_artifacts(run_name, run_dir, metrics, args)
+
+    merged_model_dir = run_dir / "merged_model"
+    merged_model_dir.mkdir(exist_ok=True, parents=True)
+
+    # Save model weights
+    save_model(
+        str(merged_model_dir),
+        model,
+    )
+
+    # Save tokenizer
+    tokenizer.save_pretrained(str(merged_model_dir))
 
 
 if __name__ == "__main__":
