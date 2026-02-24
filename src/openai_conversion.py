@@ -1,4 +1,3 @@
-import argparse
 import json
 import logging
 import os
@@ -212,14 +211,14 @@ def load_completed(path: str) -> list[dict]:
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser()
-    parser.add_argument(
-        "--output_file", type=str, default="gsm8k_socratic_results.jsonl"
-    )
-    args = parser.parse_args()
-
-    batch_prompt(output_file=args.output_file)
-    rerun_truncated_requests()
+    # parser = argparse.ArgumentParser()
+    # parser.add_argument(
+    #     "--output_file", type=str, default="gsm8k_socratic_results.jsonl"
+    # )
+    # args = parser.parse_args()
+    #
+    # batch_prompt(output_file=args.output_file)
+    # rerun_truncated_requests()
 
     data1 = load_completed("gsm8k_socratic_results.jsonl")
     data2 = load_completed("reran_socratic_results.jsonl")
