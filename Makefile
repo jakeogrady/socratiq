@@ -11,7 +11,8 @@ baseline-eval:
 	caffeinate -s uv run python3 src/baseline_evaluation.py \
 	--test_cases ${TEST_CASES} \
 	--start_index ${START_INDEX} \
-	--model_name ${MODEL_NAME}
+	--model_name ${MODEL_NAME} \
+	--adapter_path ${ADAPTER_PATH}
 
 conversion:
 	caffeinate -s uv run python3 src/openai_conversion.py
@@ -21,4 +22,4 @@ train:
 	--model_name ${MODEL_NAME} \
 	--lr ${LR} \
 	--rank ${RANK} \
-	--results_file ../data/summary.jsonl
+	--results_file data/summary.jsonl

@@ -114,10 +114,18 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "--print_answer",
         action="store_true",
+        default=True,
         help="Whether to print the generated answers",
     )
     parser.add_argument(
         "--print_prompt", action="store_true", help="Whether to print the prompts"
+    )
+
+    parser.add_argument(
+        "--adapter_path",
+        type=str,
+        default=None,
+        help="Path to LoRA adapters directory",
     )
 
     return parser
@@ -128,7 +136,15 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     logger.info("Model Name: %s", args.model_name)
-    model, tokenizer = load(args.model_name)
+
+    if args.adapter_path:
+        logger.info("Loading Adapters Directory...")
+        model, tokenizer = load(args.model_name, adapter_path=args.adapter_path)
+
+        logger.info("Loaded Fine-tuned model")
+    else:
+        logger.info("Loading base model (no adapters)")
+        model, tokenizer = load(args.model_name)
 
     answer_correct = 0
 
@@ -136,13 +152,14 @@ if __name__ == "__main__":
 
     start = args.start_index
     eval_filename = f"{args.model_name.replace('/', '-')}_{args.results_file}"
+    logger.info("Model Filename %s", eval_filename)
 
     try:
         df = pd.read_csv(eval_filename)
         start = max(start, len(df))
         logger.info("Resuming from index %d", start)
-    except Exception:
-        logger.warning("CSV corrupted — restarting from scratch")
+    except Exception as e:
+        logger.warning("CSV corrupted — restarting from scratch %s", e)
         start = args.start_index
 
     end = min(start + args.test_cases, len(dataset.test))
@@ -153,9 +170,18 @@ if __name__ == "__main__":
         text_prompt = generate_prompt(
             dataset.train,
             dataset.test,
-            few_shot_num=args.few_shot_num,
+            few_shot_num=0,
             target_question_index=i,
         )
+
+        if args.adapter_path:
+            chat = [{"role": "user", "content": text_prompt}]
+
+            text_prompt = tokenizer.apply_chat_template(
+                chat,
+                tokenize=False,
+                add_generation_prompt=True,
+            )
 
         if args.print_prompt:
             logger.info("Prompt generated: %s", text_prompt)
