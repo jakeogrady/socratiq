@@ -114,7 +114,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "--print_answer",
         action="store_true",
-        default=True,
+        default=False,
         help="Whether to print the generated answers",
     )
     parser.add_argument(
