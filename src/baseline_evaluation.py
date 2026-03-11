@@ -3,11 +3,13 @@ import csv
 import logging
 import re
 import time
+from collections import Counter
 from pathlib import Path
 
 import pandas as pd
 from datasets import Dataset
 from mlx_lm import generate, load
+from mlx_lm.sample_utils import make_sampler
 
 from src.constants import (
     ANSWER_REGEX,
@@ -114,7 +116,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "--print_answer",
         action="store_true",
-        default=True,
+        default=False,
         help="Whether to print the generated answers",
     )
     parser.add_argument(
@@ -125,10 +127,49 @@ def build_parser() -> argparse.ArgumentParser:
         "--adapter_path",
         type=str,
         default=None,
-        help="Path to LoRA adapters directory",
+        help="Path to LoRA qwen3_adapters directory",
+    )
+
+    parser.add_argument(
+        "--num_samples",
+        type=int,
+        default=5,
+        help="Number of self-consistency samples per question",
+    )
+
+    parser.add_argument(
+        "--self-consistency", action="store_true", default=True, help="Self Consistency"
     )
 
     return parser
+
+
+def self_consistency_generate(model, tokenizer, prompt, num_samples=5):
+    responses = []
+
+    for _ in range(num_samples):
+        sampler = make_sampler(temp=0.7, top_p=0.95, top_k=20, min_p=0)
+
+        response = generate(
+            model, tokenizer, prompt=prompt, max_tokens=256, sampler=sampler
+        )
+        responses.append(response)
+
+    return responses
+
+
+def extract_final_number(text):
+    matches = re.findall(ANSWER_REGEX, text)
+    if matches:
+        return matches[-1]
+    return None
+
+
+def majority_vote(answers):
+    if not answers:
+        return None
+
+    return Counter(answers).most_common(1)[0][0]
 
 
 if __name__ == "__main__":
@@ -170,55 +211,54 @@ if __name__ == "__main__":
         text_prompt = generate_prompt(
             dataset.train,
             dataset.test,
-            few_shot_num=0,
+            few_shot_num=4,
             target_question_index=i,
         )
 
-        if args.adapter_path:
-            chat = [{"role": "user", "content": text_prompt}]
+        chat = [{"role": "user", "content": text_prompt}]
 
-            text_prompt = tokenizer.apply_chat_template(
-                chat,
-                tokenize=False,
-                add_generation_prompt=True,
-            )
-
-        if args.print_prompt:
-            logger.info("Prompt generated: %s", text_prompt)
-
-        logger.info("Generating response for text index %s ...", i)
-        generation_start = time.time()
-
-        response = generate(
-            model,
-            tokenizer,
-            prompt=text_prompt,
-            max_tokens=256,
+        text_prompt = tokenizer.apply_chat_template(
+            chat,
+            tokenize=False,
+            add_generation_prompt=True,
         )
 
-        if args.print_answer:
-            logger.info("\n===== Generated Response =====")
-            logger.info(response)
-            logger.info("==============================\n")
+        logger.info("Evaluating question index %d", i)
+
+        generation_start = time.time()
+
+        if args.self_consistency:
+            responses = self_consistency_generate(
+                model, tokenizer, text_prompt, num_samples=args.num_samples
+            )
+        else:
+            responses = [
+                generate(
+                    model,
+                    tokenizer,
+                    prompt=text_prompt,
+                    max_tokens=256,
+                )
+            ]
 
         logger.info("Response generated in %ss", time.time() - generation_start)
 
-        match = re.search(ANSWER_REGEX, response)
-        extracted_answer = ""
+        answers = []
+
+        for r in responses:
+            num = extract_final_number(r)
+            if num is not None:
+                answers.append(num)
+
+        predicted_answer = majority_vote(answers)
+        correct_answer = dataset.get_test_case_answer(i)
+
         is_correct = False
 
-        if match:
-            extracted_answer = match.group(1)
-            logger.info("Extracted Answer: %s", extracted_answer)
-            correct_answer = dataset.get_test_case_answer(i)
-
-            if validate_answer(extracted_answer, correct_answer):
-                answer_correct += 1
+        if predicted_answer is not None:
+            if validate_answer(predicted_answer, correct_answer):
                 is_correct = True
-                logger.info("Answer is correct!")
-        else:
-            logger.info("No answer found in the response.")
-            correct_answer = dataset.get_test_case_answer(i)
+                answer_correct += 1
 
         file_exists = Path(eval_filename).exists()
 
@@ -227,14 +267,15 @@ if __name__ == "__main__":
 
             if not file_exists:
                 writer.writeheader()
+                file_exists = True
 
             writer.writerow(
                 {
                     "test_index": i,
                     "correct_answer": correct_answer,
-                    "generated_answer": extracted_answer or "No Answer",
+                    "generated_answer": predicted_answer or "No Answer",
                     "is_correct": is_correct,
-                    "raw_response": response,
+                    "raw_response": str(responses),
                 }
             )
 
