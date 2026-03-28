@@ -5,9 +5,11 @@ import os
 import random
 import re
 import time
+from collections.abc import Generator
 from pathlib import Path
+from typing import Any
 
-from datasets import load_dataset
+from datasets import DatasetDict
 from dotenv import load_dotenv
 from openai import OpenAI
 from openai.types import Batch
@@ -35,6 +37,7 @@ NGRAM_N = 5
 SIM_THRESHOLD = 0.85
 VAL_SPLIT = 0.10
 SEED = 42
+
 
 def extract_qa(text: str) -> tuple[str, str]:
     """Extract Question-Answer pair from Dataset Text."""
@@ -167,20 +170,20 @@ def load_completed(path: str) -> list[dict]:
     return completed
 
 
-def chunk_dataset(dataset, chunk_size=1000, start_index: int = 0):
+def chunk_dataset(
+    dataset: DatasetDict, chunk_size: int = 1000, start_index: int = 0
+) -> Generator:
     """Yield dataset indices in chunks."""
     for i in range(start_index, len(dataset.train), chunk_size):
         yield range(i, min(i + chunk_size, len(dataset.train)))
 
 
-from pathlib import Path
-
-
-def merge_files():
+def merge_files() -> None:
+    """Merge files."""
     path = Path("socratic_results")
 
     if not path.exists():
-        print("Results directory not found")
+        logger.info("Results directory not found")
         return
 
     chunk_files = sorted(path.glob("*.jsonl"))
@@ -189,17 +192,15 @@ def merge_files():
 
     with output_file.open("w", encoding="utf-8") as out_f:
         for chunk_file in chunk_files:
-            print("Processing", chunk_file)
+            logger.info("Processing %s", chunk_file)
 
             with chunk_file.open("r", encoding="utf-8") as in_f:
                 for line in in_f:
-                    line = line.strip()
-
-                    if not line:
+                    if not line.strip():
                         continue
 
                     try:
-                        obj = json.loads(line)
+                        obj = json.loads(line.strip())
 
                         # Only keep successful responses
                         if (
@@ -211,12 +212,37 @@ def merge_files():
                     except json.JSONDecodeError:
                         continue
 
-    print("Merged dataset written to", output_file)
+    logger.info("Merged dataset written to %s", output_file)
 
 
-def extract_qa_pairs(input_file="merged_results.jsonl",
-                     output_file="qa_pairs.jsonl"):
+def generate_qa_pairs(blocks: list) -> list:
+    """Generate QA pairs."""
+    qa_pairs = []
 
+    for block in blocks:
+        clean_block = block.strip()
+        if not block:
+            continue
+
+        # Extract question
+        q_match = re.search(r"Question:\s*(.*?)\s*Solution:", clean_block, re.DOTALL)
+
+        # Extract solution (everything after "Solution:")
+        s_match = re.search(r"Solution:\s*(.*)", clean_block, re.DOTALL)
+
+        if q_match and s_match:
+            question = q_match.group(1).strip()
+            solution = s_match.group(1).strip()
+
+            qa_pairs.append({"question": question, "answer": solution})
+
+    return qa_pairs
+
+
+def extract_qa_pairs(
+    input_file: str = "merged_results.jsonl", output_file: str = "qa_pairs.jsonl"
+) -> None:
+    """Extract merged results and write in QA pairs to fine-tuning file."""
     input_path = Path(input_file)
     output_path = Path(output_file)
 
@@ -243,36 +269,10 @@ def extract_qa_pairs(input_file="merged_results.jsonl",
 
                 # Split into individual QA blocks
                 blocks = text_output.split("<|endofsolution|>")
-
-                for block in blocks:
-                    block = block.strip()
-                    if not block:
-                        continue
-
-                    # Extract question
-                    q_match = re.search(
-                        r"Question:\s*(.*?)\s*Solution:",
-                        block,
-                        re.DOTALL
-                    )
-
-                    # Extract solution (everything after "Solution:")
-                    s_match = re.search(
-                        r"Solution:\s*(.*)",
-                        block,
-                        re.DOTALL
-                    )
-
-                    if q_match and s_match:
-                        question = q_match.group(1).strip()
-                        solution = s_match.group(1).strip()
-
-                        qa_pairs.append({
-                            "question": question,
-                            "answer": solution
-                        })
+                qa_pairs.append(generate_qa_pairs(blocks))
 
             except Exception:
+                logger.warning("Could not write extracted jsonl to file.")
                 continue
 
     # Write JSONL output
@@ -280,33 +280,32 @@ def extract_qa_pairs(input_file="merged_results.jsonl",
         for pair in qa_pairs:
             f.write(json.dumps(pair, ensure_ascii=False) + "\n")
 
-    print(f"Saved {len(qa_pairs)} QA pairs → {output_file}")
+    logger.info("Saved %s QA pairs -> %s", len(qa_pairs), output_file)
 
 
-def clean_text(text):
+def clean_text(text: str) -> str:
+    """Clean up text, removing whitespace and lowering."""
     return re.sub(r"\s+", " ", text.strip().lower())
 
 
-def valid_numeric_answer(answer):
+def valid_numeric_answer(answer: str) -> bool:
+    """Check integer is found in #### format."""
     match = re.search(r"####\s*(-?\d+)", answer)
     return match is not None
 
 
-def generate_ngrams(text, n):
+def generate_ngrams(text: str, n: int) -> Generator[Any]:
+    """Generate ngrams."""
     tokens = clean_text(text).split()
-    return set(
-        tuple(tokens[i:i+n])
-        for i in range(len(tokens) - n + 1)
-    )
+
+    if n <= 0 or len(tokens) < n:
+        return []
+
+    return zip(*(tokens[i:] for i in range(n)), strict=True)
 
 
-def jaccard_similarity(set1, set2):
-    if not set1 or not set2:
-        return 0
-    return len(set1 & set2) / len(set1 | set2)
-
-def filter_and_deduplicate(data):
-
+def filter_and_deduplicate(data: list[dict]) -> list:
+    """Clean up data before it is used."""
     filtered = []
     seen_questions = set()
     ngram_index = []
@@ -338,7 +337,8 @@ def filter_and_deduplicate(data):
     return filtered
 
 
-def train_val_split(data):
+def train_val_split(data: list[dict]) -> tuple[list[dict], list[dict]]:
+    """Randomly split data into train and validation."""
     random.seed(SEED)
     random.shuffle(data)
 
@@ -349,132 +349,112 @@ def train_val_split(data):
 
     return train, val
 
-def create_split_files():
 
-    print("Loading data...")
+def create_split_files() -> None:
+    """Create train and valid jsonl files."""
+    logger.info("Loading data...")
     data = []
 
-    with open(INPUT_FILE, "r", encoding="utf-8") as f:
+    with Path(INPUT_FILE).open(encoding="utf-8") as f:
         for line in f:
-            data.append(json.loads(line))
+            data.extend(json.loads(line))
 
-    print(f"Original samples: {len(data)}")
+    logger.info("Original samples: %s", len(data))
 
-    print("Filtering + deduplicating...")
+    logger.info("Filtering + deduplicating...")
     data = filter_and_deduplicate(data)
 
-    print(f"After filtering: {len(data)}")
+    logger.info("After filtering: %s", len(data))
 
-    print("Splitting train/validation...")
+    logger.info("Splitting train/validation...")
     train, val = train_val_split(data)
 
-    print(f"Train: {len(train)}")
-    print(f"Validation: {len(val)}")
+    logger.info("Train: %s", len(train))
+    logger.info("Validation: %s", len(val))
 
-    with open(TRAIN_OUT, "w", encoding="utf-8") as f:
-        for item in train:
-            f.write(json.dumps(item, ensure_ascii=False) + "\n")
+    with Path(TRAIN_OUT).open("w", encoding="utf-8") as f:
+        f.writelines(json.dumps(item, ensure_ascii=False) + "\n" for item in train)
 
-    with open(VAL_OUT, "w", encoding="utf-8") as f:
-        for item in val:
-            f.write(json.dumps(item, ensure_ascii=False) + "\n")
+    with Path(VAL_OUT).open("w", encoding="utf-8") as f:
+        f.writelines(json.dumps(item, ensure_ascii=False) + "\n" for item in val)
 
-    print("Done.")
-
-def append_gsm8k_main_to_jsonl(output_path="qa_pairs.jsonl"):
-    """
-    Loads the main train split of GSM8K from Hugging Face
-    and appends it to a JSONL file in question/answer format.
-    """
-
-    dataset = load_dataset("gsm8k", "main", split="train")
-
-    with open(output_path, "a", encoding="utf-8") as f:
-        for example in dataset:
-            record = {
-                "question": example["question"].strip(),
-                "answer": example["answer"].strip(),
-            }
-            f.write(json.dumps(record, ensure_ascii=False) + "\n")
-
-    print(f"Appended {len(dataset)} GSM8K main examples to {output_path}")
+    logger.info("Done.")
 
 
 if __name__ == "__main__":
-    # parser = argparse.ArgumentParser()
-    # parser.add_argument(
-    #     "--output_file", type=str, default="gsm8k_socratic_results11.jsonl"
-    # )
-    # parser.add_argument(
-    #     "--start_index",
-    #     type=int,
-    #     default=2000,
-    #     help="Resume batching from dataset index",
-    # )
-    # args = parser.parse_args()
-    #
-    # dataset = load_and_process_gsm8k()
-    #
-    # logger.info("Starting sequential batching...")
-    #
-    # for chunk_id, chunk_indices in enumerate(
-    #     chunk_dataset(dataset, chunk_size=1000, start_index=args.start_index)
-    # ):
-    #     print(chunk_indices)
-    #     logger.info("Processing chunk %d", chunk_id)
-    #
-    #     chunk_file = Path(f"batch_input_chunk_{chunk_id}.jsonl")
-    #
-    #     with chunk_file.open("w", encoding="utf-8") as f:
-    #         for i in chunk_indices:
-    #             raw_text = dataset.train[i]["text"]
-    #
-    #             try:
-    #                 question, answer = extract_qa(raw_text)
-    #             except Exception:
-    #                 logger.exception("Skipping entry %d", i)
-    #                 continue
-    #
-    #             entry = {
-    #                 "custom_id": f"gsm8k_{i}",
-    #                 "method": "POST",
-    #                 "url": "/v1/responses",
-    #                 "body": {
-    #                     "model": "gpt-5-mini-2025-08-07",
-    #                     "input": [
-    #                         {"role": "system", "content": DATASET_CONVERSION_PROMPT2},
-    #                         {
-    #                             "role": "user",
-    #                             "content": f"Problem:\n{question}\n\nSolution:\n{answer}\nConvert the solution into Socratic question-solution pairs.",
-    #                         },
-    #                     ],
-    #                     "max_output_tokens": MAX_CONVERSION_OUTPUT_TOKENS,
-    #                     "reasoning": {"effort": "low"},
-    #                 },
-    #             }
-    #
-    #             f.write(json.dumps(entry, ensure_ascii=False) + "\n")
-    #
-    #     # Submit chunk batch
-    #     logger.info("Submitting chunk batch...")
-    #
-    #     batch_id = submit_batch(chunk_file)
-    #     batch = wait_for_batch(batch_id)
-    #
-    #     if batch.status != "completed":
-    #         logger.error("Batch failed. Stopping pipeline.")
-    #         break
-    #
-    #     if batch.output_file_id:
-    #         download_results(
-    #             batch.output_file_id,
-    #             Path(f"socratic_results/{args.output_file}_{chunk_id}.jsonl"),
-    #         )
-    #
-    #     logger.info("Chunk %d finished.", chunk_id)
-    #     time.sleep(10)
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "--output_file", type=str, default="gsm8k_socratic_results11.jsonl"
+    )
+    parser.add_argument(
+        "--start_index",
+        type=int,
+        default=2000,
+        help="Resume batching from dataset index",
+    )
+    args = parser.parse_args()
 
-    # merge_files()
-    # extract_qa_pairs()
-    append_gsm8k_main_to_jsonl()
+    dataset = load_and_process_gsm8k()
+
+    logger.info("Starting sequential batching...")
+
+    for chunk_id, chunk_indices in enumerate(
+        chunk_dataset(dataset, chunk_size=1000, start_index=args.start_index)
+    ):
+        logger.info(chunk_indices)
+        logger.info("Processing chunk %d", chunk_id)
+
+        chunk_file = Path(f"batch_input_chunk_{chunk_id}.jsonl")
+
+        with chunk_file.open("w", encoding="utf-8") as f:
+            for i in chunk_indices:
+                raw_text = dataset.train[i]["text"]
+
+                try:
+                    question, answer = extract_qa(raw_text)
+                except Exception:
+                    logger.exception("Skipping entry %d", i)
+                    continue
+
+                entry = {
+                    "custom_id": f"gsm8k_{i}",
+                    "method": "POST",
+                    "url": "/v1/responses",
+                    "body": {
+                        "model": "gpt-5-mini-2025-08-07",
+                        "input": [
+                            {"role": "system", "content": DATASET_CONVERSION_PROMPT2},
+                            {
+                                "role": "user",
+                                "content": f"Problem:\n{question}\n\nSolution:\n{answer}\nConvert the solution into Socratic question-solution pairs.",
+                            },
+                        ],
+                        "max_output_tokens": MAX_CONVERSION_OUTPUT_TOKENS,
+                        "reasoning": {"effort": "low"},
+                    },
+                }
+
+                f.write(json.dumps(entry, ensure_ascii=False) + "\n")
+
+        # Submit chunk batch
+        logger.info("Submitting chunk batch...")
+
+        batch_id = submit_batch(chunk_file)
+        batch = wait_for_batch(batch_id)
+
+        if batch.status != "completed":
+            logger.error("Batch failed. Stopping pipeline.")
+            break
+
+        if batch.output_file_id:
+            download_results(
+                batch.output_file_id,
+                Path(f"socratic_results/{args.output_file}_{chunk_id}.jsonl"),
+            )
+
+        logger.info("Chunk %d finished.", chunk_id)
+        time.sleep(10)
+
+    merge_files()
+    extract_qa_pairs()
     create_split_files()
