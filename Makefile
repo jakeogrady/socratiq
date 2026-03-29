@@ -6,7 +6,6 @@ lint:
 pre-commit-all:
 	uv run pre-commit run --all-files
 
-# Run with make baseline-eval START_INDEX=100
 ADAPTER_PATH?=
 NUM_SAMPLES?=
 FEW_SHOT_NUM?=
@@ -65,7 +64,7 @@ loop-eval-svamp:
 		$(MAKE) baseline-eval-svamp \
 		MODEL_NAME=${MODEL_NAME} \
 		ADAPTER_PATH=${ADAPTER_PATH} \
-		FEW_SHOT_NUM=4 \
+		FEW_SHOT_NUM=0 \
 		NUM_SAMPLES=$$n; \
 	done
 
@@ -74,7 +73,7 @@ loop-eval-multiarith:
 		$(MAKE) baseline-eval-multiarith \
 		MODEL_NAME=${MODEL_NAME} \
 		ADAPTER_PATH=${ADAPTER_PATH} \
-		FEW_SHOT_NUM=4 \
+		FEW_SHOT_NUM=0 \
 		NUM_SAMPLES=$$n; \
 	done
 

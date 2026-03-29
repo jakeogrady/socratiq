@@ -133,12 +133,15 @@ def self_consistency_generate(model, tokenizer, prompt, num_samples=5):
 
 
 def extract_final_number(text, answer_regex=r"[-+]?\d*\.?\d+"):
-    """Extract the last number from a generated answer string."""
+    # Try #### marker first
+    hash_match = re.search(r"####\s*([-+]?\d*\.?\d+)", text)
+    if hash_match:
+        return hash_match.group(1)
+    # Fall back to last number if no marker found
     matches = re.findall(answer_regex, text)
     if matches:
         return matches[-1]
     return None
-
 
 def majority_vote(answers):
     """Return the most common answer in a list of answers."""
@@ -183,9 +186,10 @@ if __name__ == "__main__":
 
     # Setup CSV
     safe_model_name = args.model_name.replace("/", "-")
+    adapter_tag = Path(args.adapter_path).stem if args.adapter_path else ""
     eval_filename = (
         f"eval_results/{safe_model_name}_{args.dataset_name.replace('/', '-')}"
-        f"{'_adapter' if args.adapter_path else ''}_{args.num_samples}_{args.results_file}"
+        f"{f'_{adapter_tag}' if adapter_tag else ''}_{args.num_samples}_{args.results_file}"
     )
     logger.info("Model Filename %s", eval_filename)
 
@@ -212,13 +216,15 @@ if __name__ == "__main__":
             answer_column=args.answer_column,
         )
 
-        chat = [{"role": "user", "content": text_prompt}]
+        print(text_prompt)
 
-        text_prompt = tokenizer.apply_chat_template(
-            chat,
-            tokenize=False,
-            add_generation_prompt=True,
-        )
+        # chat = [{"role": "user", "content": text_prompt}]
+        #
+        # text_prompt = tokenizer.apply_chat_template(
+        #     chat,
+        #     tokenize=False,
+        #     add_generation_prompt=True,
+        # )
 
         logger.info("Evaluating question index %d", i)
 
@@ -237,7 +243,8 @@ if __name__ == "__main__":
             if extract_final_number(r) is not None
         ]
         predicted_answer = majority_vote(answers)
-        correct_answer = get_answer(dataset, i, answer_column=args.answer_column)
+        raw_answer = get_answer(dataset, i, answer_column=args.answer_column)
+        correct_answer = extract_final_number(str(raw_answer))
 
         is_correct = predicted_answer is not None and validate_answer(
             predicted_answer, correct_answer
