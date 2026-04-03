@@ -1,0 +1,8 @@
+Loading configuration file llama-lora-config-run-1.yaml
+Loading pretrained model
+Fetching 6 files:   0%|          | 0/6 [00:00<?, ?it/s]Fetching 6 files: 100%|██████████| 6/6 [00:00<00:00, 22329.92it/s]
+Loading datasets
+Training
+Trainable parameters: 0.069% (0.852M/1235.814M)
+Starting training..., iters: 6000
+Calculating loss...:   0%|          | 0/25 [00:00<?, ?it/s]

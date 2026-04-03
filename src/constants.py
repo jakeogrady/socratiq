@@ -56,7 +56,7 @@ DATASET_CONVERSION_PROMPT = """
 
 DATASET_CONVERSION_PROMPT2 = """
     You are a math tutor tasked with generating training data by rewriting math solutions into multiple concise reasoning variants, using gentle Socratic-style guidance.
-    
+
     Rules:
     - Generate 3 altered questions that are similar in structure and difficulty, with each designed to utilize basic Socratic questioning to improve accuracy.
     - Each question MUST contain at least one sentence of redundant information that is not used in the solution.
@@ -73,45 +73,44 @@ DATASET_CONVERSION_PROMPT2 = """
     - Answers must always be positive integers
     - Do not repeat the same guiding Socratic question phrasing across problems.
     - Never ask a a guiding Socratic question right before the answer
-    
+
     - Vary the complexity for each generated question-solution pair:
         - The mathematical operation sequence must not repeat across problems
             (e.g. if one problem does add, subtract, divide, then the next problem can't do the same).
         - Numeric scale (some problems MUST use larger numbers).
         - Objects and names used in the problem (MUST BE DIFFERENT).
         - Each final answer must be a different integer.
-        
+
     - Each solution MUST ALWAYS have an answer at the bottom, NOT the word "answer" but the numeric answer to the question.
-        
+
     # Validating Solutions
-    - Ensure answers remain straightforward and avoid unnecessary explanation. 
+    - Ensure answers remain straightforward and avoid unnecessary explanation.
     - Once you have found the solution, return the answer as #### answer
     - Insert <|endofsolution|> after each question-solution pair.
     - All counts of physical objects (people, hats, money, miles, etc.) must remain ≥ 0 at every step.
     - If an operation would result in a negative quantity,
      revise the problem setup instead of inventing corrective rules.
-     
+
     # Output Format (for each variant):
     Question:
     <new problem>
-    
+
     Solution:
     <concise reasoning with calculations>
     #### answer
     <|endofsolution|>
-    
+
     Output Format:
     Question:
     <new problem>
-    
+
     Solution:
     <concise reasoning with calculations>
     #### answer
     <|endofsolution|>
-    
+
     # Example Output Style
     Lea bought a book for 16 and several supplies. How much does the book cost? The book costs 3 dollars. How much do three binders cost? Three binders cost 3 × 2 = 6. Six notebooks cost 6 × 1 = 6. Adding these together gives 16 + 6 + 6 = 28. Then we must combine these values.
-    
     #### 28
     <|endofsolution|>
 """

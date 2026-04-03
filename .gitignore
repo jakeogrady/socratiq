@@ -18,7 +18,8 @@ smollm_lora_test/
 # converted dataset
 src/data/**.jsonl
 
-adapters*/
+**adapters*/
+**.log
 
 data/
 

@@ -7,18 +7,9 @@ from collections import Counter
 from pathlib import Path
 
 import pandas as pd
-from datasets import Dataset
+from datasets import Dataset, load_dataset
 from mlx_lm import generate, load
 from mlx_lm.sample_utils import make_sampler
-
-from src.constants import (
-    ANSWER_REGEX,
-    FEW_SHOT_NUM,
-    QUESTION_REGEX,
-    TEST_CASES,
-)
-from src.models import load_and_process_gsm8k
-from src.summarize import summarize_results
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
@@ -32,119 +23,102 @@ CSV_COLUMNS = [
 ]
 
 
+def build_parser() -> argparse.ArgumentParser:
+    """Build the argument parser for the evaluation script."""
+    parser = argparse.ArgumentParser()
+
+    parser.add_argument("--model_name", type=str, help="Model name or path")
+    parser.add_argument(
+        "--test_cases", type=int, default=100, help="Number of test cases"
+    )
+    parser.add_argument(
+        "--few_shot_num", type=int, default=4, help="Number of few-shot examples"
+    )
+    parser.add_argument(
+        "--start_index", type=int, default=0, help="Start evaluation from this index"
+    )
+    parser.add_argument(
+        "--results_file",
+        type=str,
+        default="evaluation_results.csv",
+        help="CSV to append results",
+    )
+    parser.add_argument("--print_answer", action="store_true", default=False)
+    parser.add_argument("--print_prompt", action="store_true")
+    parser.add_argument("--adapter_path", type=str, default=None)
+    parser.add_argument(
+        "--num_samples",
+        type=int,
+        default=5,
+        help="Self-consistency samples per question",
+    )
+    parser.add_argument("--self_consistency", action="store_true", default=True)
+    parser.add_argument(
+        "--dataset_name", type=str, default="gsm8k", help="HF dataset name"
+    )
+    parser.add_argument(
+        "--dataset_config", type=str, default=None, help="HF dataset config"
+    )
+    parser.add_argument(
+        "--dataset_split", type=str, default="test", help="Dataset split to evaluate"
+    )
+    parser.add_argument(
+        "--text_column", type=str, default="text", help="Column with questions"
+    )
+    parser.add_argument(
+        "--answer_column",
+        type=str,
+        default="answer",
+        help="Column with correct answers",
+    )
+
+    return parser
+
+
+def load_hf_dataset(
+    dataset_name: str, split: str = "test", dataset_config: str = None
+) -> Dataset:
+    """Load any Hugging Face dataset split as a Dataset object."""
+    if dataset_config:
+        dataset = load_dataset(dataset_name, dataset_config, split=split)
+    else:
+        dataset = load_dataset(dataset_name, split=split)
+    return dataset
+
+
 def generate_prompt(
-    train_set: Dataset,
-    test_set: Dataset,
+    train_set,
+    test_set,
     few_shot_num: int = 4,
     target_question_index: int = 0,
+    text_column: str = "text",
+    answer_column: str = "answer",
 ) -> str:
-    """Generate a few-shot prompt for GSM8K evaluation."""
-    few_shot_texts = train_set[:few_shot_num]["text"]
+    """Generate a few-shot prompt for any HF dataset including answers in few-shots."""
+    few_shot_texts = []
+    for i in range(few_shot_num):
+        example = train_set[i]
+        q = example[text_column].strip()
+        a = str(example[answer_column]).strip()
+        few_shot_texts.append(f"Question: {q}\nAnswer: {a}")
+
     few_shot_block = "\n\n".join(few_shot_texts)
 
     instruction_block = (
         "You are a helpful math tutor. Solve the following problems step by step.\n\n"
     )
 
-    match = re.search(
-        QUESTION_REGEX,
-        test_set[target_question_index]["text"],
-        re.DOTALL,
+    target_question = test_set[target_question_index][text_column].strip()
+
+    prompt = (
+        f"{instruction_block}{few_shot_block}\n\nQuestion: {target_question}\nAnswer:"
     )
 
-    if not match:
-        msg = "Could not extract question at index {target_question_index}"
-        raise ValueError(msg)
-
-    target_question = match.group(1).strip()
-
-    return (
-        instruction_block
-        + few_shot_block
-        + "\n\nQuestion: "
-        + target_question
-        + "\nAnswer:"
-    )
-
-
-def validate_answer(generated_answer: str, correct_answer: str) -> bool:
-    """Validate if the generated answer matches the correct answer."""
-    try:
-        logger.info(
-            "Validating Generated Answer: %s against Correct Answer: %s",
-            generated_answer,
-            correct_answer,
-        )
-        return int(generated_answer) == int(correct_answer)
-    except Exception:
-        return False
-
-
-def build_parser() -> argparse.ArgumentParser:
-    """Build the argument parser for the evaluation script."""
-    parser = argparse.ArgumentParser()
-
-    parser.add_argument(
-        "--model_name",
-        type=str,
-        help="Model name or path",
-    )
-    parser.add_argument(
-        "--test_cases",
-        type=int,
-        default=TEST_CASES,
-        help="Number of test cases to evaluate",
-    )
-    parser.add_argument(
-        "--few_shot_num",
-        type=int,
-        default=FEW_SHOT_NUM,
-        help="Number of few-shot examples",
-    )
-    parser.add_argument(
-        "--start_index",
-        type=int,
-        default=0,
-        help="Start evaluation from this test case index (0-based)",
-    )
-    parser.add_argument(
-        "--results_file",
-        type=str,
-        default="evaluation_results.csv",
-        help="File to append results to (CSV)",
-    )
-    parser.add_argument(
-        "--print_answer",
-        action="store_true",
-        default=False,
-        help="Whether to print the generated answers",
-    )
-    parser.add_argument(
-        "--print_prompt", action="store_true", help="Whether to print the prompts"
-    )
-
-    parser.add_argument(
-        "--adapter_path",
-        type=str,
-        default=None,
-        help="Path to LoRA qwen3_adapters directory",
-    )
-
-    parser.add_argument(
-        "--num_samples",
-        type=int,
-        default=5,
-        help="Number of self-consistency samples per question",
-    )
-
-    parser.add_argument(
-        "--self-consistency", action="store_true", default=True, help="Self Consistency"
-    )
-
-    return parser
+    return prompt
 
 
 def self_consistency_generate(model, tokenizer, prompt, num_samples=5):
+    """Generate multiple responses for self-consistency sampling."""
     responses = []
 
     for _ in range(num_samples):
@@ -158,18 +132,36 @@ def self_consistency_generate(model, tokenizer, prompt, num_samples=5):
     return responses
 
 
-def extract_final_number(text):
-    matches = re.findall(ANSWER_REGEX, text)
+def extract_final_number(text, answer_regex=r"[-+]?\d*\.?\d+"):
+    # Try #### marker first
+    hash_match = re.search(r"####\s*([-+]?\d*\.?\d+)", text)
+    if hash_match:
+        return hash_match.group(1)
+    # Fall back to last number if no marker found
+    matches = re.findall(answer_regex, text)
     if matches:
         return matches[-1]
     return None
 
-
 def majority_vote(answers):
+    """Return the most common answer in a list of answers."""
     if not answers:
         return None
 
     return Counter(answers).most_common(1)[0][0]
+
+
+def validate_answer(generated_answer: str, correct_answer: str) -> bool:
+    """Check if the generated answer matches the correct answer."""
+    try:
+        return int(generated_answer) == int(correct_answer)
+    except Exception:
+        return False
+
+
+def get_answer(dataset, index: int, answer_column: str = "answer"):
+    """Retrieve the correct answer for a dataset row."""
+    return dataset[index][answer_column]
 
 
 if __name__ == "__main__":
@@ -181,47 +173,58 @@ if __name__ == "__main__":
     if args.adapter_path:
         logger.info("Loading Adapters Directory...")
         model, tokenizer = load(args.model_name, adapter_path=args.adapter_path)
-
-        logger.info("Loaded Fine-tuned model")
     else:
         logger.info("Loading base model (no adapters)")
         model, tokenizer = load(args.model_name)
 
-    answer_correct = 0
+    # Load dataset
+    dataset = load_hf_dataset(
+        args.dataset_name,
+        split=args.dataset_split,
+        dataset_config=args.dataset_config,
+    )
 
-    dataset = load_and_process_gsm8k()
-
-    start = args.start_index
-    eval_filename = f"{args.model_name.replace('/', '-')}_{args.results_file}"
+    # Setup CSV
+    safe_model_name = args.model_name.replace("/", "-")
+    adapter_tag = Path(args.adapter_path).stem if args.adapter_path else ""
+    eval_filename = (
+        f"eval_results/{safe_model_name}_{args.dataset_name.replace('/', '-')}"
+        f"{f'_{adapter_tag}' if adapter_tag else ''}_{args.num_samples}_{args.results_file}"
+    )
     logger.info("Model Filename %s", eval_filename)
 
     try:
         df = pd.read_csv(eval_filename)
-        start = max(start, len(df))
+        start = max(args.start_index, len(df))
         logger.info("Resuming from index %d", start)
     except Exception as e:
         logger.warning("CSV corrupted — restarting from scratch %s", e)
         start = args.start_index
 
-    end = min(start + args.test_cases, len(dataset.test))
-
+    end = min(start + args.test_cases, len(dataset))
     logger.info("Evaluating test cases from %d to %d", start, end - 1)
+
+    answer_correct = 0
 
     for i in range(start, end):
         text_prompt = generate_prompt(
-            dataset.train,
-            dataset.test,
-            few_shot_num=4,
+            dataset,
+            dataset,
+            few_shot_num=args.few_shot_num,
             target_question_index=i,
+            text_column=args.text_column,
+            answer_column=args.answer_column,
         )
 
-        chat = [{"role": "user", "content": text_prompt}]
+        print(text_prompt)
 
-        text_prompt = tokenizer.apply_chat_template(
-            chat,
-            tokenize=False,
-            add_generation_prompt=True,
-        )
+        # chat = [{"role": "user", "content": text_prompt}]
+        #
+        # text_prompt = tokenizer.apply_chat_template(
+        #     chat,
+        #     tokenize=False,
+        #     add_generation_prompt=True,
+        # )
 
         logger.info("Evaluating question index %d", i)
 
@@ -232,33 +235,22 @@ if __name__ == "__main__":
                 model, tokenizer, text_prompt, num_samples=args.num_samples
             )
         else:
-            responses = [
-                generate(
-                    model,
-                    tokenizer,
-                    prompt=text_prompt,
-                    max_tokens=256,
-                )
-            ]
+            responses = [generate(model, tokenizer, prompt=text_prompt, max_tokens=256)]
 
-        logger.info("Response generated in %ss", time.time() - generation_start)
-
-        answers = []
-
-        for r in responses:
-            num = extract_final_number(r)
-            if num is not None:
-                answers.append(num)
-
+        answers = [
+            extract_final_number(r)
+            for r in responses
+            if extract_final_number(r) is not None
+        ]
         predicted_answer = majority_vote(answers)
-        correct_answer = dataset.get_test_case_answer(i)
+        raw_answer = get_answer(dataset, i, answer_column=args.answer_column)
+        correct_answer = extract_final_number(str(raw_answer))
 
-        is_correct = False
-
-        if predicted_answer is not None:
-            if validate_answer(predicted_answer, correct_answer):
-                is_correct = True
-                answer_correct += 1
+        is_correct = predicted_answer is not None and validate_answer(
+            predicted_answer, correct_answer
+        )
+        if is_correct:
+            answer_correct += 1
 
         file_exists = Path(eval_filename).exists()
 
@@ -267,7 +259,6 @@ if __name__ == "__main__":
 
             if not file_exists:
                 writer.writeheader()
-                file_exists = True
 
             writer.writerow(
                 {
@@ -279,11 +270,7 @@ if __name__ == "__main__":
                 }
             )
 
-    logger.info("Total Correct Answers: %d out of %d", answer_correct, args.test_cases)
     df = pd.read_csv(eval_filename)
     accuracy = df["is_correct"].mean() * 100
-
-    if len(df) == len(dataset.test):
-        summarize_results(eval_filename)
-
+    logger.info("Total Correct Answers: %d/%d", answer_correct, args.test_cases)
     logger.info("Accuracy: %.2f%%", accuracy)
