@@ -1,7 +1,11 @@
+import argparse
+import logging
 import re
 import sys
-import argparse
 from pathlib import Path
+
+logger = logging.getLogger(__name__)
+logging.basicConfig(level=logging.INFO)
 
 
 def parse_val_loss(log_file: str) -> list[tuple[int, float]]:
@@ -9,7 +13,7 @@ def parse_val_loss(log_file: str) -> list[tuple[int, float]]:
     pattern = re.compile(r"Iter\s+(\d+):\s+Val loss\s+([\d.]+)")
     results = []
 
-    with open(log_file, "r") as f:
+    with Path(log_file).open() as f:
         for line in f:
             match = pattern.search(line)
             if match:
@@ -22,8 +26,8 @@ def parse_val_loss(log_file: str) -> list[tuple[int, float]]:
 
 def print_table(results: list[tuple[int, float]]) -> None:
     """Print val loss as a formatted table."""
-    print(f"\n{'Iter':>8} {'Val Loss':>10} {'Change':>10}")
-    print("-" * 32)
+    logger.info("\n%8s %10s %10s", "Iter", "Val Loss", "Change")
+    logger.info("-" * 32)
 
     prev_loss = None
     best_iter, best_loss = None, float("inf")
@@ -40,16 +44,18 @@ def print_table(results: list[tuple[int, float]]) -> None:
             best_loss = val_loss
             best_iter = iter_num
 
-        print(f"{iter_num:>8} {val_loss:>10.4f} {change:>10}{marker}")
+        logger.info("%8d %10.4f %10s%s", iter_num, val_loss, change, marker)
         prev_loss = val_loss
 
-    print("-" * 32)
-    print(f"\nBest checkpoint: iter {best_iter} with val loss {best_loss:.4f}")
-    print(f"Recommendation: load adapter from iter {best_iter}, not the final checkpoint")
+    logger.info("-" * 32)
+    logger.info("\nBest checkpoint: iter %d with val loss %.4f", best_iter, best_loss)
+    logger.info(
+        "Recommendation: load adapter from iter %d, not the final checkpoint", best_iter
+    )
 
 
 def plot_ascii(results: list[tuple[int, float]]) -> None:
-    """Simple ASCII plot of val loss curve."""
+    """Plot a simple ASCII val loss curve."""
     if not results:
         return
 
@@ -60,8 +66,8 @@ def plot_ascii(results: list[tuple[int, float]]) -> None:
     height = 20
     width = min(len(results), 60)
 
-    print(f"\nVal Loss Curve ({min_loss:.3f} - {max_loss:.3f})")
-    print("=" * (width + 10))
+    logger.info("\nVal Loss Curve (%.3f - %.3f)", min_loss, max_loss)
+    logger.info("=" * (width + 10))
 
     # Sample evenly if too many points
     step = max(1, len(results) // width)
@@ -73,31 +79,40 @@ def plot_ascii(results: list[tuple[int, float]]) -> None:
         for _, loss in sampled:
             line += "█" if loss >= threshold else " "
         loss_label = f"{threshold:6.3f} |" if row % 4 == 0 else "       |"
-        print(f"{loss_label}{line}")
+        logger.info("%s%s", loss_label, line)
 
-    print("       +" + "-" * len(sampled))
-    print(f"        iter {iters[0]} {'':>{len(sampled)-20}} iter {iters[-1]}")
+    logger.info("       +%s", "-" * len(sampled))
+    logger.info(
+        "        iter %d %s iter %d",
+        iters[0],
+        " " * (len(sampled) - 20),
+        iters[-1],
+    )
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Parse and display MLX val loss from log file")
+    parser = argparse.ArgumentParser(
+        description="Parse and display MLX val loss from log file"
+    )
     parser.add_argument("log_file", help="Path to MLX training log file")
     parser.add_argument("--no-plot", action="store_true", help="Skip ASCII plot")
     args = parser.parse_args()
 
     if not Path(args.log_file).exists():
-        print(Path.cwd())
-        print(f"Error: log file '{args.log_file}' not found")
+        logger.info(Path.cwd())
+        logger.info("Error: log file '%s' not found", args.log_file)
         sys.exit(1)
 
     results = parse_val_loss(args.log_file)
 
     if not results:
-        print("No val loss entries found. Make sure you piped MLX training output to the log file.")
-        print("Example: mlx_lm.lora --config config.yaml 2>&1 | tee training.log")
+        logger.info(
+            "No val loss entries found. Make sure you piped MLX training output to the log file."
+        )
+        logger.info("Example: mlx_lm.lora --config config.yaml 2>&1 | tee training.log")
         sys.exit(1)
 
-    print(f"Found {len(results)} val loss checkpoints")
+    logger.info("Found %d val loss checkpoints", len(results))
     print_table(results)
 
     if not args.no_plot:

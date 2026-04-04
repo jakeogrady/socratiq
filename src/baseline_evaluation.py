@@ -10,11 +10,12 @@ import pandas as pd
 from datasets import Dataset, load_dataset
 from mlx_lm import generate, load
 from mlx_lm.sample_utils import make_sampler
+from transformers import PreTrainedModel, PreTrainedTokenizer
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
 
-CSV_COLUMNS = [
+CSV_COLUMNS: list[str] = [
     "test_index",
     "correct_answer",
     "generated_answer",
@@ -76,7 +77,9 @@ def build_parser() -> argparse.ArgumentParser:
 
 
 def load_hf_dataset(
-    dataset_name: str, split: str = "test", dataset_config: str = None
+    dataset_name: str,
+    split: str = "test",
+    dataset_config: str | None = None,
 ) -> Dataset:
     """Load any Hugging Face dataset split as a Dataset object."""
     if dataset_config:
@@ -87,44 +90,44 @@ def load_hf_dataset(
 
 
 def generate_prompt(
-    train_set,
-    test_set,
+    train_set: Dataset,
+    test_set: Dataset,
     few_shot_num: int = 4,
     target_question_index: int = 0,
     text_column: str = "text",
     answer_column: str = "answer",
 ) -> str:
     """Generate a few-shot prompt for any HF dataset including answers in few-shots."""
-    few_shot_texts = []
-    for i in range(few_shot_num):
-        example = train_set[i]
-        q = example[text_column].strip()
-        a = str(example[answer_column]).strip()
-        few_shot_texts.append(f"Question: {q}\nAnswer: {a}")
+    few_shot_texts: list[str] = []
+    for shot_index in range(few_shot_num):
+        example: dict = train_set[shot_index]
+        question_text: str = example[text_column].strip()
+        answer_text: str = str(example[answer_column]).strip()
+        few_shot_texts.append(f"Question: {question_text}\nAnswer: {answer_text}")
 
-    few_shot_block = "\n\n".join(few_shot_texts)
-
-    instruction_block = (
+    few_shot_block: str = "\n\n".join(few_shot_texts)
+    instruction_block: str = (
         "You are a helpful math tutor. Solve the following problems step by step.\n\n"
     )
+    target_question: str = test_set[target_question_index][text_column].strip()
 
-    target_question = test_set[target_question_index][text_column].strip()
-
-    prompt = (
+    return (
         f"{instruction_block}{few_shot_block}\n\nQuestion: {target_question}\nAnswer:"
     )
 
-    return prompt
 
-
-def self_consistency_generate(model, tokenizer, prompt, num_samples=5):
+def self_consistency_generate(
+    model: PreTrainedModel,
+    tokenizer: PreTrainedTokenizer,
+    prompt: str,
+    num_samples: int = 5,
+) -> list[str]:
     """Generate multiple responses for self-consistency sampling."""
-    responses = []
+    responses: list[str] = []
 
     for _ in range(num_samples):
         sampler = make_sampler(temp=0.7, top_p=0.95, top_k=20, min_p=0)
-
-        response = generate(
+        response: str = generate(
             model, tokenizer, prompt=prompt, max_tokens=256, sampler=sampler
         )
         responses.append(response)
@@ -132,41 +135,43 @@ def self_consistency_generate(model, tokenizer, prompt, num_samples=5):
     return responses
 
 
-def extract_final_number(text, answer_regex=r"[-+]?\d*\.?\d+"):
-    # Try #### marker first
+def extract_final_number(
+    text: str,
+    answer_regex: str = r"[-+]?\d*\.?\d+",
+) -> str | None:
+    """Extract the final numeric answer from a model response, preferring the #### marker."""
     hash_match = re.search(r"####\s*([-+]?\d*\.?\d+)", text)
     if hash_match:
         return hash_match.group(1)
-    # Fall back to last number if no marker found
-    matches = re.findall(answer_regex, text)
+    matches: list[str] = re.findall(answer_regex, text)
     if matches:
         return matches[-1]
     return None
 
-def majority_vote(answers):
-    """Return the most common answer in a list of answers."""
+
+def majority_vote(answers: list[str]) -> str | None:
+    """Return the most common answer in a list of candidate answers."""
     if not answers:
         return None
-
     return Counter(answers).most_common(1)[0][0]
 
 
 def validate_answer(generated_answer: str, correct_answer: str) -> bool:
-    """Check if the generated answer matches the correct answer."""
+    """Check if the generated answer matches the correct answer as integers."""
     try:
         return int(generated_answer) == int(correct_answer)
     except Exception:
         return False
 
 
-def get_answer(dataset, index: int, answer_column: str = "answer"):
-    """Retrieve the correct answer for a dataset row."""
+def get_answer(dataset: Dataset, index: int, answer_column: str = "answer") -> str:
+    """Retrieve the correct answer string for a given dataset row index."""
     return dataset[index][answer_column]
 
 
 if __name__ == "__main__":
-    parser = build_parser()
-    args = parser.parse_args()
+    parser: argparse.ArgumentParser = build_parser()
+    args: argparse.Namespace = parser.parse_args()
 
     logger.info("Model Name: %s", args.model_name)
 
@@ -177,59 +182,48 @@ if __name__ == "__main__":
         logger.info("Loading base model (no adapters)")
         model, tokenizer = load(args.model_name)
 
-    # Load dataset
-    dataset = load_hf_dataset(
+    dataset: Dataset = load_hf_dataset(
         args.dataset_name,
         split=args.dataset_split,
         dataset_config=args.dataset_config,
     )
 
-    # Setup CSV
-    safe_model_name = args.model_name.replace("/", "-")
-    adapter_tag = Path(args.adapter_path).stem if args.adapter_path else ""
-    eval_filename = (
-        f"eval_results/{safe_model_name}_{args.dataset_name.replace('/', '-')}"
-        f"{f'_{adapter_tag}' if adapter_tag else ''}_{args.num_samples}_{args.results_file}"
-    )
+    safe_model_name: str = args.model_name.replace("/", "-")
+    adapter_tag: str = Path(args.adapter_path).stem if args.adapter_path else ""
+    dataset_tag: str = args.dataset_name.replace("/", "-")
+    adapter_suffix: str = f"_{adapter_tag}" if adapter_tag else ""
+    eval_filename: str = f"eval_results/{safe_model_name}_{dataset_tag}{adapter_suffix}_{args.num_samples}_{args.results_file}"
     logger.info("Model Filename %s", eval_filename)
 
+    start: int
     try:
-        df = pd.read_csv(eval_filename)
-        start = max(args.start_index, len(df))
+        existing_df: pd.DataFrame = pd.read_csv(eval_filename)
+        start = max(args.start_index, len(existing_df))
         logger.info("Resuming from index %d", start)
-    except Exception as e:
-        logger.warning("CSV corrupted — restarting from scratch %s", e)
+    except Exception as resume_error:
+        logger.warning("CSV corrupted — restarting from scratch %s", resume_error)
         start = args.start_index
 
-    end = min(start + args.test_cases, len(dataset))
+    end: int = min(start + args.test_cases, len(dataset))
     logger.info("Evaluating test cases from %d to %d", start, end - 1)
 
-    answer_correct = 0
+    answer_correct: int = 0
 
-    for i in range(start, end):
-        text_prompt = generate_prompt(
+    for question_index in range(start, end):
+        text_prompt: str = generate_prompt(
             dataset,
             dataset,
             few_shot_num=args.few_shot_num,
-            target_question_index=i,
+            target_question_index=question_index,
             text_column=args.text_column,
             answer_column=args.answer_column,
         )
 
-        print(text_prompt)
+        logger.info("Evaluating question index %d", question_index)
 
-        # chat = [{"role": "user", "content": text_prompt}]
-        #
-        # text_prompt = tokenizer.apply_chat_template(
-        #     chat,
-        #     tokenize=False,
-        #     add_generation_prompt=True,
-        # )
+        _generation_start: float = time.time()
 
-        logger.info("Evaluating question index %d", i)
-
-        generation_start = time.time()
-
+        responses: list[str]
         if args.self_consistency:
             responses = self_consistency_generate(
                 model, tokenizer, text_prompt, num_samples=args.num_samples
@@ -237,32 +231,36 @@ if __name__ == "__main__":
         else:
             responses = [generate(model, tokenizer, prompt=text_prompt, max_tokens=256)]
 
-        answers = [
-            extract_final_number(r)
-            for r in responses
-            if extract_final_number(r) is not None
+        candidate_answers: list[str] = [
+            extract_final_number(response)
+            for response in responses
+            if extract_final_number(response) is not None
         ]
-        predicted_answer = majority_vote(answers)
-        raw_answer = get_answer(dataset, i, answer_column=args.answer_column)
-        correct_answer = extract_final_number(str(raw_answer))
+        predicted_answer: str | None = majority_vote(candidate_answers)
+        raw_answer: str = get_answer(
+            dataset, question_index, answer_column=args.answer_column
+        )
+        correct_answer: str | None = extract_final_number(str(raw_answer))
 
-        is_correct = predicted_answer is not None and validate_answer(
+        is_correct: bool = predicted_answer is not None and validate_answer(
             predicted_answer, correct_answer
         )
         if is_correct:
             answer_correct += 1
 
-        file_exists = Path(eval_filename).exists()
+        result_file_exists: bool = Path(eval_filename).exists()
 
-        with Path(eval_filename).open("a", newline="", encoding="utf-8") as f:
-            writer = csv.DictWriter(f, fieldnames=CSV_COLUMNS, quoting=csv.QUOTE_ALL)
+        with Path(eval_filename).open("a", newline="", encoding="utf-8") as csv_file:
+            writer: csv.DictWriter = csv.DictWriter(
+                csv_file, fieldnames=CSV_COLUMNS, quoting=csv.QUOTE_ALL
+            )
 
-            if not file_exists:
+            if not result_file_exists:
                 writer.writeheader()
 
             writer.writerow(
                 {
-                    "test_index": i,
+                    "test_index": question_index,
                     "correct_answer": correct_answer,
                     "generated_answer": predicted_answer or "No Answer",
                     "is_correct": is_correct,
@@ -270,7 +268,7 @@ if __name__ == "__main__":
                 }
             )
 
-    df = pd.read_csv(eval_filename)
-    accuracy = df["is_correct"].mean() * 100
+    results_df: pd.DataFrame = pd.read_csv(eval_filename)
+    accuracy: float = results_df["is_correct"].mean() * 100
     logger.info("Total Correct Answers: %d/%d", answer_correct, args.test_cases)
     logger.info("Accuracy: %.2f%%", accuracy)
