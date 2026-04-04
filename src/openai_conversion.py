@@ -135,41 +135,6 @@ def download_results(output_file_id: str, save_path: Path) -> None:
     logger.info("Results saved to %s", save_path)
 
 
-def batch_prompt(
-    batch_input_path: str,
-    output_file: str,
-) -> None:
-    """Submit batching to OpenAI."""
-    batch_input_path = Path(batch_input_path)
-
-    if not batch_input_path.exists():
-        msg = "Batch input file not found"
-        raise ValueError(msg)
-
-    batch_id = submit_batch(batch_input_path)
-    batch = wait_for_batch(batch_id)
-
-    if batch.status != "completed":
-        logger.error("Batch failed with status: %s", batch.status)
-        return
-
-    if batch.output_file_id:
-        download_results(batch.output_file_id, Path(output_file))
-    else:
-        logger.error("No output_file_id found")
-
-
-def load_completed(path: str) -> list[dict]:
-    """Find lines in a .jsonl file that have been completed."""
-    completed = []
-    with Path(path).open() as f:
-        for line in f:
-            obj = json.loads(line)
-            if obj["response"]["body"].get("status") == "completed":
-                completed.append(obj)
-    return completed
-
-
 def chunk_dataset(
     dataset: DatasetDict, chunk_size: int = 1000, start_index: int = 0
 ) -> Generator:
