@@ -1,0 +1,172 @@
+# Socratiq
+
+Fine-tuning small language models to solve grade-school math problems using Socratic reasoning. Built on the GSM8K benchmark, this project converts standard math solutions into step-by-step Socratic question-answer pairs, fine-tunes Qwen3 models via LoRA, and evaluates accuracy with self-consistency sampling.
+
+---
+
+## Results
+
+| Model | Base Accuracy | Fine-tuned Accuracy | Gain |
+|---|---|---|---|
+| Qwen3-0.6B | 36.47% | 49.05% | +12.58pp |
+| Qwen3-1.7B | 53.53% | 66.49% | +12.96pp |
+
+Evaluated on GSM8K, 4-shot, 1 sample.
+
+---
+
+## How It Works
+
+**1. Dataset Generation** — GSM8K solutions are sent to GPT via the OpenAI Batch API and rewritten into Socratic question-solution pairs (`openai_conversion.py`). Each output is cleaned, deduplicated, and split into train/validation sets.
+
+**2. Data Cleaning** — Trailing rhetorical questions are stripped, answer formatting is normalised, and bad samples are filtered out (`dataset_improvement.py`).
+
+**3. Fine-tuning** — LoRA adapters are trained on the converted dataset using `mlx-lm` on Apple Silicon. Training logs are parsed and visualised to find the best checkpoint (`val_loss.py`).
+
+**4. Evaluation** — Models are evaluated on GSM8K with optional self-consistency sampling (majority vote over multiple samples) and results written to CSV (`baseline_evaluation.py`).
+
+**5. Figures** — All paper figures are generated from `generate_figures.py` and `lora_figure.py`, saved as both PDF and PNG under `outputs/`.
+
+---
+
+## Project Structure
+
+```
+socratiq/
+├── src/
+│   ├── __init__.py
+│   ├── constants.py            # Prompts, regex patterns, model paths
+│   └── models.py               # GSM8K dataset loader and preprocessor
+├── baseline_evaluation.py      # Model evaluation with self-consistency
+├── dataset_improvement.py      # Data cleaning pipeline
+├── generate_figures.py         # Result figures (bar charts, line plots)
+├── lora_figure.py              # LoRA architecture diagram
+├── openai_conversion.py        # GPT batch API dataset conversion
+├── val_loss.py                 # Training log parser and ASCII loss curve
+├── outputs/                    # Saved figures (.pdf + .png)
+├── new_data/                   # Raw converted dataset
+├── new_data_clean/             # Cleaned train/valid/test splits
+└── pyproject.toml
+```
+
+---
+
+## Getting Started
+
+This project uses [uv](https://docs.astral.sh/uv/) for dependency management and targets **Python 3.13+**. Fine-tuning with `mlx-lm` requires **Apple Silicon** (M1 or later).
+
+### Install uv
+
+```bash
+# macOS / Linux
+curl -LsSf https://astral.sh/uv/install.sh | sh
+
+# Windows
+powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"
+```
+
+### Setup
+
+```bash
+git clone https://github.com/your-org/socratiq.git
+cd socratiq
+
+# Install all dependencies (including dev group)
+uv sync --dev
+
+# Install pre-commit hooks
+uv run pre-commit install
+```
+
+### Environment Variables
+
+Create a `.env` file in the project root:
+
+```
+OPENAI_API_KEY=sk-...
+```
+
+---
+
+## Usage
+
+All common tasks are driven by `make`. Commands use `caffeinate` to prevent macOS sleep during long runs.
+
+### 1. Generate the Socratic dataset
+
+Converts the GSM8K train split into Socratic QA pairs via the OpenAI Batch API. Submits in chunks of 1,000, waits for each to complete, then merges and splits into `new_data/train.jsonl` and `new_data/valid.jsonl`.
+
+```bash
+make conversion
+```
+
+### 2. Clean the dataset
+
+Strips trailing rhetorical questions and normalises answer formatting. Output is written to `new_data_clean/`.
+
+```bash
+uv run python src/dataset_improvement.py
+```
+
+### 3. Fine-tune with LoRA
+
+Trains LoRA adapters using `mlx-lm`. Logs are timestamped and saved to `logs/`.
+
+```bash
+make train CONFIG=configs/qwen3_0.6b.yaml
+```
+
+### 4. Inspect training loss
+
+Parses a training log and prints a loss table with directional change indicators and the best checkpoint, plus an ASCII loss curve.
+
+```bash
+make val-loss LOG_FILE=logs/train_20250101_120000_qwen3_0.6b.yaml.log
+```
+
+### 5. Evaluate a model
+
+**Single benchmark run:**
+
+```bash
+# GSM8K — base model
+make baseline-eval-gsm8k MODEL_NAME=mlx-community/Qwen3-0.6B NUM_SAMPLES=4
+
+# GSM8K — with LoRA adapter
+make baseline-eval-gsm8k MODEL_NAME=mlx-community/Qwen3-0.6B ADAPTER_PATH=adapters/run2 NUM_SAMPLES=4
+
+# SVAMP or MultiArith
+make baseline-eval-svamp MODEL_NAME=mlx-community/Qwen3-0.6B NUM_SAMPLES=4
+make baseline-eval-multiarith MODEL_NAME=mlx-community/Qwen3-0.6B NUM_SAMPLES=4
+```
+
+**Self-consistency sweep** (runs n=1, 2, 4 automatically):
+
+```bash
+make loop-eval-gsm8k MODEL_NAME=mlx-community/Qwen3-0.6B ADAPTER_PATH=adapters/run2
+make loop-eval-svamp MODEL_NAME=mlx-community/Qwen3-0.6B
+make loop-eval-multiarith MODEL_NAME=mlx-community/Qwen3-0.6B
+```
+
+Results are appended to a CSV under `eval_results/` and can be resumed mid-run by re-running the same command.
+
+### 6. Generate figures
+
+```bash
+uv run python src/generate_figures.py  # Result figures → outputs/fig1_*.pdf/png
+uv run python src/lora_figure.py       # LoRA architecture diagram → outputs/fig_lora_architecture.*
+```
+
+---
+
+## Development
+
+```bash
+# Format and lint (ruff)
+make lint
+
+# Run all pre-commit hooks
+make pre-commit-all
+```
+
+This project uses [ruff](https://docs.astral.sh/ruff/) for linting and formatting, targeting Python 3.13 with a strict ruleset.
