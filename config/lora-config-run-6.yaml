@@ -35,7 +35,7 @@ data: "new_data"
 prompt_feature: "question"
 completion_feature: "answer"
 train: true
-adapter_path: "adapters-run-6"
+adapter_path: "adapters/adapters-run-6-1"
 
 lora_parameters:
   keys:

@@ -84,7 +84,7 @@ CONFIG ?=
 train:
 	mkdir -p logs; \
 	LOGFILE="logs/train_$$(date +%Y%m%d_%H%M%S)_$(CONFIG).log"; \
-	caffeinate -s uv run mlx_lm.lora --config $(CONFIG) 2>&1 | tee "$$LOGFILE"
+	caffeinate -s uv run mlx_lm.lora --config config/$(CONFIG) 2>&1 | tee "$$LOGFILE"
 
 val-loss:
 	uv run python3 src/val_loss.py $(LOG_FILE)
