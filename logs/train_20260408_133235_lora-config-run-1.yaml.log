@@ -1,0 +1,9 @@
+Loading configuration file lora-config-run-1.yaml
+Traceback (most recent call last):
+  File "/Users/jakeogrady/Desktop/school/four/fyp/socratiq/.venv/bin/mlx_lm.lora", line 10, in <module>
+    sys.exit(main())
+             ~~~~^^
+  File "/Users/jakeogrady/Desktop/school/four/fyp/socratiq/.venv/lib/python3.13/site-packages/mlx_lm/lora.py", line 351, in main
+    with open(config, "r") as file:
+         ~~~~^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: 'lora-config-run-1.yaml'

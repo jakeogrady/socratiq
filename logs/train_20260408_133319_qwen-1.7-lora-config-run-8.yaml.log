@@ -1,0 +1,3 @@
+Loading configuration file config/qwen-1.7-lora-config-run-8.yaml
+Loading pretrained model
+Fetching 9 files:   0%|          | 0/9 [00:00<?, ?it/s]Fetching 9 files:  11%|█         | 1/9 [00:00<00:06,  1.26it/s]Fetching 9 files:  33%|███▎      | 3/9 [00:00<00:01,  3.68it/s]

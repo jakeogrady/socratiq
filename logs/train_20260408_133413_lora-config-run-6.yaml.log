@@ -1,0 +1,8 @@
+Loading configuration file config/lora-config-run-6.yaml
+Loading pretrained model
+Fetching 9 files:   0%|          | 0/9 [00:00<?, ?it/s]Fetching 9 files:  44%|████▍     | 4/9 [00:11<00:13,  2.75s/it]Fetching 9 files: 100%|██████████| 9/9 [00:11<00:00,  1.22s/it]
+Loading datasets
+Training
+Trainable parameters: 0.385% (2.294M/596.050M)
+Starting training..., iters: 15000
+Calculating loss...:   0%|          | 0/25 [00:00<?, ?it/s]Calculating loss...:   4%|▍         | 1/25 [00:00<00:10,  2.34it/s]Calculating loss...:   8%|▊         | 2/25 [00:00<00:11,  2.02it/s]Calculating loss...:  12%|█▏        | 3/25 [00:01<00:11,  1.96it/s]Calculating loss...:  16%|█▌        | 4/25 [00:02<00:10,  1.93it/s]Calculating loss...:  20%|██        | 5/25 [00:02<00:10,  1.92it/s]Calculating loss...:  24%|██▍       | 6/25 [00:03<00:09,  1.91it/s]Calculating loss...:  28%|██▊       | 7/25 [00:03<00:09,  1.82it/s]Calculating loss...:  32%|███▏      | 8/25 [00:04<00:08,  2.00it/s]
