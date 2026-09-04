@@ -23,7 +23,11 @@ smollm_lora_test/
 src/data/**.jsonl
 
 **adapters*/
-**.log
+
+# Training logs are tracked - they are the only record of loss curves,
+# trainable parameter counts, peak memory and throughput.
+*.log
+!logs/*.log
 
 data/
 

@@ -1,0 +1,20 @@
+Loading configuration file qwen-1.7-lora-config-run-1.yaml
+Loading pretrained model
+Fetching 9 files:   0%|          | 0/9 [00:00<?, ?it/s]Fetching 9 files:  11%|█         | 1/9 [00:02<00:18,  2.36s/it]Error while downloading from https://huggingface.co/api/resolve-cache/models/mlx-community/Qwen3-1.7B-4bit/3b1b1768f8f8cf8351c712464f906e86c2b8269e/vocab.json: HTTPSConnectionPool(host='huggingface.co', port=443): Read timed out.
+Trying to resume download...
+Error while downloading from https://huggingface.co/api/resolve-cache/models/mlx-community/Qwen3-1.7B-4bit/3b1b1768f8f8cf8351c712464f906e86c2b8269e/merges.txt: HTTPSConnectionPool(host='huggingface.co', port=443): Read timed out.
+Trying to resume download...
+Error while downloading from https://huggingface.co/api/resolve-cache/models/mlx-community/Qwen3-1.7B-4bit/3b1b1768f8f8cf8351c712464f906e86c2b8269e/vocab.json: HTTPSConnectionPool(host='huggingface.co', port=443): Read timed out.
+Trying to resume download...
+'(ReadTimeoutError("HTTPSConnectionPool(host='huggingface.co', port=443): Read timed out. (read timeout=10)"), '(Request ID: 849a9a92-b983-48fe-a051-e64a7d8f0fc2)')' thrown while requesting GET https://huggingface.co/api/resolve-cache/models/mlx-community/Qwen3-1.7B-4bit/3b1b1768f8f8cf8351c712464f906e86c2b8269e/merges.txt
+Retrying in 1s [Retry 1/5].
+'(ReadTimeoutError("HTTPSConnectionPool(host='huggingface.co', port=443): Read timed out. (read timeout=10)"), '(Request ID: eb8c32a4-dad5-4659-a060-41ecb8f25f20)')' thrown while requesting GET https://huggingface.co/api/resolve-cache/models/mlx-community/Qwen3-1.7B-4bit/3b1b1768f8f8cf8351c712464f906e86c2b8269e/vocab.json
+Retrying in 1s [Retry 1/5].
+Error while downloading from https://huggingface.co/api/resolve-cache/models/mlx-community/Qwen3-1.7B-4bit/3b1b1768f8f8cf8351c712464f906e86c2b8269e/merges.txt: HTTPSConnectionPool(host='huggingface.co', port=443): Read timed out.
+Trying to resume download...
+'(ReadTimeoutError("HTTPSConnectionPool(host='huggingface.co', port=443): Read timed out. (read timeout=10)"), '(Request ID: 0f5eb470-4968-4c6e-a8b3-2e90fe3fa187)')' thrown while requesting GET https://huggingface.co/api/resolve-cache/models/mlx-community/Qwen3-1.7B-4bit/3b1b1768f8f8cf8351c712464f906e86c2b8269e/vocab.json
+Retrying in 2s [Retry 2/5].
+'(ReadTimeoutError("HTTPSConnectionPool(host='huggingface.co', port=443): Read timed out. (read timeout=10)"), '(Request ID: d778e29f-f937-46bc-87c8-c128c1c105ab)')' thrown while requesting GET https://huggingface.co/api/resolve-cache/models/mlx-community/Qwen3-1.7B-4bit/3b1b1768f8f8cf8351c712464f906e86c2b8269e/merges.txt
+Retrying in 1s [Retry 1/5].
+Fetching 9 files:  33%|███▎      | 3/9 [01:28<03:14, 32.49s/it]'(ReadTimeoutError("HTTPSConnectionPool(host='huggingface.co', port=443): Read timed out. (read timeout=10)"), '(Request ID: ef37b01a-b6e9-41aa-b116-c8e502e21e17)')' thrown while requesting GET https://huggingface.co/api/resolve-cache/models/mlx-community/Qwen3-1.7B-4bit/3b1b1768f8f8cf8351c712464f906e86c2b8269e/vocab.json
+Retrying in 4s [Retry 3/5].
