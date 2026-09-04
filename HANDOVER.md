@@ -268,14 +268,6 @@ remainder are parsing artefacts, not genuine votes.
 positions. Test items 0–3 appear in the prompt and are then scored. Small — worth
 about 0.3 pp — but it is contamination and a reviewer will find it.
 
-### Generation is capped at 256 tokens, which truncates Qwen3 reasoning blocks
-
-**Location:** `baseline_evaluation.py`
-
-On SVAMP and MultiArith the base models open a `<think>` block on 100% of items but
-close it on only 10–18% and emit a `####` marker on none; the fine-tuned models close
-it every time. Base scores there come from the last number in a cut-off trace, so the
-base–tuned gap on those two benchmarks is inflated by an unknown amount.
 
 
 ### Self-consistency cannot be switched off
