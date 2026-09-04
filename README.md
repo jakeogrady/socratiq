@@ -19,7 +19,7 @@ Evaluated on GSM8K, 4-shot, 1 sample.
 
 **1. Dataset Generation** — GSM8K solutions are sent to GPT via the OpenAI Batch API and rewritten into Socratic question-solution pairs (`openai_conversion.py`). Each output is cleaned, deduplicated, and split into train/validation sets.
 
-**2. Data Cleaning** — Trailing rhetorical questions are stripped, answer formatting is normalised, and bad samples are filtered out (`dataset_improvement.py`).
+**2. Data Cleaning** — Rhetorical questions that sit immediately before the `####` answer marker are removed, and each example is flattened into a single `text` field for training (`dataset_improvement.py`). Questions inside the reasoning chain are the point of the Socratic format and are preserved. This produces `new_data_text/`, which the Qwen3-1.7B runs 5–8 were trained on.
 
 **3. Fine-tuning** — LoRA adapters are trained on the converted dataset using `mlx-lm` on Apple Silicon. Training logs are parsed and visualised to find the best checkpoint (`val_loss.py`).
 
@@ -36,16 +36,18 @@ socratiq/
 ├── src/
 │   ├── __init__.py
 │   ├── constants.py            # Prompts, regex patterns, model paths
-│   └── models.py               # GSM8K dataset loader and preprocessor
-├── baseline_evaluation.py      # Model evaluation with self-consistency
-├── dataset_improvement.py      # Data cleaning pipeline
-├── generate_figures.py         # Result figures (bar charts, line plots)
-├── lora_figure.py              # LoRA architecture diagram
-├── openai_conversion.py        # GPT batch API dataset conversion
-├── val_loss.py                 # Training log parser and ASCII loss curve
-├── outputs/                    # Saved figures (.pdf + .png)
-├── new_data/                   # Raw converted dataset
-├── new_data_clean/             # Cleaned train/valid/test splits
+│   ├── models.py               # GSM8K dataset loader and preprocessor
+│   ├── baseline_evaluation.py  # Model evaluation with self-consistency
+│   ├── dataset_improvement.py  # Data cleaning pipeline
+│   ├── generate_figures.py     # Result figures (bar charts, line plots)
+│   ├── lora_figure.py          # LoRA architecture diagram
+│   ├── openai_conversion.py    # GPT batch API dataset conversion
+│   ├── val_loss.py             # Training log parser and ASCII loss curve
+│   └── outputs/                # Saved figures (.pdf + .png)
+├── *.yaml                      # 20 LoRA training configs
+├── new_data/                   # Converted dataset, {question, answer}
+├── new_data_text/              # Cleaned dataset, single {text} field
+├── Makefile
 └── pyproject.toml
 ```
 
@@ -68,7 +70,7 @@ powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | ie
 ### Setup
 
 ```bash
-git clone https://github.com/your-org/socratiq.git
+git clone https://github.com/jakeogrady/socratiq.git
 cd socratiq
 
 # Install all dependencies (including dev group)
@@ -80,11 +82,18 @@ uv run pre-commit install
 
 ### Environment Variables
 
-Create a `.env` file in the project root:
+Copy the template and fill in your own credentials:
 
+```bash
+cp .env.example .env
 ```
-OPENAI_API_KEY=sk-...
-```
+
+| Variable | Required for | Notes |
+|---|---|---|
+| `OPENAI_API_KEY` | `make conversion` | Socratic dataset generation through the Batch API. Training and evaluation never read it. |
+| `HF_TOKEN` | Gated model downloads | Only needed if a config points at a gated repository such as `meta-llama/*`. The `mlx-community` mirrors used throughout the Makefile are public. |
+
+`.env` is git-ignored and must never be committed.
 
 ---
 
@@ -102,18 +111,26 @@ make conversion
 
 ### 2. Clean the dataset
 
-Strips trailing rhetorical questions and normalises answer formatting. Output is written to `new_data_clean/`.
+Removes rhetorical questions sitting immediately before the `####` marker and flattens each example into a single `text` field. Output is written to `new_data_text/`.
 
 ```bash
 uv run python src/dataset_improvement.py
 ```
+
+`new_data_text/` already exists and is the data the published models were trained on, so the script refuses to overwrite it without `--force`. To check that the transformation still reproduces it:
+
+```bash
+uv run python src/dataset_improvement.py --verify
+```
+
+This reports 21,240 of 21,250 examples reproduced (99.953%). The 10 exceptions are rows where the original transformation truncated mid-word — for example `train` row 632 ends `"= 0.75 ####"` where the source reads `"= 0.75W look consistent with a 25% decrease?"`. They are defects in the shipped data and are not reproduced.
 
 ### 3. Fine-tune with LoRA
 
 Trains LoRA adapters using `mlx-lm`. Logs are timestamped and saved to `logs/`.
 
 ```bash
-make train CONFIG=configs/qwen3_0.6b.yaml
+make train CONFIG=qwen-1.7-lora-config-run-6.yaml
 ```
 
 ### 4. Inspect training loss

@@ -8,7 +8,11 @@ wheels/
 
 # Virtual environments
 .venv
+
+# Secrets - never commit. See .env.example for the template.
 .env
+.env.*
+!.env.example
 
 .idea/
 
