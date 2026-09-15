@@ -1,5 +1,10 @@
 # Socratiq
 
+> **Historical workflow notice:** This README documents the submitted
+> experiments. The post-review experiments are isolated on branch
+> `reviewer-rerun`; use [`REVIEWER_RERUN.md`](REVIEWER_RERUN.md) as the new
+> entrypoint. The original material below is intentionally retained.
+
 Fine-tuning small language models to solve grade-school math problems using Socratic reasoning. Built on the GSM8K benchmark, this project converts standard math solutions into step-by-step Socratic question-answer pairs, fine-tunes Qwen3 models via LoRA, and evaluates accuracy with self-consistency sampling.
 
 ---

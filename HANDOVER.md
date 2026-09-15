@@ -1,5 +1,10 @@
 # Socratiq Repository Handover
 
+> **Historical handover notice:** This file describes the submitted repository
+> state and is intentionally preserved. For the post-review M4 reruns, begin at
+> [`REVIEWER_RERUN.md`](REVIEWER_RERUN.md) and use the separate
+> [`docs/reviewer_rerun_handover.md`](docs/reviewer_rerun_handover.md).
+
 What is in the repository, what is missing from it, and what each component does —
 prepared so the code and the experiments can be picked up by someone who has not
 worked in it before.

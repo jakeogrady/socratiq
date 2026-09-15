@@ -739,3 +739,6 @@ This block performs preparation only and launches no paid Batch job or full trai
   synchronizes the locked environment, runs preparation checks and no-download
   training dry-runs, and makes no API request or model download. The full
   preparation gate now passes 56 tests.
+- Added a separate reviewer-rerun landing page and M4 operational handover.
+  The original `README.md` and `HANDOVER.md` remain as historical documents;
+  only short notices were added to route new work to the separate rerun files.
