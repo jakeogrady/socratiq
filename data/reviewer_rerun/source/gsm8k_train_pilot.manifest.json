@@ -1,0 +1,17 @@
+{
+  "created_at": "2026-09-14T16:17:00+00:00",
+  "protocol": {
+    "path": "/Users/eir/Desktop/JOG-FYP-2526/socratiq/configs/reviewer_rerun/protocol.yaml",
+    "sha256": "9b2ebcff1d00309bec5355351c3b9b96de8153d513a7bb06b264adeaf3ac811a"
+  },
+  "dataset": "openai/gsm8k",
+  "config": "main",
+  "split": "train",
+  "requested_revision": "740312add88f781978c0658806c59bc2815b9866",
+  "resolved_revision": "740312add88f781978c0658806c59bc2815b9866",
+  "dataset_fingerprint": "c6f812ae33c9159d",
+  "source_rows_available": 7473,
+  "source_rows_written": 30,
+  "output_path": "data/reviewer_rerun/source/gsm8k_train_pilot.jsonl",
+  "output_sha256": "aeee6369f6695e9e1937ce3dbf1f4c671d283f09581eba4fa8eff15855ae752f"
+}

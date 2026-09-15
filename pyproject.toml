@@ -9,6 +9,15 @@ dependencies = [
 ]
 
 [dependency-groups]
+rerun = [
+    "datasets==4.4.2",
+    "mlx==0.30.3",
+    "mlx-lm[train]==0.29.1",
+    "openai==2.21.0",
+    "pyyaml==6.0.3",
+    "ruff==0.14.10",
+    "transformers==4.57.3",
+]
 dev = [
     "accelerate>=1.12.0",
     "datasets>=4.4.2",
@@ -78,6 +87,44 @@ fixable = ["ALL"]
 unfixable = []
 
 dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
+
+[tool.ruff.lint.per-file-ignores]
+# Reviewer-rerun CLIs deliberately use lazy imports so schema/parser tests can
+# run without downloading the large API/MLX stack. ML model/tokenizer objects
+# also do not expose stable static protocols across the pinned libraries.
+"src/{evaluate_v2,openai_conversion_v2,paired_dataset,rerun_utils,run_training,summarize_results}.py" = [
+    "ANN401",
+    "C901",
+    "EM101",
+    "EM102",
+    "PLC0415",
+    "PLR0912",
+    "PLR0915",
+    "PTH105",
+    "S311",
+    "S603",
+    "T201",
+    "TC003",
+    "TRY003",
+    "TRY004",
+]
+# The preparation suite uses stdlib unittest so it runs in the minimal Python
+# 3.13 environment before the full locked ML stack is installed.
+"tests/**/*.py" = [
+    "ANN001",
+    "ANN003",
+    "ANN202",
+    "ARG002",
+    "D101",
+    "D102",
+    "D103",
+    "FBT001",
+    "FBT003",
+    "PLR2004",
+    "PT009",
+    "PT027",
+    "RUF015",
+]
 
 [tool.ruff.format]
 quote-style = "double"

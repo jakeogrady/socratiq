@@ -1,0 +1,27 @@
+{
+  "generated_at": "2026-09-15T07:57:24+00:00",
+  "protocol": {
+    "path": "/Users/eir/Desktop/JOG-FYP-2526/socratiq/configs/reviewer_rerun/protocol.yaml",
+    "sha256": "9b2ebcff1d00309bec5355351c3b9b96de8153d513a7bb06b264adeaf3ac811a"
+  },
+  "require_full": true,
+  "confidence": 0.95,
+  "evaluation_runs": 0,
+  "training_runs": 0,
+  "evaluation_errors": [],
+  "training_errors": [],
+  "outputs": {
+    "summary": {
+      "path": "results/reviewer_rerun/summaries/summary.csv",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "resources": {
+      "path": "results/reviewer_rerun/summaries/resource_summary.csv",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "reproducibility": {
+      "path": "results/reviewer_rerun/reproducibility/reproducibility.md",
+      "sha256": "405dcfe5c715b30851fb2320b2dc7b4bb522461f0c058cb6ec06df5d082eb155"
+    }
+  }
+}

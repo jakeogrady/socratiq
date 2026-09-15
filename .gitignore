@@ -7,7 +7,7 @@ wheels/
 *.egg-info
 
 # Virtual environments
-.venv
+.venv/
 
 # Secrets - never commit. See .env.example for the template.
 .env
@@ -29,10 +29,26 @@ src/data/**.jsonl
 *.log
 !logs/*.log
 
-data/
+# Reviewer-rerun data artifacts are generated locally. Keep their policy file
+# and compact provenance manifests, but never raw JSONL or model artifacts.
+data/*
+!data/reviewer_rerun/
+data/reviewer_rerun/**
+!data/reviewer_rerun/README.md
+!data/reviewer_rerun/**/
+!data/reviewer_rerun/**/*.manifest.json
+!data/reviewer_rerun/**/manifests/*.json
 
 *evaluation_results.csv
 
 **.jsonl
 
 eval_results/**.csv
+
+# Reviewer-rerun runtime artifacts. Compact JSON manifests and CSV summaries
+# remain trackable; model weights, raw predictions and temporary files do not.
+runs/reviewer_rerun/**/adapter/
+runs/reviewer_rerun/**/*.safetensors
+runs/reviewer_rerun/**/predictions.jsonl
+runs/reviewer_rerun/**/*.tmp
+results/reviewer_rerun/**/*.jsonl

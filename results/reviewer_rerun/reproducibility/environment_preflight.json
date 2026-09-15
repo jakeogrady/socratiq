@@ -1,0 +1,37 @@
+{
+  "collected_at": "2026-09-15T07:55:05+00:00",
+  "platform": "macOS-14.6.1-arm64-arm-64bit-Mach-O",
+  "system": "Darwin",
+  "release": "23.6.0",
+  "machine": "arm64",
+  "processor": "arm",
+  "python": "3.13.2 | packaged by Anaconda, Inc. | (main, Feb  6 2025, 12:55:35) [Clang 14.0.6 ]",
+  "python_executable": "/Users/eir/Desktop/JOG-FYP-2526/socratiq/.venv/bin/python",
+  "disk": {
+    "path": "/Users/eir/Desktop/JOG-FYP-2526/socratiq",
+    "total_bytes": 994662584320,
+    "used_bytes": 982918529024,
+    "free_bytes": 11744055296
+  },
+  "git": {
+    "commit": "cfc17c444878291c927b3b5d5642032ff905317c",
+    "branch": "reviewer-rerun",
+    "status_porcelain": "M .DS_Store\n M .gitignore\n M Makefile\n M pyproject.toml\n M uv.lock\n?? configs/\n?? data/\n?? dev_log_rerun.md\n?? docs/\n?? results/\n?? src/evaluate_v2.py\n?? src/openai_conversion_v2.py\n?? src/paired_dataset.py\n?? src/rerun_utils.py\n?? src/run_training.py\n?? src/summarize_results.py\n?? tests/"
+  },
+  "hardware": {
+    "machine_name": "MacBook Pro",
+    "model": "Mac14,5",
+    "chip": "Apple M2 Max",
+    "physical_memory": "64 GB",
+    "memory_bytes": 68719476736,
+    "processors": "proc 12:8:4"
+  },
+  "packages": {
+    "mlx": "0.30.3",
+    "mlx-lm": "0.29.1",
+    "transformers": "4.57.3",
+    "datasets": "4.4.2",
+    "openai": "2.21.0",
+    "PyYAML": "6.0.3"
+  }
+}

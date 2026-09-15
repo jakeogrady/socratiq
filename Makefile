@@ -88,3 +88,71 @@ train:
 
 val-loss:
 	uv run python3 src/val_loss.py $(LOG_FILE)
+
+
+# Reviewer-rerun workflow. These targets use the small Python 3.13 preparation
+# environment until the full locked ML stack can be installed safely.
+RERUN_PYTHON?=.venv/bin/python
+RERUN_RUFF?=.venv/bin/ruff
+RERUN_CONFIG_DIR?=configs/reviewer_rerun
+
+rerun-test:
+	$(RERUN_PYTHON) -m unittest discover -s tests -v
+
+rerun-lint:
+	$(RERUN_RUFF) format --check \
+		src/rerun_utils.py \
+		src/paired_dataset.py \
+		src/openai_conversion_v2.py \
+		src/evaluate_v2.py \
+		src/run_training.py \
+		src/summarize_results.py \
+		tests
+	$(RERUN_RUFF) check \
+		src/rerun_utils.py \
+		src/paired_dataset.py \
+		src/openai_conversion_v2.py \
+		src/evaluate_v2.py \
+		src/run_training.py \
+		src/summarize_results.py \
+		tests
+
+rerun-validate-configs:
+	$(RERUN_PYTHON) -m src.run_training validate \
+		$(RERUN_CONFIG_DIR)/qwen3_0.6b_socratic.yaml \
+		$(RERUN_CONFIG_DIR)/qwen3_0.6b_non_socratic.yaml \
+		--pair
+	$(RERUN_PYTHON) -m src.run_training validate \
+		$(RERUN_CONFIG_DIR)/qwen3_1.7b_socratic.yaml \
+		$(RERUN_CONFIG_DIR)/qwen3_1.7b_non_socratic.yaml \
+		--pair
+	$(RERUN_PYTHON) -m src.run_training validate \
+		$(RERUN_CONFIG_DIR)/llama3.2_1b_socratic.yaml
+
+rerun-environment:
+	$(RERUN_PYTHON) -m src.run_training environment \
+		--output results/reviewer_rerun/reproducibility/environment_preflight.json
+
+rerun-dry-run-training:
+	$(RERUN_PYTHON) -m src.run_training run \
+		--config $(RERUN_CONFIG_DIR)/qwen3_0.6b_socratic.yaml \
+		--experiment-id qwen3-0.6b-socratic \
+		--dry-run
+	$(RERUN_PYTHON) -m src.run_training run \
+		--config $(RERUN_CONFIG_DIR)/qwen3_0.6b_non_socratic.yaml \
+		--experiment-id qwen3-0.6b-non-socratic \
+		--dry-run
+	$(RERUN_PYTHON) -m src.run_training run \
+		--config $(RERUN_CONFIG_DIR)/llama3.2_1b_socratic.yaml \
+		--experiment-id llama3.2-1b-socratic \
+		--dry-run
+
+rerun-check: rerun-test rerun-lint rerun-validate-configs
+
+# Usage: make rerun-batch-estimate BATCH_INPUT=path/to/batch.jsonl
+rerun-batch-estimate:
+	@test -n "$(BATCH_INPUT)" || (echo "BATCH_INPUT is required" && exit 2)
+	$(RERUN_PYTHON) -m src.openai_conversion_v2 estimate --input $(BATCH_INPUT)
+
+rerun-reports:
+	$(RERUN_PYTHON) -m src.summarize_results

@@ -1,0 +1,110 @@
+protocol_version: "1.0"
+experiment_family: "reviewer-rerun-2026"
+baseline_commit: "cfc17c444878291c927b3b5d5642032ff905317c"
+
+source_dataset:
+  name: "openai/gsm8k"
+  config: "main"
+  train_split: "train"
+  test_split: "test"
+  revision: "740312add88f781978c0658806c59bc2815b9866"
+  expected_train_rows: 7473
+  expected_test_rows: 1319
+
+synthetic_data:
+  requested_teacher_model: "gpt-5-mini-2025-08-07"
+  allow_model_fallback: false
+  prompt_version: "matched-pairs-v2"
+  variants_per_source: 3
+  expected_candidate_rows: 22419
+  target_accepted_rows: 21250
+  max_output_tokens: 3500
+  reasoning_effort: "low"
+  require_positive_integer_answers: true
+  min_solution_characters: 120
+  max_solution_characters: 2000
+  ngram_size: 5
+  near_duplicate_jaccard_threshold: 0.85
+  validation_fraction: 0.10
+  split_seed: 42
+
+models:
+  qwen3_0.6b:
+    identifier: "mlx-community/Qwen3-0.6B-bf16"
+    revision: "42096995f6402fde107068cf530136fe64b604f8"
+    precision: "bfloat16"
+    weight_bytes: 1192134983
+  qwen3_1.7b:
+    identifier: "mlx-community/Qwen3-1.7B-4bit"
+    revision: "3b1b1768f8f8cf8351c712464f906e86c2b8269e"
+    precision: "4-bit"
+    weight_bytes: 968080210
+  llama3.2_1b:
+    identifier: "mlx-community/Llama-3.2-1B-Instruct-MLXTuned"
+    revision: "7247cd8c176bbc558293c9b4750e9f97b5beb319"
+    precision: "bfloat16"
+    weight_bytes: 2471645521
+
+training:
+  seed: 42
+  max_sequence_length: 2048
+  steps_per_report: 10
+  steps_per_eval: 200
+  validation_batches: 25
+  checkpoint_every: 200
+  checkpoint_selection: "final_adapter_after_last_iteration"
+  test_during_training: false
+
+evaluation:
+  base_seed: 42
+  answer_marker: "####"
+  answer_extraction: "last_strict_marked_decimal"
+  numeric_comparison: "decimal_exact"
+  invalid_answer_policy: "incorrect"
+  primary:
+    mode: "greedy"
+    samples: 1
+    temperature: 0.0
+  self_consistency:
+    enabled_after_timing_gate: true
+    samples: 5
+    temperature: 0.7
+    top_p: 0.95
+    top_k: 20
+    tie_break: "greedy_then_numeric_lexical"
+  max_new_tokens: 512
+  qwen_enable_thinking: false
+  benchmarks:
+    gsm8k:
+      dataset: "openai/gsm8k"
+      config: "main"
+      revision: "740312add88f781978c0658806c59bc2815b9866"
+      target_split: "test"
+      few_shot_split: "train"
+      few_shot_indices: [0, 1, 2, 3]
+      expected_rows: 1319
+      question_column: "question"
+      answer_column: "answer"
+    multiarith:
+      dataset: "ChilleD/MultiArith"
+      config: null
+      revision: "144d44c3fb87c0b9097ac9593c789e716a282e3e"
+      target_split: "test"
+      few_shot_indices: []
+      expected_rows: 180
+      question_column: "question"
+      answer_column: "final_ans"
+    svamp:
+      dataset: "ChilleD/SVAMP"
+      config: null
+      revision: "5e0bf1e5e7c0e9c4bc39180d224f41f3f801b7ef"
+      target_split: "test"
+      few_shot_indices: []
+      expected_rows: 300
+      question_column: "question_concat"
+      answer_column: "Answer"
+
+reporting:
+  confidence_interval: "wilson"
+  confidence_level: 0.95
+  reject_partial_benchmarks: true
