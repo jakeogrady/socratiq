@@ -32,13 +32,15 @@ and run directory.
   `9b2ebcff1d00309bec5355351c3b9b96de8153d513a7bb06b264adeaf3ac811a`
 - Lock-file SHA-256:
   `cea213bade4a75241aa328d902b99e443d8847f5b30d9fa834a3eccf42ff5517`
-- Supported Python: 3.13; current interpreter: 3.13.2.
+- Reviewer Python is pinned to 3.13.2; current interpreter: 3.13.2.
 - Current host: Apple M2 Max MacBook Pro, 12 CPU cores and 64 GB unified
   memory, on macOS 14.6.1.
 - Reviewer environment: MLX 0.30.3, MLX-LM 0.29.1, Transformers 4.57.3,
   Datasets 4.4.2, OpenAI 2.21.0, PyYAML 6.0.3, and Ruff 0.14.10.
-- Environment install command:
-  `.venv/bin/uv sync --locked --only-group rerun`
+- Fresh-M4 bootstrap: install `uv 0.9.18` outside the project environment and
+  run `./scripts/bootstrap_m4.sh` from a clean `reviewer-rerun` checkout. The
+  script synchronizes the locked dependency group and performs no paid or
+  model-weight operation.
 - A local Metal/MLX arithmetic check returned `[4, 6]`, and the MLX-LM LoRA
   CLI loaded successfully. It required normal macOS Metal access and did not
   download a model.
@@ -105,7 +107,7 @@ or full cost estimate is approved.
 
 ## Verification completed
 
-- 54 unit and fixture-based integration tests pass.
+- 56 unit and fixture-based integration tests pass.
 - Ruff formatting and lint checks pass.
 - Both Qwen Socratic/non-Socratic configuration pairs are byte-semantically
   matched except for their dataset and adapter paths.

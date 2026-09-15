@@ -26,15 +26,34 @@ The MLX-LM YAML fields follow the upstream example:
 
 ## 1. Preparation checks
 
+Start from a clean clone of `reviewer-rerun`. The bootstrap is pinned to the
+same `uv` and Python versions used to prepare and validate this branch. Install
+`uv` outside the project virtual environment; a fresh clone does not yet have a
+`.venv` directory. The versioned installer form follows the official Astral
+installation documentation: <https://docs.astral.sh/uv/getting-started/installation/>.
+
 ```bash
-.venv/bin/uv sync --locked --only-group rerun
-make rerun-check
-make rerun-environment
-make rerun-dry-run-training
+curl -LsSf https://astral.sh/uv/0.9.18/install.sh | sh
+export PATH="$HOME/.local/bin:$PATH"
+uv --version
+./scripts/bootstrap_m4.sh
 ```
 
-`rerun-environment` records only non-secret environment metadata. The API key
-is never written to a manifest.
+The expected `uv` output begins with `uv 0.9.18`; the script installs Python
+3.13.2, synchronizes only the locked `rerun` dependency group, checks the lock,
+runs all preparation tests and configuration validations, executes the three
+no-download training dry-runs, and prints non-secret environment metadata.
+
+The script fails before synchronization when the machine is not an Apple
+M4-family Mac, the branch is not `reviewer-rerun`, the working tree is dirty,
+or the `uv` version differs. It does not persist an environment report during
+bootstrap, so it does not overwrite the committed originating-machine report
+or dirty an otherwise clean clone. It makes no OpenAI request, downloads no
+model weights, and starts no training or evaluation.
+
+If local policy does not allow piping an installer into a shell, download and
+inspect that exact versioned installer first or use another approved Astral
+installation method while preserving `uv 0.9.18`.
 
 ## 2. Snapshot a 30-source data pilot
 

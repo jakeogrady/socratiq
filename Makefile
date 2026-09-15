@@ -96,6 +96,9 @@ RERUN_PYTHON?=.venv/bin/python
 RERUN_RUFF?=.venv/bin/ruff
 RERUN_CONFIG_DIR?=configs/reviewer_rerun
 
+rerun-bootstrap:
+	./scripts/bootstrap_m4.sh
+
 rerun-test:
 	$(RERUN_PYTHON) -m unittest discover -s tests -v
 

@@ -734,3 +734,8 @@ This block performs preparation only and launches no paid Batch job or full trai
 - Published `reviewer-rerun` to `origin` from handoff commit
   `0ffae1c6a72b10ce4d44022be6f29c04d82aa389` and configured the local branch
   to track `origin/reviewer-rerun`.
+- Added a guarded fresh-M4 bootstrap pinned to `uv 0.9.18` and Python 3.13.2.
+  It requires a clean `reviewer-rerun` checkout on an Apple M4-family Mac,
+  synchronizes the locked environment, runs preparation checks and no-download
+  training dry-runs, and makes no API request or model download. The full
+  preparation gate now passes 56 tests.
