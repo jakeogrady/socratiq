@@ -15,6 +15,17 @@ class ProtocolTests(unittest.TestCase):
         self.assertEqual(protocol["synthetic_data"]["target_accepted_rows"], 21250)
         self.assertFalse(protocol["synthetic_data"]["allow_model_fallback"])
         self.assertEqual(
+            protocol["synthetic_data"]["prompt_version"], "matched-pairs-v3"
+        )
+        self.assertEqual(protocol["synthetic_data"]["canonical_schema_version"], "1.1")
+        self.assertEqual(protocol["synthetic_data"]["solution_steps"]["minimum"], 2)
+        self.assertEqual(protocol["synthetic_data"]["solution_steps"]["maximum"], 6)
+        self.assertTrue(
+            protocol["synthetic_data"]["solution_steps"][
+                "guiding_question_requires_terminal_question_mark"
+            ]
+        )
+        self.assertEqual(
             protocol["evaluation"]["benchmarks"]["gsm8k"]["expected_rows"], 1319
         )
         self.assertEqual(

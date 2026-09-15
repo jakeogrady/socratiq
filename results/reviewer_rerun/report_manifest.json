@@ -1,8 +1,8 @@
 {
-  "generated_at": "2026-09-15T07:57:24+00:00",
+  "generated_at": "2026-09-15T16:38:20+00:00",
   "protocol": {
     "path": "/Users/eir/Desktop/JOG-FYP-2526/socratiq/configs/reviewer_rerun/protocol.yaml",
-    "sha256": "9b2ebcff1d00309bec5355351c3b9b96de8153d513a7bb06b264adeaf3ac811a"
+    "sha256": "a4c1a95f00321867b2aef8f0403af929782dad1f10885f161d552a2c03e7cadb"
   },
   "require_full": true,
   "confidence": 0.95,

@@ -1,0 +1,20 @@
+{
+  "status": "passed",
+  "protocol": {
+    "path": "/Users/eir/Desktop/JOG-FYP-2526/socratiq/configs/reviewer_rerun/protocol.yaml",
+    "sha256": "9b2ebcff1d00309bec5355351c3b9b96de8153d513a7bb06b264adeaf3ac811a"
+  },
+  "total_rows": 74,
+  "train": {
+    "status": "passed",
+    "rows": 68,
+    "canonical_sequence_sha256": "e9f752f152c9a098a93787c192fc91af8b604e444b54774b152cfe7d542e86f0",
+    "checked_at": "2026-09-15T16:18:59+00:00"
+  },
+  "valid": {
+    "status": "passed",
+    "rows": 6,
+    "canonical_sequence_sha256": "a084c64d1f21ab87a9c0f506695191b0f10295b7dcecf5ad1c5167aeabd65896",
+    "checked_at": "2026-09-15T16:18:59+00:00"
+  }
+}

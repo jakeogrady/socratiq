@@ -1,0 +1,80 @@
+{
+  "schema_version": "1.0",
+  "created_at": "2026-09-15T16:18:59+00:00",
+  "protocol": {
+    "path": "/Users/eir/Desktop/JOG-FYP-2526/socratiq/configs/reviewer_rerun/protocol.yaml",
+    "sha256": "9b2ebcff1d00309bec5355351c3b9b96de8153d513a7bb06b264adeaf3ac811a"
+  },
+  "input_path": "data/reviewer_rerun/canonical/pilot_initial.jsonl",
+  "input_sha256": "a23375066f7ead8b378e3de8b63c186b30c3d0356ac102b6239d8ff29652c573",
+  "input_rows": 90,
+  "accepted_before_selection": 74,
+  "accepted_rows": 74,
+  "rejected_rows": 16,
+  "target_count": null,
+  "filter": {
+    "min_solution_chars": 120,
+    "max_solution_chars": 2000,
+    "ngram_size": 5,
+    "jaccard_threshold": 0.85
+  },
+  "split": {
+    "seed": 42,
+    "validation_fraction_requested": 0.1,
+    "target_validation_rows": 7,
+    "actual_train_rows": 68,
+    "actual_validation_rows": 6,
+    "train_source_count": 23,
+    "validation_source_count": 2,
+    "validation_source_ids": [
+      "gsm8k-train-000014",
+      "gsm8k-train-000019"
+    ]
+  },
+  "outputs": {
+    "canonical": {
+      "path": "data/reviewer_rerun/pilot/canonical/accepted.jsonl",
+      "sha256": "4065bedc8403f81cc2e5c2e4021053b1949c60cebdf66015d69dc17ded8e9f49"
+    },
+    "rejections": {
+      "path": "data/reviewer_rerun/pilot/audits/rejections.jsonl",
+      "sha256": "c02df2c9ac09b3278dee0d80e9642ba29656bd6013ee6ae51180aa895940dd43"
+    },
+    "socratic_train": {
+      "path": "data/reviewer_rerun/pilot/socratic/train.jsonl",
+      "sha256": "896aec05c1935416e061c8eaaac5b2544a37750bb3dec52fd2320a55d871850f"
+    },
+    "socratic_valid": {
+      "path": "data/reviewer_rerun/pilot/socratic/valid.jsonl",
+      "sha256": "8108ee589ffe6c2006617afe351f12c9625e9bade273d331f58a022e6c49adff"
+    },
+    "non_socratic_train": {
+      "path": "data/reviewer_rerun/pilot/non_socratic/train.jsonl",
+      "sha256": "fb95883553c1a43dd0cbadd5139adfa187a18ebbb4892d3baf250d85b5723df5"
+    },
+    "non_socratic_valid": {
+      "path": "data/reviewer_rerun/pilot/non_socratic/valid.jsonl",
+      "sha256": "db35f4cdb159532124ce736fe8e349be9b69fcd171027f6d431b53bd8dcced17"
+    }
+  },
+  "pairing_report": {
+    "status": "passed",
+    "protocol": {
+      "path": "/Users/eir/Desktop/JOG-FYP-2526/socratiq/configs/reviewer_rerun/protocol.yaml",
+      "sha256": "9b2ebcff1d00309bec5355351c3b9b96de8153d513a7bb06b264adeaf3ac811a"
+    },
+    "total_rows": 74,
+    "train": {
+      "status": "passed",
+      "rows": 68,
+      "canonical_sequence_sha256": "e9f752f152c9a098a93787c192fc91af8b604e444b54774b152cfe7d542e86f0",
+      "checked_at": "2026-09-15T16:18:59+00:00"
+    },
+    "valid": {
+      "status": "passed",
+      "rows": 6,
+      "canonical_sequence_sha256": "a084c64d1f21ab87a9c0f506695191b0f10295b7dcecf5ad1c5167aeabd65896",
+      "checked_at": "2026-09-15T16:18:59+00:00"
+    }
+  }
+}

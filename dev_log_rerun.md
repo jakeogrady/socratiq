@@ -753,3 +753,101 @@ This block performs preparation only and launches no paid Batch job or full trai
   whole-source replacement, guarded training/evaluation matrix runners, smoke
   isolation, and a strict three-training/15-evaluation reporting gate. The
   preparation suite now contains 68 tests.
+- Began the live reviewer-rerun dataset-generation phase on the preparation
+  machine. Re-ran all 68 tests, Ruff formatting/lint checks, and all five
+  training-configuration validations successfully. Approximately 229 GiB of
+  local storage was available.
+- Reproduced the pinned GSM8K source snapshots at revision
+  `740312add88f781978c0658806c59bc2815b9866`: 7,473 full rows with SHA-256
+  `2aa7add8a119abea3747ae1ec7b090f95338b66a9f3bb606bbbbd419d0ac91d5`
+  and 30 pilot rows with SHA-256
+  `aeee6369f6695e9e1937ce3dbf1f4c671d283f09581eba4fa8eff15855ae752f`.
+- Rebuilt the offline teacher inputs without making an API call. The pilot is
+  30 requests/90 candidates/89,385 bytes with SHA-256
+  `e6e2f832dba31bcfa93283ed969890063700b78f43288abede6ae1d404dff5c9`;
+  the full input is 7,473 requests/22,419 candidates/21,985,042 bytes with
+  SHA-256
+  `36a20f62a64c038272ab817eb74ae91c50ff83ff9d434ea4922fedb13bac434b`.
+- With explicit user authorization, ran exactly one paid teacher preflight
+  using a locally supplied, permission-restricted, Git-ignored credential.
+  No credential value was printed or recorded. The requested and returned
+  model were both exactly `gpt-5-mini-2025-08-07`; the response completed and
+  parsed into exactly three canonical variants. Saved response SHA-256:
+  `874201508690dc39045659a2a1b167490c8f8d07fe979915a415a8159a926b3e`.
+- The preflight used 411 input tokens and 1,115 output tokens, including 576
+  reasoning tokens (1,526 total). Manual inspection confirmed three valid
+  numeric/structural variations, separate question-mark-terminated guiding
+  questions, coherent declarative reasoning, correct explicit arithmetic, and
+  strict positive-integer `#### N` final answers. No pilot Batch or full Batch
+  was submitted; the next paid gate is the 30-request pilot Batch.
+- With separate explicit user authorization, submitted the 30-request pilot as
+  Batch `batch_6aa96e23e2a88190ba9a77172acb2907`. It completed all 30
+  requests with zero API/transport failures and no error file. Measured usage
+  was 15,008 input tokens and 46,214 output tokens, including 21,824 reasoning
+  tokens. The downloaded 387,288-byte output has SHA-256
+  `128343accbe2de2be7d47935e212c674237c0b58bc84be85070f701d6dcd8dc0`.
+- Initial assembly falsely rejected seven mathematically correct source groups.
+  The binary equality regex truncated compound expressions such as
+  `80/100 * 20 = 16` and `14 + 19 + 11 = 44`; finite-precision decimal
+  evaluation also mishandled `1/3 * 240 = 80`. Paused API work, replaced the
+  regex with an AST-restricted exact-rational arithmetic evaluator, and added
+  regression coverage for compound sums/subtractions, fractions, parentheses,
+  currencies, chains, and intentionally incorrect equations. The full suite
+  now passes 71 tests plus Ruff formatting/lint and all configuration checks.
+- Reassembled the same downloaded pilot without spending on retries: all 30
+  source responses and all 90 candidates now validate, with zero audit rows.
+  Canonical pilot SHA-256:
+  `a23375066f7ead8b378e3de8b63c186b30c3d0356ac102b6239d8ff29652c573`.
+- The shared frozen filter accepted only 74/90 candidates (82.22%), below the
+  mandatory 86/90 pilot gate. All 16 filter rejections were `solution_length`
+  failures below the 120-character minimum; pairing nevertheless passed for
+  all 74 rendered records. A separate quality scan found 12/90 synthetic
+  problem statements with no question mark. The current `matched-pairs-v2`
+  prompt asks for concise reasoning but does not enforce either the filter's
+  minimum solution length or a direct question in the synthetic problem.
+- Stopped before full Batch submission and did not change the frozen filters.
+  Extrapolating the current measured usage gives approximately 3.74M input and
+  11.51M output tokens for the full 7,473 requests, or about USD 23.96 at the
+  official Batch prices observed on 2026-09-15; this projection must be
+  remeasured after any prompt revision. The v2 acceptance rate would yield only
+  about 18,428 accepted candidates, far below the required 21,250.
+- With user approval, preserved the complete failed-v2 pilot under
+  `data/reviewer_rerun/archive/matched-pairs-v2-failed-pilot/` before changing
+  any active request file. The archive records the preflight, Batch/file IDs,
+  token usage, v2 pilot/full input hashes, downloaded response, canonical
+  output, render manifests, and the 74/90 gate result. Raw JSONL remains
+  Git-ignored but is retained locally for the final artifact transfer.
+- Revised only the generation contract, not the downstream filters. Protocol
+  `1.1`, prompt `matched-pairs-v3`, and canonical schema `1.1` now require a
+  direct problem question, two to six nonredundant steps, and 60--300
+  characters of standalone declarative reasoning per step. Guiding questions
+  must advance the solution, ignore the distractor, and finish by asking for
+  the requested quantity. The 120--2,000-character filter, target count,
+  deduplication, split seed, model pins, LoRA settings, and evaluation settings
+  are unchanged.
+- Mirrored the strict generation schema in local canonical validation so
+  malformed outputs fail during assembly even if an upstream structured-output
+  guarantee is bypassed. Added explicit prompt/schema identities to assembly,
+  merge, and retry manifests. The arithmetic equality validator remains the
+  AST-restricted exact-rational implementation introduced after the v2 pilot.
+- Refreshed the pinned GSM8K snapshots from the existing offline Hugging Face
+  cache. Their normalized content is unchanged: 7,473 rows at SHA-256
+  `2aa7add8a119abea3747ae1ec7b090f95338b66a9f3bb606bbbbd419d0ac91d5`
+  and 30 rows at SHA-256
+  `aeee6369f6695e9e1937ce3dbf1f4c671d283f09581eba4fa8eff15855ae752f`.
+- Built the v3 request files offline without reading the API key or contacting
+  OpenAI. The pilot is 30 requests/90 candidates/105,405 bytes at SHA-256
+  `dbb92eb9f0a8bf7d54d7f3dd004ec6dfdb7cc14781324dc39760fa233b91f958`;
+  the full input is 7,473 requests/22,419 candidates/25,975,624 bytes at
+  SHA-256
+  `ba4f3715197d3ed58b6eaae0f1fcf60a15aab9eadc990dbd00a34ae9f1af4359`.
+  The active protocol SHA-256 is
+  `a4c1a95f00321867b2aef8f0403af929782dad1f10885f161d552a2c03e7cadb`.
+- Added a separate v3 generation note and v3 readiness report, leaving the
+  older readiness report in place as a historical pre-pilot snapshot. Updated
+  the active RA protocol and supporting reviewer-rerun pages to use the new
+  hashes and planned handoff tag `reviewer-rerun-ra-handoff-v2`.
+- Passed 74 unit/integration tests, Ruff lint and formatting, and all five
+  reviewer training-configuration validations. Approximately 229 GiB remained
+  free. Stopped before the next paid boundary: no v3 preflight, pilot Batch, or
+  full Batch has been submitted.

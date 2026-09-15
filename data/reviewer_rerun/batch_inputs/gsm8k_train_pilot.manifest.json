@@ -1,11 +1,11 @@
 {
-  "created_at": "2026-09-14T16:17:08+00:00",
+  "created_at": "2026-09-15T16:38:19+00:00",
   "protocol": {
     "path": "/Users/eir/Desktop/JOG-FYP-2526/socratiq/configs/reviewer_rerun/protocol.yaml",
-    "sha256": "9b2ebcff1d00309bec5355351c3b9b96de8153d513a7bb06b264adeaf3ac811a"
+    "sha256": "a4c1a95f00321867b2aef8f0403af929782dad1f10885f161d552a2c03e7cadb"
   },
   "stage": "built",
-  "prompt_version": "matched-pairs-v2",
+  "prompt_version": "matched-pairs-v3",
   "source_path": "data/reviewer_rerun/source/gsm8k_train_pilot.jsonl",
   "source_sha256": "aeee6369f6695e9e1937ce3dbf1f4c671d283f09581eba4fa8eff15855ae752f",
   "source_start_index": 0,
@@ -16,6 +16,6 @@
   "allow_model_fallback": false,
   "max_output_tokens": 3500,
   "batch_input_path": "data/reviewer_rerun/batch_inputs/gsm8k_train_pilot.jsonl",
-  "batch_input_bytes": 89385,
-  "batch_input_sha256": "e6e2f832dba31bcfa93283ed969890063700b78f43288abede6ae1d404dff5c9"
+  "batch_input_bytes": 105405,
+  "batch_input_sha256": "dbb92eb9f0a8bf7d54d7f3dd004ec6dfdb7cc14781324dc39760fa233b91f958"
 }

@@ -1,4 +1,4 @@
-protocol_version: "1.0"
+protocol_version: "1.1"
 experiment_family: "reviewer-rerun-2026"
 baseline_commit: "cfc17c444878291c927b3b5d5642032ff905317c"
 
@@ -14,8 +14,17 @@ source_dataset:
 synthetic_data:
   requested_teacher_model: "gpt-5-mini-2025-08-07"
   allow_model_fallback: false
-  prompt_version: "matched-pairs-v2"
+  prompt_version: "matched-pairs-v3"
+  canonical_schema_version: "1.1"
   variants_per_source: 3
+  solution_steps:
+    minimum: 2
+    maximum: 6
+    reasoning_characters_per_step:
+      minimum: 60
+      maximum: 300
+    guiding_question_requires_terminal_question_mark: true
+    synthetic_question_requires_question_mark: true
   expected_candidate_rows: 22419
   target_accepted_rows: 21250
   max_output_tokens: 3500

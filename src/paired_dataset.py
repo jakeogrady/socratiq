@@ -8,13 +8,14 @@ record, making the presence of guiding questions the only content difference.
 from __future__ import annotations
 
 import argparse
+import ast
 import json
 import random
 import re
 from collections import defaultdict
 from collections.abc import Iterable, Mapping, Sequence
 from dataclasses import dataclass
-from decimal import Decimal, InvalidOperation
+from fractions import Fraction
 from pathlib import Path
 from typing import Any
 
@@ -28,7 +29,12 @@ from src.rerun_utils import (
     write_jsonl,
 )
 
-SCHEMA_VERSION = "1.0"
+SCHEMA_VERSION = "1.1"
+MIN_SOLUTION_STEPS = 2
+MAX_SOLUTION_STEPS = 6
+MIN_SYNTHETIC_QUESTION_CHARS = 20
+MIN_REASONING_CHARS = 60
+MAX_REASONING_CHARS = 300
 DEFAULT_MIN_SOLUTION_CHARS = 120
 DEFAULT_MAX_SOLUTION_CHARS = 2000
 DEFAULT_NGRAM_SIZE = 5
@@ -39,7 +45,9 @@ FINAL_POSITIVE_INTEGER = re.compile(r"####\s*([1-9]\d*)\s*$")
 ID_PATTERN = re.compile(r"^[A-Za-z0-9][A-Za-z0-9_.:-]*$")
 NUMBER = r"[-+]?(?:\d{1,3}(?:,\d{3})+|\d+)(?:\.\d+)?"
 CALCULATION = re.compile(
-    rf"(?<![\w.])({NUMBER})\s*([+\-*/×÷])\s*({NUMBER})\s*=\s*({NUMBER})(?![\w,])"
+    r"(?<![\w.])(?:[-+]?(?:[$€£]\s*)?(?:\d|\())"
+    r"[\d,\s.$€£()+\-*/×÷=]*="
+    r"[\d,\s.$€£()+\-*/×÷=]*(?:\d|\))"
 )
 
 
@@ -61,6 +69,12 @@ class SolutionStep:
         reasoning = _required_text(value, "reasoning")
         if not guiding_question.endswith("?"):
             msg = f"solution_steps[{index}].guiding_question must end with '?'"
+            raise DatasetValidationError(msg)
+        if not MIN_REASONING_CHARS <= len(reasoning) <= MAX_REASONING_CHARS:
+            msg = (
+                f"solution_steps[{index}].reasoning must contain between "
+                f"{MIN_REASONING_CHARS} and {MAX_REASONING_CHARS} characters"
+            )
             raise DatasetValidationError(msg)
         return cls(guiding_question=guiding_question, reasoning=reasoning)
 
@@ -103,9 +117,25 @@ class CanonicalExample:
         if variant_id < 1:
             raise DatasetValidationError("variant_id must be at least 1")
 
+        synthetic_question = _required_text(value, "synthetic_question")
+        if (
+            len(synthetic_question) < MIN_SYNTHETIC_QUESTION_CHARS
+            or "?" not in synthetic_question
+        ):
+            raise DatasetValidationError(
+                "synthetic_question must contain at least "
+                f"{MIN_SYNTHETIC_QUESTION_CHARS} characters and a direct question "
+                "ending with '?'"
+            )
+
         raw_steps = value.get("solution_steps")
-        if not isinstance(raw_steps, list) or not raw_steps:
-            raise DatasetValidationError("solution_steps must be a non-empty list")
+        if not isinstance(raw_steps, list) or not (
+            MIN_SOLUTION_STEPS <= len(raw_steps) <= MAX_SOLUTION_STEPS
+        ):
+            raise DatasetValidationError(
+                "solution_steps must contain between "
+                f"{MIN_SOLUTION_STEPS} and {MAX_SOLUTION_STEPS} steps"
+            )
         steps: list[SolutionStep] = []
         step_signatures: set[tuple[str, str]] = set()
         for index, step in enumerate(raw_steps):
@@ -140,7 +170,7 @@ class CanonicalExample:
             variant_id=variant_id,
             source_question=_required_text(value, "source_question"),
             source_solution=_required_text(value, "source_solution"),
-            synthetic_question=_required_text(value, "synthetic_question"),
+            synthetic_question=synthetic_question,
             solution_steps=tuple(steps),
             final_answer=final_answer,
             generation=dict(raw_generation),
@@ -183,47 +213,90 @@ def _required_identifier(value: Mapping[str, Any], key: str) -> str:
     return identifier
 
 
-def _decimal(value: str) -> Decimal:
+def _evaluate_arithmetic_expression(expression: str) -> Fraction | None:
+    """Safely evaluate a generated arithmetic expression.
+
+    Returning ``None`` keeps the validator conservative when a candidate uses
+    unsupported notation. Only numeric literals, parentheses, unary signs,
+    and the four arithmetic operators are accepted.
+    """
+    normalized = (
+        expression.replace(",", "")
+        .replace("$", "")
+        .replace("€", "")
+        .replace("£", "")
+        .replace("×", "*")
+        .replace("÷", "/")
+        .strip()
+    )
+    if normalized.endswith("."):
+        normalized = normalized[:-1].rstrip()
     try:
-        return Decimal(value.replace(",", ""))
-    except InvalidOperation as exc:
-        raise DatasetValidationError(
-            f"invalid decimal in calculation: {value}"
-        ) from exc
+        parsed = ast.parse(normalized, mode="eval")
+    except (SyntaxError, ValueError):
+        return None
+
+    def evaluate(node: ast.AST) -> Fraction:
+        if isinstance(node, ast.Expression):
+            return evaluate(node.body)
+        if isinstance(node, ast.Constant) and isinstance(node.value, (int, float)):
+            return Fraction(str(node.value))
+        if isinstance(node, ast.UnaryOp) and isinstance(node.op, (ast.UAdd, ast.USub)):
+            value = evaluate(node.operand)
+            return value if isinstance(node.op, ast.UAdd) else -value
+        if isinstance(node, ast.BinOp) and isinstance(
+            node.op, (ast.Add, ast.Sub, ast.Mult, ast.Div)
+        ):
+            left = evaluate(node.left)
+            right = evaluate(node.right)
+            if isinstance(node.op, ast.Add):
+                result = left + right
+            elif isinstance(node.op, ast.Sub):
+                result = left - right
+            elif isinstance(node.op, ast.Mult):
+                result = left * right
+            else:
+                if right == 0:
+                    raise ZeroDivisionError
+                result = left / right
+            return result
+        raise ValueError("unsupported arithmetic expression")
+
+    try:
+        return evaluate(parsed)
+    except (ValueError, ZeroDivisionError):
+        return None
+
+
+def _contains_arithmetic_operator(expression: str) -> bool:
+    """Return whether an equality segment contains an actual operation."""
+    unsigned = expression.strip().lstrip("+-").strip()
+    return any(operator in unsigned for operator in ("+", "-", "*", "/", "×", "÷"))
 
 
 def _validate_explicit_calculations(
     steps: Sequence[SolutionStep], final_answer: str
 ) -> None:
-    """Verify simple explicit equalities and their link to the final answer."""
-    results: list[Decimal] = []
+    """Verify explicit arithmetic equalities and their link to the final answer."""
+    results: list[Fraction] = []
     for step_index, step in enumerate(steps):
         for match in CALCULATION.finditer(step.reasoning):
-            left = _decimal(match.group(1))
-            right = _decimal(match.group(3))
-            stated = _decimal(match.group(4))
-            operator = match.group(2)
-            if operator == "+":
-                calculated = left + right
-            elif operator == "-":
-                calculated = left - right
-            elif operator in {"*", "×"}:
-                calculated = left * right
-            else:
-                if right == 0:
-                    raise DatasetValidationError(
-                        f"solution_steps[{step_index}] divides by zero"
-                    )
-                calculated = left / right
-            if calculated != stated:
+            expressions = [part.strip() for part in match.group(0).split("=")]
+            if not any(_contains_arithmetic_operator(part) for part in expressions):
+                continue
+            evaluated = [_evaluate_arithmetic_expression(part) for part in expressions]
+            if any(value is None for value in evaluated):
+                continue
+            values = [value for value in evaluated if value is not None]
+            if any(value != values[0] for value in values[1:]):
                 raise DatasetValidationError(
                     f"solution_steps[{step_index}] contains an incorrect equality: "
                     f"{match.group(0)}"
                 )
-            results.append(stated)
+            results.append(values[-1])
     if results:
         final_match = FINAL_POSITIVE_INTEGER.fullmatch(final_answer)
-        if final_match is None or results[-1] != _decimal(final_match.group(1)):
+        if final_match is None or results[-1] != Fraction(final_match.group(1)):
             raise DatasetValidationError(
                 "the last explicit equality does not match final_answer"
             )

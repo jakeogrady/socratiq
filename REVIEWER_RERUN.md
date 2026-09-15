@@ -16,7 +16,7 @@ Read these files in order:
 
 1. [`RA_REVIEWER_RERUN_PROTOCOL.md`](RA_REVIEWER_RERUN_PROTOCOL.md) is the
    complete one-pass operator protocol to give the research assistant together
-   with handoff tag `reviewer-rerun-ra-handoff-v1`.
+   with handoff tag `reviewer-rerun-ra-handoff-v2`.
 2. [`configs/reviewer_rerun/protocol.yaml`](configs/reviewer_rerun/protocol.yaml)
    is the scientific authority for frozen models, revisions, dataset splits,
    prompts, seeds, training settings, and reporting requirements.
@@ -31,12 +31,16 @@ Read these files in order:
    training, evaluation, and reporting.
 6. [`dev_log_rerun.md`](dev_log_rerun.md) contains the full preparation plan,
    design decisions, safeguards, and chronological execution log.
-7. [`results/reviewer_rerun/reproducibility/readiness_report.md`](results/reviewer_rerun/reproducibility/readiness_report.md)
-   records the verified preparation state and remaining gates.
-8. [`results/reviewer_rerun/reproducibility/reproducibility.md`](results/reviewer_rerun/reproducibility/reproducibility.md)
+7. [`docs/reviewer_rerun_generation_v3.md`](docs/reviewer_rerun_generation_v3.md)
+   records the active v3 generation contract, exact offline hashes, and the
+   preserved failed-v2 boundary.
+8. [`results/reviewer_rerun/reproducibility/readiness_report_v3.md`](results/reviewer_rerun/reproducibility/readiness_report_v3.md)
+   records the current verified preparation state and remaining gates. The
+   older `readiness_report.md` remains the pre-pilot historical snapshot.
+9. [`results/reviewer_rerun/reproducibility/reproducibility.md`](results/reviewer_rerun/reproducibility/reproducibility.md)
    is the generated reproducibility-note scaffold. It is incomplete until the
    official runs have populated their manifests.
-9. [`docs/submission_provenance.md`](docs/submission_provenance.md) identifies
+10. [`docs/submission_provenance.md`](docs/submission_provenance.md) identifies
    the submitted manuscript and the Git state from which the reviewer lane was
    created.
 
@@ -93,15 +97,17 @@ automatically read dotenv files.
 As of 15 September 2026:
 
 - the submitted state is preserved by tag `submitted-draft-baseline`;
-- the isolated reviewer pipeline, frozen protocol, M4 bootstrap, and 68
+- the isolated reviewer pipeline, protocol 1.1, M4 bootstrap, and 74
   preparation tests are committed on `reviewer-rerun`;
 - immutable metadata revisions are frozen for Qwen3-0.6B, Qwen3-1.7B,
   Llama-3.2-1B, GSM8K, MultiArith, and SVAMP;
-- an offline 30-source teacher-request pilot and full-volume request input have
-  been built and hashed on the preparation machine, but their raw JSONL files
-  are intentionally excluded from Git;
-- no paid teacher request, Batch submission, model-weight download, training
-  run, or corrected benchmark evaluation has been performed; and
+- a paid `matched-pairs-v2` preflight and 30-request Batch completed, but its
+  74/90 filter acceptance failed the 86/90 gate; the complete v2 record is
+  preserved and no v2 full Batch was submitted;
+- the stricter `matched-pairs-v3` pilot and full-volume request inputs have been
+  built and hashed offline, but no paid v3 request has been made;
+- no model-weight download, training run, or corrected benchmark evaluation
+  has been performed; and
 - the complete mandatory and optional command matrices, strict completion
   validator, retry/replacement flow, and return checklist are packaged in the
   one-pass RA protocol.

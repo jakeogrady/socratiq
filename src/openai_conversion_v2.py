@@ -14,7 +14,16 @@ from collections.abc import Mapping, Sequence
 from pathlib import Path
 from typing import Any
 
-from src.paired_dataset import SCHEMA_VERSION, CanonicalExample, build_paired_dataset
+from src.paired_dataset import (
+    MAX_REASONING_CHARS,
+    MAX_SOLUTION_STEPS,
+    MIN_REASONING_CHARS,
+    MIN_SOLUTION_STEPS,
+    MIN_SYNTHETIC_QUESTION_CHARS,
+    SCHEMA_VERSION,
+    CanonicalExample,
+    build_paired_dataset,
+)
 from src.rerun_utils import (
     file_sha256,
     protocol_identity,
@@ -31,27 +40,35 @@ DEFAULT_SOURCE_REVISION = "740312add88f781978c0658806c59bc2815b9866"
 DEFAULT_TEACHER_MODEL = "gpt-5-mini-2025-08-07"
 DEFAULT_VARIANTS_PER_SOURCE = 3
 DEFAULT_MAX_OUTPUT_TOKENS = 3500
-PROMPT_VERSION = "matched-pairs-v2"
+PROMPT_VERSION = "matched-pairs-v3"
 PAID_CONFIRMATION = "SUBMIT_PAID_BATCH"
 HTTP_OK = 200
 
-SYSTEM_INSTRUCTIONS = """You create concise synthetic grade-school arithmetic training examples.
-Return exactly three variations of the supplied source problem. Preserve the
-source problem's mathematical skill and approximate difficulty while changing
-the story, entities, and numbers. Every variation must contain one harmless
-sentence of unused information. Keep all intermediate physical quantities
-non-negative and make the final answer a positive integer.
+SYSTEM_INSTRUCTIONS = """You create complete but economical synthetic grade-school arithmetic training examples.
+Return exactly three variations of the supplied source problem, assigning the
+variant_id values 1, 2, and 3 exactly once. Preserve the source problem's
+mathematical skill and approximate difficulty while changing the story,
+entities, and numbers. Every variation must contain one harmless
+sentence of unused information, but no solution step or guiding question may
+mention or use that distractor. Each synthetic problem must state one direct,
+unambiguous mathematical question ending with a question mark. Keep all
+intermediate physical quantities non-negative and make the final answer a
+positive integer.
 
-For every solution step, provide two separate fields:
+Use two to six nonredundant solution steps. For every step, provide two
+separate fields:
 1. guiding_question: one short Socratic question ending with a question mark;
-2. reasoning: a concise declarative explanation containing any calculation.
+2. reasoning: a 60-to-300-character declarative explanation containing any
+   calculation.
 
 The reasoning field must stand on its own after the guiding question is
 removed. Do not put questions, rhetorical checks, or instructions in the
 reasoning field. Use correct explicit arithmetic equalities where possible,
-and make the last explicit equality's result match the final answer. Do not
-place a guiding question after the final reasoning step. End each variation
-with exactly one final_answer in `#### N` format.
+and make the last explicit equality's result match the final answer. Every
+guiding question must advance the solution, and the final guiding question
+must ask for the quantity requested by the problem. Do not add a separate
+guiding question after the final reasoning field. End each variation with
+exactly one final_answer in `#### N` format.
 Return only data matching the supplied JSON schema."""
 
 
@@ -68,16 +85,29 @@ VARIANTS_SCHEMA: dict[str, Any] = {
                 "additionalProperties": False,
                 "properties": {
                     "variant_id": {"type": "integer", "minimum": 1, "maximum": 3},
-                    "synthetic_question": {"type": "string", "minLength": 1},
+                    "synthetic_question": {
+                        "type": "string",
+                        "minLength": MIN_SYNTHETIC_QUESTION_CHARS,
+                        "pattern": r"\?",
+                    },
                     "solution_steps": {
                         "type": "array",
-                        "minItems": 1,
+                        "minItems": MIN_SOLUTION_STEPS,
+                        "maxItems": MAX_SOLUTION_STEPS,
                         "items": {
                             "type": "object",
                             "additionalProperties": False,
                             "properties": {
-                                "guiding_question": {"type": "string", "minLength": 2},
-                                "reasoning": {"type": "string", "minLength": 1},
+                                "guiding_question": {
+                                    "type": "string",
+                                    "minLength": 2,
+                                    "pattern": r"\?$",
+                                },
+                                "reasoning": {
+                                    "type": "string",
+                                    "minLength": MIN_REASONING_CHARS,
+                                    "maxLength": MAX_REASONING_CHARS,
+                                },
                             },
                             "required": ["guiding_question", "reasoning"],
                         },
@@ -126,7 +156,7 @@ def response_body(
         "text": {
             "format": {
                 "type": "json_schema",
-                "name": "matched_socratic_variants",
+                "name": "matched_socratic_variants_v3",
                 "schema": VARIANTS_SCHEMA,
                 "strict": True,
             }
@@ -746,6 +776,8 @@ def assemble_batch_results(
     manifest = {
         "created_at": utc_now(),
         "protocol": protocol_identity(),
+        "prompt_version": PROMPT_VERSION,
+        "canonical_schema_version": SCHEMA_VERSION,
         "source_path": str(source_path),
         "source_sha256": file_sha256(source_path),
         "batch_output_path": str(batch_output_path),
@@ -856,6 +888,8 @@ def merge_canonical_outputs(
     manifest = {
         "created_at": utc_now(),
         "protocol": protocol_identity(),
+        "prompt_version": PROMPT_VERSION,
+        "canonical_schema_version": SCHEMA_VERSION,
         "inputs": inputs,
         "input_count": len(inputs),
         "replace_sources_from_later": replace_sources_from_later,
@@ -912,6 +946,8 @@ def build_rejection_retry_input(
     manifest = {
         "created_at": utc_now(),
         "protocol": protocol_identity(),
+        "prompt_version": PROMPT_VERSION,
+        "canonical_schema_version": SCHEMA_VERSION,
         "stage": "filtered_source_retry_built",
         "original_batch_input": str(original_batch_input),
         "original_batch_input_sha256": file_sha256(original_batch_input),
@@ -954,6 +990,8 @@ def build_retry_input(
     retry_manifest = {
         "created_at": utc_now(),
         "protocol": protocol_identity(),
+        "prompt_version": PROMPT_VERSION,
+        "canonical_schema_version": SCHEMA_VERSION,
         "stage": "retry_built",
         "original_batch_input": str(original_batch_input),
         "original_batch_input_sha256": file_sha256(original_batch_input),

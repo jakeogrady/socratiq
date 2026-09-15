@@ -7,6 +7,13 @@ and the rationale/live history is in `dev_log_rerun.md`. This page is a compact
 command reference. Run commands from the repository root on branch
 `reviewer-rerun`.
 
+The active generation contract is `matched-pairs-v3`, documented with its
+offline identities in
+[`reviewer_rerun_generation_v3.md`](reviewer_rerun_generation_v3.md). The paid
+`matched-pairs-v2` pilot failed its frozen quality gate and is preserved under
+`data/reviewer_rerun/archive/matched-pairs-v2-failed-pilot/`; do not reuse its
+request files as v3 inputs.
+
 ## Safety boundaries
 
 - `snapshot`, `build`, `estimate`, `assemble`, `merge`, `retry`,
@@ -91,6 +98,10 @@ upstream train split still contains 7,473 rows before selecting the pilot:
 
 Inspect the JSONL and manifest before any API request.
 
+The expected v3 pilot input is 30 requests, 90 candidate examples, 105,405
+bytes, and SHA-256
+`dbb92eb9f0a8bf7d54d7f3dd004ec6dfdb7cc14781324dc39760fa233b91f958`.
+
 ## 4. One-request teacher preflight
 
 This is the first command that incurs API usage:
@@ -169,6 +180,10 @@ The offline full-volume input is created with:
 .venv/bin/python -m src.openai_conversion_v2 estimate \
   --input data/reviewer_rerun/batch_inputs/gsm8k_train_full.jsonl
 ```
+
+The expected v3 full input is 7,473 requests, 22,419 candidate examples,
+25,975,624 bytes, and SHA-256
+`ba4f3715197d3ed58b6eaae0f1fcf60a15aab9eadc990dbd00a34ae9f1af4359`.
 
 ## 8. Training smoke runs
 

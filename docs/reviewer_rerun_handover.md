@@ -68,7 +68,7 @@ The branch contains:
 - five reviewer LoRA configurations: mandatory Qwen3-0.6B matched arms,
   mandatory Llama-3.2-1B Socratic, and optional Qwen3-1.7B matched arms;
 - a fresh-M4 bootstrap pinned to `uv 0.9.18` and Python 3.13.2; and
-- 68 passing preparation tests on the branch-preparation machine.
+- 74 passing preparation tests on the branch-preparation machine.
 
 The immutable mandatory model targets are:
 
@@ -165,7 +165,7 @@ df -h .
 ```
 
 Expected protocol SHA-256:
-`9b2ebcff1d00309bec5355351c3b9b96de8153d513a7bb06b264adeaf3ac811a`.
+`a4c1a95f00321867b2aef8f0403af929782dad1f10885f161d552a2c03e7cadb`.
 
 Expected lock SHA-256:
 `cea213bade4a75241aa328d902b99e443d8847f5b30d9fa834a3eccf42ff5517`.

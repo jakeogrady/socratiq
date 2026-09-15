@@ -1,7 +1,7 @@
 # Research-assistant protocol: reviewer rerun
 
 This is the single operational document to give the research assistant together
-with repository tag `reviewer-rerun-ra-handoff-v1`. It covers the complete
+with repository tag `reviewer-rerun-ra-handoff-v2`. It covers the complete
 mandatory reviewer experiment from a fresh Apple M4 Mac through the return of
 the raw evidence packet. Supporting rationale remains in
 [`dev_log_rerun.md`](dev_log_rerun.md); the submitted/legacy workflow must not
@@ -64,7 +64,7 @@ The scientific authority is
 whose expected SHA-256 is:
 
 ```text
-9b2ebcff1d00309bec5355351c3b9b96de8153d513a7bb06b264adeaf3ac811a
+a4c1a95f00321867b2aef8f0403af929782dad1f10885f161d552a2c03e7cadb
 ```
 
 Do not modify prompts, filters, seeds, benchmark splits, revisions, answer
@@ -98,7 +98,7 @@ git fetch --tags origin
 git checkout reviewer-rerun
 git pull --ff-only origin reviewer-rerun
 git rev-parse HEAD
-git rev-list -n 1 reviewer-rerun-ra-handoff-v1
+git rev-list -n 1 reviewer-rerun-ra-handoff-v2
 git status --short --branch
 ```
 
@@ -202,8 +202,8 @@ Expected pilot request input:
 ```text
 requests: 30
 candidates: 90
-bytes: 89,385
-SHA-256: e6e2f832dba31bcfa93283ed969890063700b78f43288abede6ae1d404dff5c9
+bytes: 105,405
+SHA-256: dbb92eb9f0a8bf7d54d7f3dd004ec6dfdb7cc14781324dc39760fa233b91f958
 ```
 
 Gate: stop if a count or hash differs. Preserve the generated manifest and
@@ -224,9 +224,12 @@ Inspect the response locally. Gate requirements:
 
 - requested and returned model are exactly `gpt-5-mini-2025-08-07`;
 - exactly three canonical variations validate;
+- every synthetic problem contains a direct mathematical question ending in
+  `?`;
+- every variation has two to six nonredundant solution steps;
 - each guiding question is separate and ends with `?`;
 - each reasoning field is declarative and remains coherent without the guiding
-  question;
+  question, and contains 60--300 characters;
 - the final answer is exactly `#### N` with one positive integer;
 - no explicit arithmetic equality is incorrect;
 - input/output token usage is present and within the supplied cost ceiling.
@@ -308,8 +311,8 @@ Expected full request input:
 ```text
 requests: 7,473
 candidates: 22,419
-bytes: 21,985,042
-SHA-256: 36a20f62a64c038272ab817eb74ae91c50ff83ff9d434ea4922fedb13bac434b
+bytes: 25,975,624
+SHA-256: ba4f3715197d3ed58b6eaae0f1fcf60a15aab9eadc990dbd00a34ae9f1af4359
 ```
 
 Only submit if the full-Batch authorization and cost ceiling were supplied and

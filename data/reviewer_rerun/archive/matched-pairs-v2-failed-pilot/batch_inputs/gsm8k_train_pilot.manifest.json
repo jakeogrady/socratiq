@@ -1,0 +1,62 @@
+{
+  "created_at": "2026-09-15T15:59:41+00:00",
+  "protocol": {
+    "path": "/Users/eir/Desktop/JOG-FYP-2526/socratiq/configs/reviewer_rerun/protocol.yaml",
+    "sha256": "9b2ebcff1d00309bec5355351c3b9b96de8153d513a7bb06b264adeaf3ac811a"
+  },
+  "stage": "downloaded",
+  "prompt_version": "matched-pairs-v2",
+  "source_path": "data/reviewer_rerun/source/gsm8k_train_pilot.jsonl",
+  "source_sha256": "aeee6369f6695e9e1937ce3dbf1f4c671d283f09581eba4fa8eff15855ae752f",
+  "source_start_index": 0,
+  "request_count": 30,
+  "variants_per_request": 3,
+  "candidate_example_count": 90,
+  "requested_model": "gpt-5-mini-2025-08-07",
+  "allow_model_fallback": false,
+  "max_output_tokens": 3500,
+  "batch_input_path": "data/reviewer_rerun/batch_inputs/gsm8k_train_pilot.jsonl",
+  "batch_input_bytes": 89385,
+  "batch_input_sha256": "e6e2f832dba31bcfa93283ed969890063700b78f43288abede6ae1d404dff5c9",
+  "submitted_at": "2026-09-15T16:11:16+00:00",
+  "input_file_id": "file-6NaN6PxJaDQ3ij25V4Yqvk",
+  "batch_id": "batch_6aa96e23e2a88190ba9a77172acb2907",
+  "batch_status": "completed",
+  "status_checked_at": "2026-09-15T16:14:22+00:00",
+  "request_counts": {
+    "completed": 30,
+    "failed": 0,
+    "total": 30
+  },
+  "usage": {
+    "input_tokens": 15008,
+    "input_tokens_details": {
+      "cached_tokens": 0
+    },
+    "output_tokens": 46214,
+    "output_tokens_details": {
+      "reasoning_tokens": 21824
+    },
+    "total_tokens": 61222
+  },
+  "output_file_id": "file-T15ovestdFUBRDvmMmHNBF",
+  "error_file_id": null,
+  "batch_timestamps": {
+    "created_at": 1789488675,
+    "in_progress_at": 1789488739,
+    "finalizing_at": 1789488843,
+    "completed_at": 1789488845,
+    "failed_at": null,
+    "expired_at": null,
+    "cancelled_at": null
+  },
+  "downloaded_at": "2026-09-15T16:14:40+00:00",
+  "downloads": {
+    "output": {
+      "file_id": "file-T15ovestdFUBRDvmMmHNBF",
+      "path": "data/reviewer_rerun/batch_outputs/batch_6aa96e23e2a88190ba9a77172acb2907.output.jsonl",
+      "sha256": "128343accbe2de2be7d47935e212c674237c0b58bc84be85070f701d6dcd8dc0",
+      "bytes": 387288
+    }
+  }
+}

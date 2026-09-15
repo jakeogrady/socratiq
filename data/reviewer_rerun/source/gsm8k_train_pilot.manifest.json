@@ -1,8 +1,8 @@
 {
-  "created_at": "2026-09-14T16:17:00+00:00",
+  "created_at": "2026-09-15T16:38:13+00:00",
   "protocol": {
     "path": "/Users/eir/Desktop/JOG-FYP-2526/socratiq/configs/reviewer_rerun/protocol.yaml",
-    "sha256": "9b2ebcff1d00309bec5355351c3b9b96de8153d513a7bb06b264adeaf3ac811a"
+    "sha256": "a4c1a95f00321867b2aef8f0403af929782dad1f10885f161d552a2c03e7cadb"
   },
   "dataset": "openai/gsm8k",
   "config": "main",

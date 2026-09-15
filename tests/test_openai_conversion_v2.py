@@ -7,6 +7,8 @@ from pathlib import Path
 
 from src.openai_conversion_v2 import (
     PAID_CONFIRMATION,
+    PROMPT_VERSION,
+    VARIANTS_SCHEMA,
     assemble_batch_results,
     assembly_paths_from_batch_manifest,
     batch_request,
@@ -40,8 +42,18 @@ def structured_variants() -> dict:
                 "solution_steps": [
                     {
                         "guiding_question": "What value should be found first?",
-                        "reasoning": "Subtracting 3 from 12 gives 9 and completes the calculation.",
-                    }
+                        "reasoning": (
+                            "Subtracting the given amount from the starting quantity gives "
+                            "12 - 3 = 9 items remaining."
+                        ),
+                    },
+                    {
+                        "guiding_question": "What remaining quantity does the problem request?",
+                        "reasoning": (
+                            "The requested remaining quantity is therefore 9 items because "
+                            "the subtraction accounts for every item given away."
+                        ),
+                    },
                 ],
                 "final_answer": "#### 9",
             }
@@ -61,6 +73,20 @@ class RequestConstructionTests(unittest.TestCase):
         self.assertEqual(body["text"]["format"]["type"], "json_schema")
         self.assertTrue(body["text"]["format"]["strict"])
         self.assertFalse(body["store"])
+        self.assertEqual(PROMPT_VERSION, "matched-pairs-v3")
+        variant = VARIANTS_SCHEMA["properties"]["variants"]["items"]
+        self.assertEqual(variant["properties"]["solution_steps"]["minItems"], 2)
+        self.assertEqual(variant["properties"]["solution_steps"]["maxItems"], 6)
+        reasoning = variant["properties"]["solution_steps"]["items"]["properties"][
+            "reasoning"
+        ]
+        self.assertEqual(reasoning["minLength"], 60)
+        self.assertEqual(reasoning["maxLength"], 300)
+        guiding_question = variant["properties"]["solution_steps"]["items"][
+            "properties"
+        ]["guiding_question"]
+        self.assertEqual(guiding_question["pattern"], r"\?$")
+        self.assertEqual(variant["properties"]["synthetic_question"]["pattern"], r"\?")
 
     def test_build_and_estimate_are_offline_and_manifested(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
