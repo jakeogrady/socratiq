@@ -55,6 +55,13 @@ If local policy does not allow piping an installer into a shell, download and
 inspect that exact versioned installer first or use another approved Astral
 installation method while preserving `uv 0.9.18`.
 
+Do not create `.env` for the bootstrap or offline preparation stages. The
+reviewer template is `.env.reviewer_rerun.example`, and the corrected scripts
+do not load it automatically. Only after the one-request API preflight has been
+approved, copy it to the ignored `.env`, set its permissions to `600`, fill in
+the required key locally, and export it into the current shell as documented
+inside the template. Never capture the key in a log or evidence packet.
+
 ## 2. Snapshot a 30-source data pilot
 
 The command defaults to the frozen GSM8K revision

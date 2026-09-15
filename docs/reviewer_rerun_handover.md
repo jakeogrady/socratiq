@@ -93,6 +93,39 @@ replace those raw artifacts. Rebuild or transfer an artifact only through a
 documented path, verify its hash, and never copy it into a legacy output
 directory.
 
+## Environment and secrets
+
+Use [`../.env.reviewer_rerun.example`](../.env.reviewer_rerun.example), not the
+legacy root `.env.example`. The template contains only supported variables:
+
+- `OPENAI_API_KEY` is required only for an explicitly approved teacher API
+  operation;
+- `HF_TOKEN` is optional because the frozen MLX model repositories are public;
+  and
+- `HF_HOME` is an optional, commented cache relocation for an approved storage
+  plan.
+
+The reviewer scripts do not automatically load `.env`. Do not create the local
+file during bootstrap. Immediately before the approved one-request preflight:
+
+```bash
+cp .env.reviewer_rerun.example .env
+chmod 600 .env
+```
+
+Fill in the required value locally, then export the file into that terminal:
+
+```bash
+set -a
+. ./.env
+set +a
+```
+
+An empty `OPENAI_API_KEY` causes the paid stages to fail closed. Never print the
+key, include it in captured command output, commit `.env`, or return it in an
+evidence packet. Do not use the bootstrap test-bypass variables during an
+official run.
+
 ## First M4 action: bootstrap only
 
 Use a fresh, single-branch clone. Do not copy an existing `.venv` from another

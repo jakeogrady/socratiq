@@ -17,20 +17,23 @@ Read these files in order:
 1. [`configs/reviewer_rerun/protocol.yaml`](configs/reviewer_rerun/protocol.yaml)
    is the scientific authority for frozen models, revisions, dataset splits,
    prompts, seeds, training settings, and reporting requirements.
-2. [`docs/reviewer_rerun_handover.md`](docs/reviewer_rerun_handover.md) explains
+2. [`.env.reviewer_rerun.example`](.env.reviewer_rerun.example) is the separate
+   secret and cache-location template for the experiment machine. Do not use
+   the legacy `.env.example` for corrected runs.
+3. [`docs/reviewer_rerun_handover.md`](docs/reviewer_rerun_handover.md) explains
    what the research assistant receives, what is still missing, the stop/go
    gates, and which artifacts must be returned.
-3. [`docs/reviewer_rerun_workflow.md`](docs/reviewer_rerun_workflow.md) contains
+4. [`docs/reviewer_rerun_workflow.md`](docs/reviewer_rerun_workflow.md) contains
    the executable workflow from a fresh M4 bootstrap through data generation,
    training, evaluation, and reporting.
-4. [`dev_log_rerun.md`](dev_log_rerun.md) contains the full preparation plan,
+5. [`dev_log_rerun.md`](dev_log_rerun.md) contains the full preparation plan,
    design decisions, safeguards, and chronological execution log.
-5. [`results/reviewer_rerun/reproducibility/readiness_report.md`](results/reviewer_rerun/reproducibility/readiness_report.md)
+6. [`results/reviewer_rerun/reproducibility/readiness_report.md`](results/reviewer_rerun/reproducibility/readiness_report.md)
    records the verified preparation state and remaining gates.
-6. [`results/reviewer_rerun/reproducibility/reproducibility.md`](results/reviewer_rerun/reproducibility/reproducibility.md)
+7. [`results/reviewer_rerun/reproducibility/reproducibility.md`](results/reviewer_rerun/reproducibility/reproducibility.md)
    is the generated reproducibility-note scaffold. It is incomplete until the
    official runs have populated their manifests.
-7. [`docs/submission_provenance.md`](docs/submission_provenance.md) identifies
+8. [`docs/submission_provenance.md`](docs/submission_provenance.md) identifies
    the submitted manuscript and the Git state from which the reviewer lane was
    created.
 
@@ -73,6 +76,12 @@ df -h .
 
 Send that output back for review. The bootstrap succeeding is a setup result,
 not permission to cross the next cost or resource gate.
+
+Do not create or populate `.env` for the bootstrap. Immediately before the
+first explicitly approved API stage, copy `.env.reviewer_rerun.example` to
+`.env`, restrict its permissions, fill in the required key locally, and source
+it as documented inside the template. The corrected scripts do not
+automatically read dotenv files.
 
 ## Current state
 

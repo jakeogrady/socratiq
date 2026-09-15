@@ -742,3 +742,8 @@ This block performs preparation only and launches no paid Batch job or full trai
 - Added a separate reviewer-rerun landing page and M4 operational handover.
   The original `README.md` and `HANDOVER.md` remain as historical documents;
   only short notices were added to route new work to the separate rerun files.
+- Added `.env.reviewer_rerun.example` for the corrected pipeline while
+  retaining the legacy `.env.example` with a pointer-only notice. The new
+  template documents explicit shell loading, fail-closed empty credentials,
+  optional Hugging Face authentication/cache relocation, and the prohibition
+  on bootstrap test-bypass variables during official runs.
