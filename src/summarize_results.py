@@ -25,6 +25,72 @@ class ReportingError(RuntimeError):
     """Raised when raw evidence is incomplete or internally inconsistent."""
 
 
+MANDATORY_TRAINING_EXPERIMENTS = frozenset(
+    {
+        "qwen3-0.6b-socratic",
+        "qwen3-0.6b-non-socratic",
+        "llama3.2-1b-socratic",
+    }
+)
+MANDATORY_EVALUATION_EXPERIMENTS = frozenset(
+    {
+        "qwen3-0.6b-base",
+        "qwen3-0.6b-socratic",
+        "qwen3-0.6b-non-socratic",
+        "llama3.2-1b-base",
+        "llama3.2-1b-socratic",
+    }
+)
+MANDATORY_BENCHMARKS = frozenset({"gsm8k", "multiarith", "svamp"})
+
+
+def validate_mandatory_matrix(
+    evaluation_rows: Sequence[Mapping[str, Any]],
+    resource_rows: Sequence[Mapping[str, Any]],
+) -> dict[str, Any]:
+    """Require the three training and 15 greedy evaluation reviewer runs."""
+    expected_evaluations = {
+        (experiment, benchmark, "greedy")
+        for experiment in MANDATORY_EVALUATION_EXPERIMENTS
+        for benchmark in MANDATORY_BENCHMARKS
+    }
+    observed_evaluations = [
+        (
+            str(row.get("experiment_id")),
+            str(row.get("benchmark")),
+            str(row.get("mode")),
+        )
+        for row in evaluation_rows
+    ]
+    duplicate_evaluations = sorted(
+        {
+            identity
+            for identity in observed_evaluations
+            if observed_evaluations.count(identity) > 1
+        }
+    )
+    missing_evaluations = sorted(expected_evaluations - set(observed_evaluations))
+
+    completed_training = {
+        str(row.get("experiment_id"))
+        for row in resource_rows
+        if row.get("status") == "completed"
+    }
+    missing_training = sorted(MANDATORY_TRAINING_EXPERIMENTS - completed_training)
+    if missing_training or missing_evaluations or duplicate_evaluations:
+        raise ReportingError(
+            "mandatory reviewer matrix is incomplete or duplicated: "
+            f"missing_training={missing_training}, "
+            f"missing_evaluations={missing_evaluations}, "
+            f"duplicate_evaluations={duplicate_evaluations}"
+        )
+    return {
+        "status": "passed",
+        "mandatory_training_runs": len(MANDATORY_TRAINING_EXPERIMENTS),
+        "mandatory_evaluation_runs": len(expected_evaluations),
+    }
+
+
 def wilson_interval(
     correct: int,
     total: int,
@@ -372,6 +438,7 @@ def generate_reports(
     output_root: Path,
     *,
     require_full: bool = True,
+    require_mandatory_matrix: bool = False,
     confidence: float = 0.95,
 ) -> dict[str, Any]:
     """Discover run manifests and generate canonical compact reports."""
@@ -405,6 +472,9 @@ def generate_reports(
         )
     )
     resource_rows.sort(key=lambda row: str(row.get("experiment_id")))
+    matrix_validation = None
+    if require_mandatory_matrix:
+        matrix_validation = validate_mandatory_matrix(evaluation_rows, resource_rows)
     summary_path = output_root / "summaries" / "summary.csv"
     resource_path = output_root / "summaries" / "resource_summary.csv"
     reproducibility_path = output_root / "reproducibility" / "reproducibility.md"
@@ -424,6 +494,8 @@ def generate_reports(
         "generated_at": generated_at,
         "protocol": protocol_identity(),
         "require_full": require_full,
+        "require_mandatory_matrix": require_mandatory_matrix,
+        "matrix_validation": matrix_validation,
         "confidence": confidence,
         "evaluation_runs": len(evaluation_rows),
         "training_runs": len(resource_rows),
@@ -467,6 +539,7 @@ def _build_parser() -> argparse.ArgumentParser:
         default=Path("results/reviewer_rerun"),
     )
     parser.add_argument("--allow-partial", action="store_true")
+    parser.add_argument("--require-mandatory-matrix", action="store_true")
     parser.add_argument("--confidence", type=float, default=0.95)
     return parser
 
@@ -479,6 +552,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         args.training_root,
         args.output_root,
         require_full=not args.allow_partial,
+        require_mandatory_matrix=args.require_mandatory_matrix,
         confidence=args.confidence,
     )
     print(json.dumps(manifest, indent=2, ensure_ascii=False))

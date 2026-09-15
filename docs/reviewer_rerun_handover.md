@@ -5,9 +5,11 @@ on a separate Apple M4 Mac. It is intentionally separate from the historical
 root `HANDOVER.md`, which describes the repository and artifacts associated
 with the submitted draft.
 
-Start at [`../REVIEWER_RERUN.md`](../REVIEWER_RERUN.md), then keep this page
-beside [`reviewer_rerun_workflow.md`](reviewer_rerun_workflow.md) while running
-the staged checks.
+Give the RA
+[`../RA_REVIEWER_RERUN_PROTOCOL.md`](../RA_REVIEWER_RERUN_PROTOCOL.md) as the
+single end-to-end operator document. This handover and
+[`reviewer_rerun_workflow.md`](reviewer_rerun_workflow.md) remain supporting
+references.
 
 ## Objective
 
@@ -34,11 +36,13 @@ Use this authority order when checking a run:
 
 1. [`../configs/reviewer_rerun/protocol.yaml`](../configs/reviewer_rerun/protocol.yaml)
    for frozen scientific settings;
-2. the current `reviewer-rerun` Git commit and its tracked code;
-3. the run-specific manifest and raw outputs;
-4. [`reviewer_rerun_workflow.md`](reviewer_rerun_workflow.md) for commands and
-   gate sequencing;
-5. [`../dev_log_rerun.md`](../dev_log_rerun.md) for rationale and history.
+2. [`../RA_REVIEWER_RERUN_PROTOCOL.md`](../RA_REVIEWER_RERUN_PROTOCOL.md) for
+   the complete operational order and exact matrix commands;
+3. the tagged `reviewer-rerun` Git commit and its tracked code;
+4. the run-specific manifest and raw outputs;
+5. [`reviewer_rerun_workflow.md`](reviewer_rerun_workflow.md) for command
+   reference and gate sequencing;
+6. [`../dev_log_rerun.md`](../dev_log_rerun.md) for rationale and history.
 
 Do not silently edit a YAML file, prompt, seed, model name, revision, output
 path, or sample count to make a command run. Stop and report the exact error
@@ -52,17 +56,19 @@ The branch contains:
 - paired-record construction, shared filtering, deterministic deduplication,
   source-group splitting, and matched arm rendering;
 - separated OpenAI snapshot, build, estimate, preflight, submit, status,
-  download, assemble, retry, validate, and render stages;
+  download, scoped assembly, transport retry, filtered-source retry,
+  replacement merge, validation, and render stages;
 - guarded MLX-LM training with exact model materialization, target-module
   checks, resource manifests, and adapter hashing;
 - a corrected resumable evaluator with fixed few-shot provenance, strict answer
   extraction, greedy and SC@5 modes, deterministic seeds, and raw predictions;
-- result summarization with actual denominators and Wilson confidence
-  intervals;
+- guarded mandatory/optional training and evaluation matrix runners;
+- result summarization with actual denominators, Wilson confidence intervals,
+  and a hard three-training/15-evaluation completion gate;
 - five reviewer LoRA configurations: mandatory Qwen3-0.6B matched arms,
   mandatory Llama-3.2-1B Socratic, and optional Qwen3-1.7B matched arms;
 - a fresh-M4 bootstrap pinned to `uv 0.9.18` and Python 3.13.2; and
-- 56 passing preparation tests on the branch-preparation machine.
+- 68 passing preparation tests on the branch-preparation machine.
 
 The immutable mandatory model targets are:
 
@@ -126,13 +132,14 @@ key, include it in captured command output, commit `.env`, or return it in an
 evidence packet. Do not use the bootstrap test-bypass variables during an
 official run.
 
-## First M4 action: bootstrap only
+## First M4 action
 
 Use a fresh, single-branch clone. Do not copy an existing `.venv` from another
 Mac.
 
 ```bash
-git clone --branch reviewer-rerun --single-branch <repository-url> socratiq
+git clone --branch reviewer-rerun --single-branch \
+  https://github.com/jakeogrady/socratiq.git socratiq
 cd socratiq
 curl -LsSf https://astral.sh/uv/0.9.18/install.sh | sh
 export PATH="$HOME/.local/bin:$PATH"
@@ -144,7 +151,7 @@ branch, a dirty checkout, or the wrong `uv` version. A successful run may
 create the ignored `.venv`, but must not create API jobs, download model
 weights, train adapters, run benchmarks, or change tracked files.
 
-Immediately after bootstrap, capture and return:
+Immediately after bootstrap, capture:
 
 ```bash
 git status --short --branch
@@ -163,8 +170,9 @@ Expected protocol SHA-256:
 Expected lock SHA-256:
 `cea213bade4a75241aa328d902b99e443d8847f5b30d9fa834a3eccf42ff5517`.
 
-Stop after returning the evidence. A clean bootstrap is the first decision
-point; it is not approval for API use or model downloads.
+If this evidence satisfies the host/storage gate, continue through the
+one-pass protocol. Bootstrap success alone does not authorize an API call or
+model download; those authorizations must be present in the handoff record.
 
 ## Open gates after bootstrap
 
@@ -179,7 +187,7 @@ The following gates remain open until evidence from the M4 exists:
 | Llama model smoke | Equivalent exact-revision load, target-module, adapter save/reload, and evaluation evidence |
 | Duration | Measured smoke throughput and time estimate for full training and all evaluations |
 | Self-consistency | Decision based on measured evaluation time; the mandatory greedy matrix must not be delayed |
-| Full command matrix | Final experiment IDs, output paths, order, and resume commands approved after smoke measurements |
+| Full command matrix | Prepared in the one-pass protocol; its printed plan must contain three mandatory training and 15 mandatory greedy evaluation commands |
 
 Cross one gate at a time. Preserve command output and error logs even when a
 gate fails; failures are useful planning evidence and must not be hidden by an
@@ -189,25 +197,25 @@ unrecorded workaround.
 
 The operational sequence is:
 
-1. bootstrap the M4 and return the environment evidence;
+1. bootstrap the M4 and capture the environment evidence;
 2. reproduce and inspect the offline 30-source request input;
-3. obtain explicit approval for the one-request paid teacher preflight;
+3. confirm recorded authorization for the one-request paid teacher preflight;
 4. inspect returned model identity, schema compliance, content quality, tokens,
    and measured cost;
-5. obtain separate approval for the 30-source Batch pilot;
+5. confirm recorded authorization for the 30-source Batch pilot;
 6. assemble, validate, and render the pilot into matched arms;
 7. perform exact-model load and 20-iteration training/evaluation smoke tests;
-8. use the measured storage, memory, and duration data to approve the complete
-   official command matrix;
-9. obtain separate approval for full teacher generation;
+8. use the measured storage, memory, and duration data to verify that the
+   prepared official matrix remains feasible;
+9. confirm recorded authorization for full teacher generation;
 10. freeze and hash the final canonical data before any official training;
 11. run the mandatory training and greedy evaluation matrix; and
 12. generate reports exclusively from run manifests and raw predictions.
 
-The commands currently available for these stages are documented in
-[`reviewer_rerun_workflow.md`](reviewer_rerun_workflow.md). The full official
-matrix is intentionally not represented as a single unattended script yet:
-its scheduling and self-consistency scope depend on the M4 smoke measurements.
+The exact end-to-end commands are documented in
+[`../RA_REVIEWER_RERUN_PROTOCOL.md`](../RA_REVIEWER_RERUN_PROTOCOL.md). Matrix
+scripts plan by default and require `--execute`; SC@5 still depends on the M4
+smoke timing decision.
 
 ## Mandatory experiment identities
 
@@ -250,7 +258,7 @@ available, never the key itself.
 
 ## Return packet
 
-At each stop/go point, return a small evidence packet containing:
+At each stop/go point, accumulate evidence containing:
 
 1. the command that was run and its complete non-secret stdout/stderr;
 2. `git rev-parse HEAD` and `git status --short --branch`;
@@ -259,6 +267,9 @@ At each stop/go point, return a small evidence packet containing:
 5. disk space before and after any material download or training run;
 6. elapsed time and peak memory where applicable; and
 7. a short note stating whether the gate passed, failed, or needs a decision.
+
+Return the accumulated packet after the complete run, or immediately if a stop
+condition prevents further progress.
 
 Large raw artifacts should remain outside ordinary Git history. Compact
 manifests, hashes, tables, and documentation can be committed after review.

@@ -747,3 +747,9 @@ This block performs preparation only and launches no paid Batch job or full trai
   template documents explicit shell loading, fail-closed empty credentials,
   optional Hugging Face authentication/cache relocation, and the prohibition
   on bootstrap test-bypass variables during official runs.
+- Replaced the planned incremental RA release with a complete one-pass handoff
+  protocol. Added scoped retry assembly, manifest-derived hash checks,
+  deterministic canonical merging, filtered-source regeneration with
+  whole-source replacement, guarded training/evaluation matrix runners, smoke
+  isolation, and a strict three-training/15-evaluation reporting gate. The
+  preparation suite now contains 68 tests.

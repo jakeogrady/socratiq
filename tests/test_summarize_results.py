@@ -6,9 +6,13 @@ from pathlib import Path
 
 from src.rerun_utils import write_json, write_jsonl
 from src.summarize_results import (
+    MANDATORY_BENCHMARKS,
+    MANDATORY_EVALUATION_EXPERIMENTS,
+    MANDATORY_TRAINING_EXPERIMENTS,
     ReportingError,
     generate_reports,
     summarize_prediction_rows,
+    validate_mandatory_matrix,
     wilson_interval,
 )
 
@@ -55,6 +59,46 @@ class WilsonTests(unittest.TestCase):
         rows[1]["model_revision"] = "b" * 40
         with self.assertRaisesRegex(ReportingError, "homogeneous"):
             summarize_prediction_rows(rows, expected_rows=2, require_full=True)
+
+
+class MandatoryMatrixTests(unittest.TestCase):
+    def test_requires_three_training_and_fifteen_greedy_evaluations(self) -> None:
+        evaluations = [
+            {
+                "experiment_id": experiment,
+                "benchmark": benchmark,
+                "mode": "greedy",
+            }
+            for experiment in MANDATORY_EVALUATION_EXPERIMENTS
+            for benchmark in MANDATORY_BENCHMARKS
+        ]
+        resources = [
+            {"experiment_id": experiment, "status": "completed"}
+            for experiment in MANDATORY_TRAINING_EXPERIMENTS
+        ]
+        result = validate_mandatory_matrix(evaluations, resources)
+        self.assertEqual(result["mandatory_training_runs"], 3)
+        self.assertEqual(result["mandatory_evaluation_runs"], 15)
+
+        with self.assertRaisesRegex(ReportingError, "missing_evaluations"):
+            validate_mandatory_matrix(evaluations[:-1], resources)
+
+    def test_rejects_duplicate_mandatory_evaluations(self) -> None:
+        evaluations = [
+            {
+                "experiment_id": experiment,
+                "benchmark": benchmark,
+                "mode": "greedy",
+            }
+            for experiment in MANDATORY_EVALUATION_EXPERIMENTS
+            for benchmark in MANDATORY_BENCHMARKS
+        ]
+        resources = [
+            {"experiment_id": experiment, "status": "completed"}
+            for experiment in MANDATORY_TRAINING_EXPERIMENTS
+        ]
+        with self.assertRaisesRegex(ReportingError, "duplicate_evaluations"):
+            validate_mandatory_matrix([*evaluations, evaluations[0]], resources)
 
 
 class ReportGenerationTests(unittest.TestCase):

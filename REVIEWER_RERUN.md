@@ -14,26 +14,29 @@ with corrected results.
 
 Read these files in order:
 
-1. [`configs/reviewer_rerun/protocol.yaml`](configs/reviewer_rerun/protocol.yaml)
+1. [`RA_REVIEWER_RERUN_PROTOCOL.md`](RA_REVIEWER_RERUN_PROTOCOL.md) is the
+   complete one-pass operator protocol to give the research assistant together
+   with handoff tag `reviewer-rerun-ra-handoff-v1`.
+2. [`configs/reviewer_rerun/protocol.yaml`](configs/reviewer_rerun/protocol.yaml)
    is the scientific authority for frozen models, revisions, dataset splits,
    prompts, seeds, training settings, and reporting requirements.
-2. [`.env.reviewer_rerun.example`](.env.reviewer_rerun.example) is the separate
+3. [`.env.reviewer_rerun.example`](.env.reviewer_rerun.example) is the separate
    secret and cache-location template for the experiment machine. Do not use
    the legacy `.env.example` for corrected runs.
-3. [`docs/reviewer_rerun_handover.md`](docs/reviewer_rerun_handover.md) explains
+4. [`docs/reviewer_rerun_handover.md`](docs/reviewer_rerun_handover.md) explains
    what the research assistant receives, what is still missing, the stop/go
    gates, and which artifacts must be returned.
-4. [`docs/reviewer_rerun_workflow.md`](docs/reviewer_rerun_workflow.md) contains
+5. [`docs/reviewer_rerun_workflow.md`](docs/reviewer_rerun_workflow.md) contains
    the executable workflow from a fresh M4 bootstrap through data generation,
    training, evaluation, and reporting.
-5. [`dev_log_rerun.md`](dev_log_rerun.md) contains the full preparation plan,
+6. [`dev_log_rerun.md`](dev_log_rerun.md) contains the full preparation plan,
    design decisions, safeguards, and chronological execution log.
-6. [`results/reviewer_rerun/reproducibility/readiness_report.md`](results/reviewer_rerun/reproducibility/readiness_report.md)
+7. [`results/reviewer_rerun/reproducibility/readiness_report.md`](results/reviewer_rerun/reproducibility/readiness_report.md)
    records the verified preparation state and remaining gates.
-7. [`results/reviewer_rerun/reproducibility/reproducibility.md`](results/reviewer_rerun/reproducibility/reproducibility.md)
+8. [`results/reviewer_rerun/reproducibility/reproducibility.md`](results/reviewer_rerun/reproducibility/reproducibility.md)
    is the generated reproducibility-note scaffold. It is incomplete until the
    official runs have populated their manifests.
-8. [`docs/submission_provenance.md`](docs/submission_provenance.md) identifies
+9. [`docs/submission_provenance.md`](docs/submission_provenance.md) identifies
    the submitted manuscript and the Git state from which the reviewer lane was
    created.
 
@@ -47,7 +50,8 @@ Clone the dedicated branch, install the pinned `uv` release, and run the
 guarded bootstrap:
 
 ```bash
-git clone --branch reviewer-rerun --single-branch <repository-url> socratiq
+git clone --branch reviewer-rerun --single-branch \
+  https://github.com/jakeogrady/socratiq.git socratiq
 cd socratiq
 curl -LsSf https://astral.sh/uv/0.9.18/install.sh | sh
 export PATH="$HOME/.local/bin:$PATH"
@@ -74,8 +78,9 @@ sw_vers
 df -h .
 ```
 
-Send that output back for review. The bootstrap succeeding is a setup result,
-not permission to cross the next cost or resource gate.
+Capture that output in the evidence record. Under the one-pass RA protocol, the
+RA may continue when the M4/storage checks pass and the next paid/resource stage
+is already authorized; otherwise they must stop at the failed gate.
 
 Do not create or populate `.env` for the bootstrap. Immediately before the
 first explicitly approved API stage, copy `.env.reviewer_rerun.example` to
@@ -88,7 +93,7 @@ automatically read dotenv files.
 As of 15 September 2026:
 
 - the submitted state is preserved by tag `submitted-draft-baseline`;
-- the isolated reviewer pipeline, frozen protocol, M4 bootstrap, and 56
+- the isolated reviewer pipeline, frozen protocol, M4 bootstrap, and 68
   preparation tests are committed on `reviewer-rerun`;
 - immutable metadata revisions are frozen for Qwen3-0.6B, Qwen3-1.7B,
   Llama-3.2-1B, GSM8K, MultiArith, and SVAMP;
@@ -97,12 +102,13 @@ As of 15 September 2026:
   are intentionally excluded from Git;
 - no paid teacher request, Batch submission, model-weight download, training
   run, or corrected benchmark evaluation has been performed; and
-- the final RA command matrix for every official training and evaluation run
-  still needs to be approved after the M4 bootstrap, pilot, model smoke tests,
-  and timing measurements.
+- the complete mandatory and optional command matrices, strict completion
+  validator, retry/replacement flow, and return checklist are packaged in the
+  one-pass RA protocol.
 
-The current branch is therefore ready for a fresh-M4 environment check, not
-for an unattended full experiment run.
+The branch is ready to hand over as a staged end-to-end protocol. It is not an
+unconditional unattended job: each in-document cost, quality, storage, and
+scientific gate still applies.
 
 ## Legacy boundary
 
@@ -134,6 +140,7 @@ draft. Reviewer runs use `src/openai_conversion_v2.py`, `src/evaluate_v2.py`,
 - Never report a run without its raw predictions, manifest, code commit,
   protocol hash, model revision, seed, timing, memory, and adapter identity.
 
-The exact next commands after the bootstrap are deliberately staged in
-[`docs/reviewer_rerun_workflow.md`](docs/reviewer_rerun_workflow.md). Stop at
-each stated gate and return the evidence requested by the handover.
+The complete sequence is in
+[`RA_REVIEWER_RERUN_PROTOCOL.md`](RA_REVIEWER_RERUN_PROTOCOL.md). The RA should
+capture evidence at every gate, continue through passing authorized gates, and
+return the complete packet at the end or immediately after a stop condition.

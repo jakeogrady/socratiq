@@ -1,13 +1,17 @@
 # Reviewer-rerun workflow
 
-The authoritative plan and live checklist are in `dev_log_rerun.md`. This page
-contains the executable command sequence. Run commands from the repository root
-on branch `reviewer-rerun`.
+The complete one-pass research-assistant runbook is
+[`../RA_REVIEWER_RERUN_PROTOCOL.md`](../RA_REVIEWER_RERUN_PROTOCOL.md). The
+authoritative scientific settings are in `configs/reviewer_rerun/protocol.yaml`,
+and the rationale/live history is in `dev_log_rerun.md`. This page is a compact
+command reference. Run commands from the repository root on branch
+`reviewer-rerun`.
 
 ## Safety boundaries
 
-- `snapshot`, `build`, `estimate`, `assemble`, `retry`, `validate`, and `render`
-  are data stages and do not submit an OpenAI job.
+- `snapshot`, `build`, `estimate`, `assemble`, `merge`, `retry`,
+  `retry-rejected`, `validate`, and `render` are data stages and do not submit
+  an OpenAI job.
 - `preflight` makes one API request and requires `--confirm-api-call`.
 - `submit` creates a paid Batch and requires the exact confirmation string
   `SUBMIT_PAID_BATCH`.
@@ -92,7 +96,7 @@ Inspect the JSONL and manifest before any API request.
 This is the first command that incurs API usage:
 
 ```bash
-OPENAI_API_KEY=... .venv/bin/python -m src.openai_conversion_v2 preflight \
+.venv/bin/python -m src.openai_conversion_v2 preflight \
   --source data/reviewer_rerun/source/gsm8k_train_pilot.jsonl \
   --output data/reviewer_rerun/batch_outputs/preflight.json \
   --confirm-api-call
@@ -104,15 +108,15 @@ and output quality before proceeding.
 ## 5. Submit, inspect, and download the pilot Batch
 
 ```bash
-OPENAI_API_KEY=... .venv/bin/python -m src.openai_conversion_v2 submit \
+.venv/bin/python -m src.openai_conversion_v2 submit \
   --input data/reviewer_rerun/batch_inputs/gsm8k_train_pilot.jsonl \
   --manifest data/reviewer_rerun/batch_inputs/gsm8k_train_pilot.manifest.json \
   --confirm SUBMIT_PAID_BATCH
 
-OPENAI_API_KEY=... .venv/bin/python -m src.openai_conversion_v2 status \
+.venv/bin/python -m src.openai_conversion_v2 status \
   --manifest data/reviewer_rerun/batch_inputs/gsm8k_train_pilot.manifest.json
 
-OPENAI_API_KEY=... .venv/bin/python -m src.openai_conversion_v2 download \
+.venv/bin/python -m src.openai_conversion_v2 download \
   --manifest data/reviewer_rerun/batch_inputs/gsm8k_train_pilot.manifest.json \
   --output-dir data/reviewer_rerun/batch_outputs
 ```
@@ -121,20 +125,20 @@ OPENAI_API_KEY=... .venv/bin/python -m src.openai_conversion_v2 download \
 
 ## 6. Assemble and render the pilot
 
-Replace `<batch-id>` with the ID recorded in the manifest:
+Use the Batch manifest so both the submitted input and downloaded output are
+located and hash-checked without copying a dynamic Batch ID:
 
 ```bash
 .venv/bin/python -m src.openai_conversion_v2 assemble \
   --source data/reviewer_rerun/source/gsm8k_train_pilot.jsonl \
-  --batch-output data/reviewer_rerun/batch_outputs/<batch-id>.output.jsonl \
+  --batch-manifest data/reviewer_rerun/batch_inputs/gsm8k_train_pilot.manifest.json \
   --canonical-output data/reviewer_rerun/canonical/pilot.jsonl \
   --audit-output data/reviewer_rerun/audits/pilot_assembly.jsonl
 
 .venv/bin/python -m src.openai_conversion_v2 render \
   --input data/reviewer_rerun/canonical/pilot.jsonl \
   --output-root data/reviewer_rerun/pilot \
-  --target-count 90 \
-  --min-solution-chars 0
+  --all-accepted
 ```
 
 The render command writes a pairing report and fails on any mismatch between
@@ -148,6 +152,9 @@ rows, and the Batch builder creates 7,473 requests for 22,419 candidates.
 
 The final renderer targets 21,250 accepted records after shared validation and
 deduplication. If fewer survive, retry failed/rejected sources before rendering.
+The exact transport-retry, canonical-merge, filtered-source regeneration, and
+whole-source replacement commands are in sections 9-10 of the one-pass RA
+protocol.
 
 The offline full-volume input is created with:
 
@@ -165,18 +172,14 @@ The offline full-volume input is created with:
 
 ## 8. Training smoke runs
 
-After installing the locked MLX stack and creating the paired data:
+After installing the locked MLX stack and creating the paired data, plan or run
+all three mandatory smoke jobs through the guarded matrix script:
 
 ```bash
-.venv/bin/python -m src.run_training run \
-  --config configs/reviewer_rerun/qwen3_0.6b_socratic.yaml \
-  --experiment-id qwen3-0.6b-socratic-smoke \
-  --run-dir runs/reviewer_rerun/training/qwen3_0.6b_socratic_smoke \
-  --smoke-iters 20 \
-  --minimum-free-gib 5
+./scripts/run_training_matrix.sh --smoke --mandatory --plan
+caffeinate -s ./scripts/run_training_matrix.sh --smoke --mandatory --execute
 ```
 
-Repeat for the non-Socratic Qwen configuration and the Llama configuration.
 Do not pass `--skip-model-preflight` for an official smoke or full run.
 The wrapper verifies each configured repository SHA, downloads that exact
 snapshot, passes its local path to MLX-LM, and validates all seven target-module
@@ -184,33 +187,21 @@ suffixes before training.
 
 ## 9. Corrected evaluation
 
-Use pinned dataset revisions for official runs. Example greedy command:
+Use pinned dataset revisions for official runs. Plan and execute the entire
+mandatory greedy matrix with:
 
 ```bash
-.venv/bin/python -m src.evaluate_v2 \
-  --experiment-id qwen3-0.6b-base \
-  --model mlx-community/Qwen3-0.6B-bf16 \
-  --benchmark gsm8k \
-  --mode greedy \
-  --samples 1 \
-  --seed 42 \
-  --run-dir runs/reviewer_rerun/evaluation/qwen3_0.6b_base/gsm8k/greedy
+./scripts/run_evaluation_matrix.sh --full --greedy --mandatory --plan
+caffeinate -s ./scripts/run_evaluation_matrix.sh \
+  --full --greedy --mandatory --execute
 ```
 
 For the timing-gated SC@5 protocol:
 
 ```bash
-.venv/bin/python -m src.evaluate_v2 \
-  --experiment-id qwen3-0.6b-base \
-  --model mlx-community/Qwen3-0.6B-bf16 \
-  --benchmark gsm8k \
-  --mode self_consistency \
-  --samples 5 \
-  --temperature 0.7 \
-  --top-p 0.95 \
-  --top-k 20 \
-  --seed 42 \
-  --run-dir runs/reviewer_rerun/evaluation/qwen3_0.6b_base/gsm8k/sc5
+./scripts/run_evaluation_matrix.sh --full --sc5 --mandatory --plan
+caffeinate -s ./scripts/run_evaluation_matrix.sh \
+  --full --sc5 --mandatory --execute
 ```
 
 Use `--limit 20` only for a smoke run. Full reporting rejects partial benchmark
@@ -230,4 +221,6 @@ make rerun-reports
 ```
 
 This creates the canonical accuracy, Wilson interval, resource, and
-reproducibility outputs under `results/reviewer_rerun/`.
+reproducibility outputs under `results/reviewer_rerun/`. It fails unless all
+three mandatory training runs and all 15 unique full greedy evaluations are
+present. Use `make rerun-reports-partial` only for progress inspection.

@@ -491,6 +491,38 @@ def _read_manifest(path: Path) -> dict[str, Any]:
     return value
 
 
+def assembly_paths_from_batch_manifest(
+    manifest_path: Path,
+) -> tuple[Path, Path]:
+    """Resolve and verify the downloaded output and submitted input paths."""
+    manifest = _read_manifest(manifest_path)
+    downloads = manifest.get("downloads")
+    output = downloads.get("output") if isinstance(downloads, Mapping) else None
+    if not isinstance(output, Mapping) or not isinstance(output.get("path"), str):
+        raise RuntimeError(
+            "Batch manifest has no downloaded output; refresh status and download first"
+        )
+    batch_output_path = Path(output["path"])
+    expected_output_hash = output.get("sha256")
+    if not batch_output_path.is_file():
+        raise FileNotFoundError(
+            f"Downloaded Batch output is missing: {batch_output_path}"
+        )
+    if expected_output_hash != file_sha256(batch_output_path):
+        raise RuntimeError("Downloaded Batch output hash differs from its manifest")
+
+    raw_input_path = manifest.get("batch_input_path")
+    if not isinstance(raw_input_path, str):
+        raise RuntimeError("Batch manifest has no batch_input_path")
+    batch_input_path = Path(raw_input_path)
+    expected_input_hash = manifest.get("batch_input_sha256")
+    if not batch_input_path.is_file():
+        raise FileNotFoundError(f"Submitted Batch input is missing: {batch_input_path}")
+    if expected_input_hash != file_sha256(batch_input_path):
+        raise RuntimeError("Submitted Batch input hash differs from its manifest")
+    return batch_output_path, batch_input_path
+
+
 def _response_output_text(body: Mapping[str, Any]) -> str:
     direct = body.get("output_text")
     if isinstance(direct, str) and direct.strip():
@@ -558,13 +590,41 @@ def assemble_batch_results(
     canonical_output_path: Path,
     audit_output_path: Path,
     *,
+    batch_input_path: Path | None = None,
     expected_model: str,
     allow_model_fallback: bool = False,
 ) -> dict[str, Any]:
     """Join Batch outputs by custom ID and emit canonical records plus audit."""
-    sources = {
+    all_sources = {
         _required_source_text(row, "source_id"): row for row in read_jsonl(source_path)
     }
+    requested_ids: set[str] | None = None
+    if batch_input_path is not None:
+        requested_ids = set()
+        for input_index, request in enumerate(read_jsonl(batch_input_path)):
+            custom_id = request.get("custom_id")
+            if not isinstance(custom_id, str) or not custom_id:
+                raise ValueError(
+                    f"Batch input row {input_index} has an invalid custom_id"
+                )
+            if custom_id in requested_ids:
+                raise ValueError(f"Duplicate custom_id in Batch input: {custom_id}")
+            requested_ids.add(custom_id)
+        if not requested_ids:
+            raise ValueError("Batch input contains no requests")
+        unknown_ids = sorted(requested_ids - set(all_sources))
+        if unknown_ids:
+            raise ValueError(
+                "Batch input custom IDs are absent from the source snapshot: "
+                + ", ".join(unknown_ids)
+            )
+        sources = {
+            source_id: source
+            for source_id, source in all_sources.items()
+            if source_id in requested_ids
+        }
+    else:
+        sources = all_sources
     canonical: list[CanonicalExample] = []
     audit: list[dict[str, Any]] = []
     seen_custom_ids: set[str] = set()
@@ -690,6 +750,10 @@ def assemble_batch_results(
         "source_sha256": file_sha256(source_path),
         "batch_output_path": str(batch_output_path),
         "batch_output_sha256": file_sha256(batch_output_path),
+        "batch_input_path": str(batch_input_path) if batch_input_path else None,
+        "batch_input_sha256": (
+            file_sha256(batch_input_path) if batch_input_path else None
+        ),
         "expected_model": expected_model,
         "allow_model_fallback": allow_model_fallback,
         "source_count": len(sources),
@@ -706,6 +770,162 @@ def assemble_batch_results(
         "audit_output_sha256": file_sha256(audit_output_path),
     }
     write_json(canonical_output_path.with_suffix(".manifest.json"), manifest)
+    return manifest
+
+
+def merge_canonical_outputs(
+    input_paths: Sequence[Path],
+    output_path: Path,
+    *,
+    replace_sources_from_later: bool = False,
+) -> dict[str, Any]:
+    """Validate and deterministically merge canonical initial/retry outputs."""
+    if not input_paths:
+        raise ValueError("At least one canonical input is required")
+
+    records_by_source_variant: dict[tuple[str, int], CanonicalExample] = {}
+    seen_example_ids: dict[str, Path] = {}
+    source_variant_paths: dict[tuple[str, int], Path] = {}
+    source_paths: dict[str, Path] = {}
+    replacement_sources: set[str] = set()
+    inputs: list[dict[str, Any]] = []
+    for input_path in input_paths:
+        input_records: list[CanonicalExample] = []
+        input_example_ids: set[str] = set()
+        input_source_variants: set[tuple[str, int]] = set()
+        input_count = 0
+        for raw in read_jsonl(input_path):
+            record = CanonicalExample.from_mapping(raw)
+            source_variant = (record.source_id, record.variant_id)
+            if record.example_id in input_example_ids:
+                raise ValueError(
+                    f"Duplicate canonical example_id {record.example_id!r} in {input_path}"
+                )
+            if source_variant in input_source_variants:
+                raise ValueError(
+                    "Duplicate canonical source/variant "
+                    f"{record.source_id!r}/{record.variant_id} in {input_path}"
+                )
+            input_example_ids.add(record.example_id)
+            input_source_variants.add(source_variant)
+            input_records.append(record)
+            input_count += 1
+
+        input_sources = {record.source_id for record in input_records}
+        if replace_sources_from_later:
+            for source_id in input_sources & set(source_paths):
+                replacement_sources.add(source_id)
+                for key in [
+                    key for key in records_by_source_variant if key[0] == source_id
+                ]:
+                    previous = records_by_source_variant.pop(key)
+                    seen_example_ids.pop(previous.example_id, None)
+                    source_variant_paths.pop(key, None)
+        for record in input_records:
+            previous_path = seen_example_ids.get(record.example_id)
+            if previous_path is not None:
+                raise ValueError(
+                    f"Duplicate canonical example_id {record.example_id!r} in "
+                    f"{previous_path} and {input_path}"
+                )
+            source_variant = (record.source_id, record.variant_id)
+            previous_path = source_variant_paths.get(source_variant)
+            if previous_path is not None:
+                raise ValueError(
+                    "Duplicate canonical source/variant "
+                    f"{record.source_id!r}/{record.variant_id} in "
+                    f"{previous_path} and {input_path}"
+                )
+            records_by_source_variant[source_variant] = record
+            seen_example_ids[record.example_id] = input_path
+            source_variant_paths[source_variant] = input_path
+            source_paths[record.source_id] = input_path
+        inputs.append(
+            {
+                "path": str(input_path),
+                "sha256": file_sha256(input_path),
+                "canonical_rows": input_count,
+            }
+        )
+
+    records = sorted(
+        records_by_source_variant.values(),
+        key=lambda record: (record.source_id, record.variant_id, record.example_id),
+    )
+    write_jsonl(output_path, (record.as_dict() for record in records))
+    manifest = {
+        "created_at": utc_now(),
+        "protocol": protocol_identity(),
+        "inputs": inputs,
+        "input_count": len(inputs),
+        "replace_sources_from_later": replace_sources_from_later,
+        "replacement_sources": sorted(replacement_sources),
+        "canonical_example_count": len(records),
+        "source_count": len({record.source_id for record in records}),
+        "output_path": str(output_path),
+        "output_sha256": file_sha256(output_path),
+    }
+    write_json(output_path.with_suffix(".manifest.json"), manifest)
+    return manifest
+
+
+def build_rejection_retry_input(
+    original_batch_input: Path,
+    canonical_input: Path,
+    rejection_audit: Path,
+    output_path: Path,
+) -> dict[str, Any]:
+    """Regenerate every source group with one or more filtered examples."""
+    example_sources: dict[str, str] = {}
+    for raw in read_jsonl(canonical_input):
+        example_id = raw.get("example_id")
+        source_id = raw.get("source_id")
+        if isinstance(example_id, str) and isinstance(source_id, str):
+            example_sources[example_id] = source_id
+
+    rejected_sources: set[str] = set()
+    unmapped_example_ids: list[str] = []
+    for rejection in read_jsonl(rejection_audit):
+        example_id = rejection.get("example_id")
+        if not isinstance(example_id, str) or example_id not in example_sources:
+            unmapped_example_ids.append(str(example_id))
+            continue
+        rejected_sources.add(example_sources[example_id])
+    if unmapped_example_ids:
+        raise ValueError(
+            "Rejection audit contains examples absent from canonical input: "
+            + ", ".join(sorted(unmapped_example_ids))
+        )
+    if not rejected_sources:
+        raise ValueError("Rejection audit contains no source groups to retry")
+
+    requests = [
+        request
+        for request in read_jsonl(original_batch_input)
+        if request.get("custom_id") in rejected_sources
+    ]
+    found_sources = {request.get("custom_id") for request in requests}
+    if found_sources != rejected_sources:
+        missing = sorted(rejected_sources - found_sources)
+        raise ValueError(f"Rejected source IDs not found in original input: {missing}")
+    write_jsonl(output_path, requests)
+    manifest = {
+        "created_at": utc_now(),
+        "protocol": protocol_identity(),
+        "stage": "filtered_source_retry_built",
+        "original_batch_input": str(original_batch_input),
+        "original_batch_input_sha256": file_sha256(original_batch_input),
+        "canonical_input": str(canonical_input),
+        "canonical_input_sha256": file_sha256(canonical_input),
+        "rejection_audit": str(rejection_audit),
+        "rejection_audit_sha256": file_sha256(rejection_audit),
+        "retry_request_count": len(requests),
+        "retry_source_ids": sorted(rejected_sources),
+        "batch_input_path": str(output_path),
+        "batch_input_sha256": file_sha256(output_path),
+        "batch_input_bytes": output_path.stat().st_size,
+    }
+    write_json(output_path.with_suffix(".manifest.json"), manifest)
     return manifest
 
 
@@ -797,16 +1017,46 @@ def _build_parser() -> argparse.ArgumentParser:
 
     assemble = commands.add_parser("assemble", help="join Batch output by custom ID")
     assemble.add_argument("--source", type=Path, required=True)
-    assemble.add_argument("--batch-output", type=Path, required=True)
+    batch_source = assemble.add_mutually_exclusive_group(required=True)
+    batch_source.add_argument("--batch-output", type=Path)
+    batch_source.add_argument(
+        "--batch-manifest",
+        type=Path,
+        help="infer and hash-check downloaded output and submitted input paths",
+    )
     assemble.add_argument("--canonical-output", type=Path, required=True)
     assemble.add_argument("--audit-output", type=Path, required=True)
+    assemble.add_argument(
+        "--batch-input",
+        type=Path,
+        help="limit expected source IDs to the requests in this Batch input",
+    )
     assemble.add_argument("--expected-model", default=DEFAULT_TEACHER_MODEL)
     assemble.add_argument("--allow-model-fallback", action="store_true")
+
+    merge = commands.add_parser(
+        "merge", help="merge validated canonical initial/retry outputs"
+    )
+    merge.add_argument("--input", type=Path, action="append", required=True)
+    merge.add_argument("--output", type=Path, required=True)
+    merge.add_argument(
+        "--replace-sources-from-later",
+        action="store_true",
+        help="replace whole earlier source groups with records from later inputs",
+    )
 
     retry = commands.add_parser("retry", help="build requests for missing outputs")
     retry.add_argument("--original-input", type=Path, required=True)
     retry.add_argument("--assembly-manifest", type=Path, required=True)
     retry.add_argument("--output", type=Path, required=True)
+
+    retry_rejected = commands.add_parser(
+        "retry-rejected", help="build requests for source groups rejected by filtering"
+    )
+    retry_rejected.add_argument("--original-input", type=Path, required=True)
+    retry_rejected.add_argument("--canonical-input", type=Path, required=True)
+    retry_rejected.add_argument("--rejection-audit", type=Path, required=True)
+    retry_rejected.add_argument("--output", type=Path, required=True)
 
     validate = commands.add_parser("validate", help="validate canonical records")
     validate.add_argument("--input", type=Path, required=True)
@@ -814,7 +1064,13 @@ def _build_parser() -> argparse.ArgumentParser:
     render = commands.add_parser("render", help="filter and render both arms")
     render.add_argument("--input", type=Path, required=True)
     render.add_argument("--output-root", type=Path, default=Path("data/reviewer_rerun"))
-    render.add_argument("--target-count", type=int, default=21250)
+    selection = render.add_mutually_exclusive_group()
+    selection.add_argument("--target-count", type=int, default=21250)
+    selection.add_argument(
+        "--all-accepted",
+        action="store_true",
+        help="render every accepted record instead of selecting an exact target",
+    )
     render.add_argument("--min-solution-chars", type=int, default=120)
     render.add_argument("--max-solution-chars", type=int, default=2000)
     render.add_argument("--ngram-size", type=int, default=5)
@@ -868,18 +1124,45 @@ def main(argv: Sequence[str] | None = None) -> int:
     elif args.command == "download":
         result = download_batch_files(args.manifest, args.output_dir)
     elif args.command == "assemble":
+        batch_output_path = args.batch_output
+        batch_input_path = args.batch_input
+        if args.batch_manifest is not None:
+            batch_output_path, inferred_input_path = assembly_paths_from_batch_manifest(
+                args.batch_manifest
+            )
+            if batch_input_path is not None and batch_input_path != inferred_input_path:
+                raise ValueError(
+                    "--batch-input differs from the input recorded in --batch-manifest"
+                )
+            batch_input_path = inferred_input_path
+        if batch_output_path is None:
+            raise AssertionError("assemble requires a Batch output path")
         result = assemble_batch_results(
             args.source,
-            args.batch_output,
+            batch_output_path,
             args.canonical_output,
             args.audit_output,
+            batch_input_path=batch_input_path,
             expected_model=args.expected_model,
             allow_model_fallback=args.allow_model_fallback,
+        )
+    elif args.command == "merge":
+        result = merge_canonical_outputs(
+            args.input,
+            args.output,
+            replace_sources_from_later=args.replace_sources_from_later,
         )
     elif args.command == "retry":
         result = build_retry_input(
             args.original_input,
             args.assembly_manifest,
+            args.output,
+        )
+    elif args.command == "retry-rejected":
+        result = build_rejection_retry_input(
+            args.original_input,
+            args.canonical_input,
+            args.rejection_audit,
             args.output,
         )
     elif args.command == "validate":
@@ -889,7 +1172,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         result = build_paired_dataset(
             args.input,
             args.output_root,
-            target_count=args.target_count,
+            target_count=None if args.all_accepted else args.target_count,
             min_solution_chars=args.min_solution_chars,
             max_solution_chars=args.max_solution_chars,
             ngram_size=args.ngram_size,

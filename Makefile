@@ -157,5 +157,19 @@ rerun-batch-estimate:
 	@test -n "$(BATCH_INPUT)" || (echo "BATCH_INPUT is required" && exit 2)
 	$(RERUN_PYTHON) -m src.openai_conversion_v2 estimate --input $(BATCH_INPUT)
 
+rerun-plan-matrices:
+	./scripts/run_training_matrix.sh --full --mandatory --plan
+	./scripts/run_evaluation_matrix.sh --full --greedy --mandatory --plan
+
 rerun-reports:
-	$(RERUN_PYTHON) -m src.summarize_results
+	$(RERUN_PYTHON) -m src.summarize_results --require-mandatory-matrix
+
+rerun-reports-partial:
+	$(RERUN_PYTHON) -m src.summarize_results --allow-partial
+
+rerun-smoke-reports:
+	$(RERUN_PYTHON) -m src.summarize_results \
+		--evaluation-root runs/reviewer_rerun/smoke/evaluation \
+		--training-root runs/reviewer_rerun/smoke/training \
+		--output-root results/reviewer_rerun/smoke \
+		--allow-partial

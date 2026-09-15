@@ -107,7 +107,7 @@ or full cost estimate is approved.
 
 ## Verification completed
 
-- 56 unit and fixture-based integration tests pass.
+- 68 unit and fixture-based integration tests pass.
 - Ruff formatting and lint checks pass.
 - Both Qwen Socratic/non-Socratic configuration pairs are byte-semantically
   matched except for their dataset and adapter paths.

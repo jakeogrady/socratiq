@@ -8,14 +8,18 @@ from pathlib import Path
 from src.openai_conversion_v2 import (
     PAID_CONFIRMATION,
     assemble_batch_results,
+    assembly_paths_from_batch_manifest,
     batch_request,
     build_batch_input,
+    build_rejection_retry_input,
     build_retry_input,
+    canonical_from_variants,
     estimate_batch,
+    merge_canonical_outputs,
     preflight_request,
     submit_batch,
 )
-from src.rerun_utils import read_jsonl, write_jsonl
+from src.rerun_utils import file_sha256, read_jsonl, write_jsonl
 
 
 def source_row(source_id: str = "gsm8k-train-000000") -> dict:
@@ -245,6 +249,163 @@ class AssemblyTests(unittest.TestCase):
             self.assertEqual(
                 [row["custom_id"] for row in read_jsonl(retry)],
                 ["source-1", "source-2"],
+            )
+
+    def test_retry_assembly_is_scoped_to_its_batch_input(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            source_path = root / "source.jsonl"
+            batch_input_path = root / "retry.jsonl"
+            batch_output_path = root / "retry-output.jsonl"
+            canonical_path = root / "retry-canonical.jsonl"
+            audit_path = root / "retry-audit.jsonl"
+            requested_source = source_row("source-1")
+            write_jsonl(source_path, [source_row("source-0"), requested_source])
+            write_jsonl(
+                batch_input_path,
+                [
+                    batch_request(
+                        requested_source, model="teacher", max_output_tokens=100
+                    )
+                ],
+            )
+            write_jsonl(
+                batch_output_path,
+                [
+                    {
+                        "custom_id": "source-1",
+                        "response": {
+                            "status_code": 200,
+                            "body": {
+                                "id": "response-1",
+                                "status": "completed",
+                                "model": "teacher",
+                                "output_text": json.dumps(structured_variants()),
+                            },
+                        },
+                    }
+                ],
+            )
+
+            manifest = assemble_batch_results(
+                source_path,
+                batch_output_path,
+                canonical_path,
+                audit_path,
+                batch_input_path=batch_input_path,
+                expected_model="teacher",
+            )
+
+            self.assertEqual(manifest["source_count"], 1)
+            self.assertEqual(manifest["successful_source_count"], 1)
+            self.assertEqual(manifest["missing_custom_ids"], [])
+            self.assertEqual(manifest["retry_custom_ids"], [])
+            self.assertEqual(manifest["batch_input_path"], str(batch_input_path))
+
+    def test_merge_validates_uniqueness_and_orders_canonical_rows(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            first_path = root / "first.jsonl"
+            second_path = root / "second.jsonl"
+            output_path = root / "merged.jsonl"
+            first_records = canonical_from_variants(
+                source_row("source-1"), structured_variants(), response_metadata={}
+            )
+            second_records = canonical_from_variants(
+                source_row("source-0"), structured_variants(), response_metadata={}
+            )
+            write_jsonl(first_path, (record.as_dict() for record in first_records))
+            write_jsonl(second_path, (record.as_dict() for record in second_records))
+
+            manifest = merge_canonical_outputs([first_path, second_path], output_path)
+            merged = list(read_jsonl(output_path))
+
+            self.assertEqual(manifest["canonical_example_count"], 6)
+            self.assertEqual(manifest["source_count"], 2)
+            self.assertEqual(merged[0]["source_id"], "source-0")
+            self.assertEqual(merged[-1]["source_id"], "source-1")
+            with self.assertRaisesRegex(ValueError, "Duplicate canonical example_id"):
+                merge_canonical_outputs([first_path, first_path], root / "bad.jsonl")
+
+    def test_batch_manifest_resolves_and_hash_checks_assembly_inputs(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            batch_input_path = root / "batch.jsonl"
+            batch_output_path = root / "batch-output.jsonl"
+            manifest_path = root / "batch.manifest.json"
+            write_jsonl(batch_input_path, [{"custom_id": "source-0"}])
+            write_jsonl(batch_output_path, [{"custom_id": "source-0"}])
+            manifest_path.write_text(
+                json.dumps(
+                    {
+                        "batch_input_path": str(batch_input_path),
+                        "batch_input_sha256": file_sha256(batch_input_path),
+                        "downloads": {
+                            "output": {
+                                "path": str(batch_output_path),
+                                "sha256": file_sha256(batch_output_path),
+                            }
+                        },
+                    }
+                ),
+                encoding="utf-8",
+            )
+
+            output, submitted_input = assembly_paths_from_batch_manifest(manifest_path)
+            self.assertEqual(output, batch_output_path)
+            self.assertEqual(submitted_input, batch_input_path)
+
+            batch_output_path.write_text("changed\n", encoding="utf-8")
+            with self.assertRaisesRegex(RuntimeError, "output hash differs"):
+                assembly_paths_from_batch_manifest(manifest_path)
+
+    def test_filtered_retry_replaces_whole_source_group(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            original_input = root / "batch.jsonl"
+            initial_path = root / "initial.jsonl"
+            retry_input = root / "filtered-retry.jsonl"
+            retry_path = root / "retry.jsonl"
+            rejection_path = root / "rejections.jsonl"
+            merged_path = root / "merged.jsonl"
+            source = source_row("source-0")
+            write_jsonl(
+                original_input,
+                [batch_request(source, model="teacher", max_output_tokens=100)],
+            )
+            initial = canonical_from_variants(
+                source, structured_variants(), response_metadata={"attempt": 1}
+            )
+            replacement = canonical_from_variants(
+                source, structured_variants(), response_metadata={"attempt": 2}
+            )
+            write_jsonl(initial_path, (record.as_dict() for record in initial))
+            write_jsonl(retry_path, (record.as_dict() for record in replacement))
+            write_jsonl(
+                rejection_path,
+                [{"example_id": "source-0-v01", "reason": "solution_length"}],
+            )
+
+            retry_manifest = build_rejection_retry_input(
+                original_input,
+                initial_path,
+                rejection_path,
+                retry_input,
+            )
+            merge_manifest = merge_canonical_outputs(
+                [initial_path, retry_path],
+                merged_path,
+                replace_sources_from_later=True,
+            )
+
+            self.assertEqual(retry_manifest["retry_request_count"], 1)
+            self.assertEqual(retry_manifest["retry_source_ids"], ["source-0"])
+            self.assertEqual(merge_manifest["replacement_sources"], ["source-0"])
+            self.assertEqual(merge_manifest["canonical_example_count"], 3)
+            self.assertTrue(
+                all(
+                    row["generation"]["attempt"] == 2 for row in read_jsonl(merged_path)
+                )
             )
 
 
