@@ -728,3 +728,6 @@ This block performs preparation only and launches no paid Batch job or full trai
   prompt layout, shot indices, chat-template/thinking behavior, decoding and
   self-consistency settings, seed derivation, base-number provenance, and the
   full paper-facing resource fields.
+- Committed the complete first execution block as preparation milestone
+  `58b91ec33b8b8b7b01defd793453cceda3b6cc39`, excluding the pre-existing
+  user-owned `.DS_Store` modification and all ignored raw JSONL/model artifacts.

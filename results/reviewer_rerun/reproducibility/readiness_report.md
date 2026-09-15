@@ -19,6 +19,8 @@ and run directory.
 - Active branch: `reviewer-rerun`
 - Baseline commit: `cfc17c444878291c927b3b5d5642032ff905317c`
 - Baseline tag: `submitted-draft-baseline`
+- Frozen preparation milestone:
+  `58b91ec33b8b8b7b01defd793453cceda3b6cc39`
 - Submitted PDF SHA-256:
   `ae43e89f4b36eeab768045badf7f484208a1925ebb02212dbc0c6052678ea677`
 - The pre-existing `.DS_Store` modification remains untouched and must not be
@@ -135,7 +137,6 @@ or full cost estimate is approved.
    20-iteration adapter, reload it, and run a small resumable evaluation.
 5. Repeat the model smoke for Llama before approving full data generation and
    official training.
-6. Commit the frozen preparation milestone while excluding `.DS_Store`.
 
 ## Next approved-risk boundary
 
