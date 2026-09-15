@@ -731,3 +731,6 @@ This block performs preparation only and launches no paid Batch job or full trai
 - Committed the complete first execution block as preparation milestone
   `58b91ec33b8b8b7b01defd793453cceda3b6cc39`, excluding the pre-existing
   user-owned `.DS_Store` modification and all ignored raw JSONL/model artifacts.
+- Published `reviewer-rerun` to `origin` from handoff commit
+  `0ffae1c6a72b10ce4d44022be6f29c04d82aa389` and configured the local branch
+  to track `origin/reviewer-rerun`.
