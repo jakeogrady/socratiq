@@ -1,7 +1,7 @@
 # Research-assistant protocol: reviewer rerun
 
 This is the single operational document to give the research assistant together
-with repository tag `reviewer-rerun-ra-handoff-v2`. It covers the complete
+with repository tag `reviewer-rerun-ra-handoff-v3`. It covers the complete
 mandatory reviewer experiment from a fresh Apple M4 Mac through the return of
 the raw evidence packet. Supporting rationale remains in
 [`dev_log_rerun.md`](dev_log_rerun.md); the submitted/legacy workflow must not
@@ -64,7 +64,7 @@ The scientific authority is
 whose expected SHA-256 is:
 
 ```text
-a4c1a95f00321867b2aef8f0403af929782dad1f10885f161d552a2c03e7cadb
+be66a73d43e4ceb34cd599fdbec9a4cd60dec6324d394a79292873fe9624d924
 ```
 
 Do not modify prompts, filters, seeds, benchmark splits, revisions, answer
@@ -98,7 +98,7 @@ git fetch --tags origin
 git checkout reviewer-rerun
 git pull --ff-only origin reviewer-rerun
 git rev-parse HEAD
-git rev-list -n 1 reviewer-rerun-ra-handoff-v2
+git rev-list -n 1 reviewer-rerun-ra-handoff-v3
 git status --short --branch
 ```
 
@@ -289,9 +289,10 @@ Inspect:
 
 Gate: no returned-model mismatch, pairing status `passed`, identical example ID
 sequences across arms, guiding questions absent only from the non-Socratic arm,
-and at least 86 of 90 candidates accepted by the frozen filters. If fewer than
-86 pass, the observed acceptance rate is below that required to reach 21,250
-from 22,419 full candidates; stop and report without changing the filters.
+and at least 86 of 90 candidates accepted by the frozen filters. This retained
+pilot gate is stricter than the rate required to reach 20,000 from 22,419 full
+candidates; if fewer than 86 pass, stop and report without changing the
+filters.
 
 ## 9. Full teacher Batch
 
@@ -419,9 +420,9 @@ accepted records:
 ```
 
 Read `full_feasibility01/manifests/dataset_manifest.json`. If
-`accepted_before_selection` is at least 21,250, proceed to the final render.
+`accepted_before_selection` is at least 20,000, proceed to the final render.
 
-If fewer than 21,250 survive and filtered-source retries are authorized, build
+If fewer than 20,000 survive and filtered-source retries are authorized, build
 one request for every source group with a rejected variant:
 
 ```bash
@@ -474,14 +475,14 @@ replacement and input hash is recorded in the merge manifest. Repeat only
 within the authorized retry ceiling. Never retain a mix of old and regenerated
 variants from the same source.
 
-Once at least 21,250 records survive, perform the frozen exact-size render from
+Once at least 20,000 records survive, perform the frozen exact-size render from
 the latest merged canonical file:
 
 ```bash
 .venv/bin/python -m src.openai_conversion_v2 render \
   --input data/reviewer_rerun/canonical/full_merged.jsonl \
   --output-root data/reviewer_rerun \
-  --target-count 21250 \
+  --target-count 20000 \
   --min-solution-chars 120 \
   --max-solution-chars 2000 \
   --ngram-size 5 \
@@ -495,7 +496,7 @@ If a filtered replacement was used, substitute the latest
 
 Gate requirements:
 
-- `accepted_rows` is exactly 21,250;
+- `accepted_rows` is exactly 20,000;
 - pairing status is `passed` for train and validation;
 - Socratic and non-Socratic split counts and example ID sequences match;
 - questions, declarative reasoning, answers, source IDs, variant IDs, and split
@@ -734,7 +735,7 @@ Stop and return the accumulated evidence if:
 - the teacher snapshot is unavailable or the returned model differs;
 - a paid stage is not authorized or would exceed its ceiling;
 - pairing fails or the two arms differ beyond guiding-question removal;
-- fewer than 21,250 records survive within the authorized retries;
+- fewer than 20,000 records survive within the authorized retries;
 - a model target, adapter save/reload, or training run fails;
 - an official training directory is incomplete;
 - an evaluation reports a configuration-hash mismatch;

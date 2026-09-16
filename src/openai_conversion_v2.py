@@ -1103,7 +1103,7 @@ def _build_parser() -> argparse.ArgumentParser:
     render.add_argument("--input", type=Path, required=True)
     render.add_argument("--output-root", type=Path, default=Path("data/reviewer_rerun"))
     selection = render.add_mutually_exclusive_group()
-    selection.add_argument("--target-count", type=int, default=21250)
+    selection.add_argument("--target-count", type=int, default=20000)
     selection.add_argument(
         "--all-accepted",
         action="store_true",

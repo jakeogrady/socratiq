@@ -165,7 +165,7 @@ df -h .
 ```
 
 Expected protocol SHA-256:
-`a4c1a95f00321867b2aef8f0403af929782dad1f10885f161d552a2c03e7cadb`.
+`be66a73d43e4ceb34cd599fdbec9a4cd60dec6324d394a79292873fe9624d924`.
 
 Expected lock SHA-256:
 `cea213bade4a75241aa328d902b99e443d8847f5b30d9fa834a3eccf42ff5517`.

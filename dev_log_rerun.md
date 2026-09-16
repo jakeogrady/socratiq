@@ -31,7 +31,8 @@ The governing experimental rule is:
 
 - Build a new canonical synthetic dataset from GSM8K source problems.
 - Render exactly matched Socratic and non-Socratic training arms.
-- Target 21,250 accepted canonical examples to retain the submitted experiment scale where validation permits.
+- Target exactly 20,000 accepted canonical examples for a clear paper-facing
+  rerun scale while retaining a 2,419-candidate validation buffer.
 - Train Qwen3-0.6B on both arms using identical corrected LoRA settings.
 - Train one Llama-3.2-1B model on the full Socratic arm.
 - Evaluate base and fine-tuned conditions on GSM8K, MultiArith, and SVAMP.
@@ -143,10 +144,12 @@ Create `configs/reviewer_rerun/protocol.yaml` containing:
 - GSM8K train sources: 7,473 expected.
 - Requested candidates: 3 variants per source.
 - Initial candidate target: 22,419.
-- Accepted canonical target: 21,250 where validation permits.
+- Accepted canonical target: exactly 20,000 where validation permits.
 - Both rendered arms must have exactly the same accepted count and example IDs.
 
-If fewer than 21,250 candidates survive, retry only missing/rejected requests. If more survive, select deterministically according to the frozen policy. Filtering must never be performed independently for the two arms.
+If fewer than 20,000 candidates survive, retry only missing/rejected requests.
+If more survive, select deterministically according to the frozen policy.
+Filtering must never be performed independently for the two arms.
 
 ### Gate
 
@@ -268,9 +271,10 @@ Every rejection is written to an audit JSONL with a machine-readable reason, sou
 - Use seed 42.
 - Split by `source_id`, never individual variant.
 - Keep every sibling variant in the same split.
-- Preserve 21,250 total examples where feasible.
+- Preserve exactly 20,000 total examples where feasible.
 - Target approximately 90% training and 10% validation.
-- Prefer source integrity over reproducing the exact historical 19,125/2,125 counts if both cannot be satisfied simultaneously.
+- Prefer source integrity while targeting approximately 18,000 training and
+  2,000 validation examples.
 - Record the exact resulting counts and source assignments.
 
 ### Pair validator
@@ -656,7 +660,7 @@ Before full paid generation or long-running training:
 
 ## Definition of reviewer-work completion
 
-- [ ] Frozen 21,250-example canonical dataset, subject to documented validation feasibility.
+- [ ] Frozen 20,000-example canonical dataset, subject to documented validation feasibility.
 - [ ] Exactly matched Socratic and non-Socratic renders.
 - [ ] Qwen3-0.6B Socratic and non-Socratic adapters under identical corrected settings.
 - [ ] Qwen3-0.6B base/Socratic/non-Socratic full three-benchmark results.
@@ -945,3 +949,24 @@ This block performs preparation only and launches no paid Batch job or full trai
   7,473-request projection is USD 21.92; including retry overhead at the
   observed two-of-30 source rate projects approximately 498 retry requests and
   USD 23.33 total. Stopped before the separately authorized full-Batch gate.
+- Before full Batch submission or any model training, the project owner chose
+  an exact paper-facing target of 20,000 accepted canonical examples rather
+  than 21,250. Recorded this outcome-independent amendment as protocol version
+  `1.2`, SHA-256
+  `be66a73d43e4ceb34cd599fdbec9a4cd60dec6324d394a79292873fe9624d924`.
+  The 7,473 teacher requests, 22,419 raw candidates, prompt, schema, filters,
+  deduplication, seeds, and all training/evaluation settings are unchanged.
+- The final dataset target is therefore 20,000 matched canonical problems,
+  rendered into 20,000 Socratic and 20,000 non-Socratic records, with an
+  approximately 18,000/2,000 source-group train/validation split in each arm.
+  The raw candidate buffer increases to 2,419 examples (approximately 10.79%).
+  Pilot manifests remain immutable under protocol 1.1; full-run artifacts use
+  protocol 1.2. Reserved a new final handoff tag,
+  `reviewer-rerun-ra-handoff-v3`, without moving the older handoff tag.
+- Rebuilt the full request artifact offline under protocol 1.2. Its 7,473
+  requests, 22,419 candidates, 25,975,624 bytes, and SHA-256
+  `ba4f3715197d3ed58b6eaae0f1fcf60a15aab9eadc990dbd00a34ae9f1af4359`
+  are unchanged; its manifest remains at stage `built` with no Batch ID. Added
+  a guard that the CLI render default equals the protocol target. The complete
+  preparation gate now passes 78 tests, Ruff, and all five configuration
+  checks.

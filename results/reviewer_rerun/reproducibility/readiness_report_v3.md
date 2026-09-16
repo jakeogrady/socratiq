@@ -23,8 +23,12 @@ v2 Batch was submitted.
 - Submitted baseline: commit
   `cfc17c444878291c927b3b5d5642032ff905317c`, tag
   `submitted-draft-baseline`.
-- Active protocol: version `1.1`, SHA-256
-  `a4c1a95f00321867b2aef8f0403af929782dad1f10885f161d552a2c03e7cadb`.
+- Active protocol: version `1.2`, SHA-256
+  `be66a73d43e4ceb34cd599fdbec9a4cd60dec6324d394a79292873fe9624d924`.
+- The completed v3 preflight and pilot retain protocol version `1.1` and
+  SHA-256
+  `a4c1a95f00321867b2aef8f0403af929782dad1f10885f161d552a2c03e7cadb`;
+  version 1.2 changes only the pre-full-run accepted target to exactly 20,000.
 - Lock-file SHA-256:
   `cea213bade4a75241aa328d902b99e443d8847f5b30d9fa834a3eccf42ff5517`.
 - Teacher model: `gpt-5-mini-2025-08-07`, with fallback forbidden.
@@ -67,7 +71,7 @@ v2 Batch was submitted.
 
 ## Verification
 
-- 77 unit and fixture-based integration tests pass.
+- 78 unit and fixture-based integration tests pass.
 - Ruff lint and format checks pass.
 - All five reviewer training configurations validate.
 - Both Qwen matched pairs differ only in dataset and adapter paths.

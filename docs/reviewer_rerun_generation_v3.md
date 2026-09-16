@@ -35,9 +35,12 @@ are the scientific generation identities.
 
 ## Frozen identities
 
-- Protocol version: `1.1`.
-- Protocol SHA-256:
+- Pilot-generation protocol version: `1.1`.
+- Pilot-generation protocol SHA-256:
   `a4c1a95f00321867b2aef8f0403af929782dad1f10885f161d552a2c03e7cadb`.
+- Active full-run protocol version: `1.2`.
+- Active full-run protocol SHA-256:
+  `be66a73d43e4ceb34cd599fdbec9a4cd60dec6324d394a79292873fe9624d924`.
 - Teacher model: `gpt-5-mini-2025-08-07`; fallback forbidden.
 - GSM8K revision:
   `740312add88f781978c0658806c59bc2815b9866`.
@@ -168,3 +171,26 @@ of USD 30 would cover the USD 23.33 retry-adjusted projection with contingency.
 No model download, training, or benchmark evaluation should start on this
 machine; those stages remain assigned to the M4 handoff after the full dataset
 is generated, filtered, paired, and frozen.
+
+## Pre-full-run accepted-count amendment
+
+The complete amendment record is
+[`reviewer_rerun_protocol_v1_2_amendment.md`](reviewer_rerun_protocol_v1_2_amendment.md).
+
+After the v3 pilot passed and before the full Batch or any model training was
+started, the project owner selected an exact paper-facing target of 20,000
+accepted canonical examples instead of 21,250. This is protocol version `1.2`.
+The change was made without observing any model-training or benchmark outcome.
+
+The teacher request set is unchanged: 7,473 requests still produce up to
+22,419 candidates, and the full request JSONL retains the same content hash.
+Only deterministic post-filter selection changes. The final dataset will
+contain 20,000 unique canonical problems rendered as 20,000 Socratic and
+20,000 matched non-Socratic rows. The requested split is approximately 18,000
+training and 2,000 validation rows per arm, with source-group integrity taking
+precedence if exact split counts conflict.
+
+The amendment increases the rejection/retry buffer to 2,419 candidates, or
+approximately 10.79% of the raw candidate pool. Completed preflight and pilot
+manifests remain immutable under protocol 1.1; full-run and downstream
+artifacts must record the protocol-1.2 hash.

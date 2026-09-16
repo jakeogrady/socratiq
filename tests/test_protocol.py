@@ -3,6 +3,7 @@ from __future__ import annotations
 import unittest
 from pathlib import Path
 
+from src.openai_conversion_v2 import _build_parser
 from src.rerun_utils import protocol_identity
 from src.run_training import load_yaml
 
@@ -10,9 +11,10 @@ from src.run_training import load_yaml
 class ProtocolTests(unittest.TestCase):
     def test_protocol_freezes_required_counts_and_no_fallback(self) -> None:
         protocol = load_yaml(Path("configs/reviewer_rerun/protocol.yaml"))
+        self.assertEqual(protocol["protocol_version"], "1.2")
         self.assertEqual(protocol["source_dataset"]["expected_train_rows"], 7473)
         self.assertEqual(protocol["synthetic_data"]["expected_candidate_rows"], 22419)
-        self.assertEqual(protocol["synthetic_data"]["target_accepted_rows"], 21250)
+        self.assertEqual(protocol["synthetic_data"]["target_accepted_rows"], 20000)
         self.assertFalse(protocol["synthetic_data"]["allow_model_fallback"])
         self.assertEqual(
             protocol["synthetic_data"]["prompt_version"], "matched-pairs-v3"
@@ -49,6 +51,14 @@ class ProtocolTests(unittest.TestCase):
         identity = protocol_identity()
         self.assertEqual(len(identity["sha256"]), 64)
         self.assertTrue(identity["path"].endswith("protocol.yaml"))
+
+    def test_render_default_matches_protocol_target(self) -> None:
+        protocol = load_yaml(Path("configs/reviewer_rerun/protocol.yaml"))
+        args = _build_parser().parse_args(["render", "--input", "canonical.jsonl"])
+        self.assertEqual(
+            args.target_count,
+            protocol["synthetic_data"]["target_accepted_rows"],
+        )
 
     def test_training_configs_match_protocol_model_pins(self) -> None:
         protocol = load_yaml(Path("configs/reviewer_rerun/protocol.yaml"))

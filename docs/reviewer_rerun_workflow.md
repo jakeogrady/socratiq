@@ -161,7 +161,7 @@ Do not start this stage until the pilot, storage review, model check, and API
 volume review are complete. The full snapshot expects all 7,473 GSM8K training
 rows, and the Batch builder creates 7,473 requests for 22,419 candidates.
 
-The final renderer targets 21,250 accepted records after shared validation and
+The final renderer targets 20,000 accepted records after shared validation and
 deduplication. If fewer survive, retry failed/rejected sources before rendering.
 The exact transport-retry, canonical-merge, filtered-source regeneration, and
 whole-source replacement commands are in sections 9-10 of the one-pass RA

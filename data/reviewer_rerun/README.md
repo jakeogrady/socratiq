@@ -26,7 +26,7 @@ independently. Do not place API keys, access tokens, model weights, or other
 secrets in this directory.
 
 Transport retries must be assembled against their own Batch input. If shared
-filtering leaves fewer than 21,250 records, regenerate every affected source
+filtering leaves fewer than 20,000 records, regenerate every affected source
 group and use a replacement merge so old and new variants from one GSM8K source
 are never mixed. Exact commands are in `RA_REVIEWER_RERUN_PROTOCOL.md`.
 
