@@ -4,7 +4,7 @@
     "path": "/Users/eir/Desktop/JOG-FYP-2526/socratiq/configs/reviewer_rerun/protocol.yaml",
     "sha256": "a4c1a95f00321867b2aef8f0403af929782dad1f10885f161d552a2c03e7cadb"
   },
-  "stage": "built",
+  "stage": "downloaded",
   "prompt_version": "matched-pairs-v3",
   "source_path": "data/reviewer_rerun/source/gsm8k_train_pilot.jsonl",
   "source_sha256": "aeee6369f6695e9e1937ce3dbf1f4c671d283f09581eba4fa8eff15855ae752f",
@@ -17,5 +17,46 @@
   "max_output_tokens": 3500,
   "batch_input_path": "data/reviewer_rerun/batch_inputs/gsm8k_train_pilot.jsonl",
   "batch_input_bytes": 105405,
-  "batch_input_sha256": "dbb92eb9f0a8bf7d54d7f3dd004ec6dfdb7cc14781324dc39760fa233b91f958"
+  "batch_input_sha256": "dbb92eb9f0a8bf7d54d7f3dd004ec6dfdb7cc14781324dc39760fa233b91f958",
+  "submitted_at": "2026-09-16T08:05:27+00:00",
+  "input_file_id": "file-LjzRUxv3sPkGQE6XTV4Wsr",
+  "batch_id": "batch_6aaa4dc736e48190b81b084b03626d90",
+  "batch_status": "completed",
+  "status_checked_at": "2026-09-16T08:25:09+00:00",
+  "request_counts": {
+    "completed": 30,
+    "failed": 0,
+    "total": 30
+  },
+  "usage": {
+    "input_tokens": 18248,
+    "input_tokens_details": {
+      "cached_tokens": 0
+    },
+    "output_tokens": 41715,
+    "output_tokens_details": {
+      "reasoning_tokens": 14208
+    },
+    "total_tokens": 59963
+  },
+  "output_file_id": "file-1sayVNDoZ8sfRf3rZCqWDj",
+  "error_file_id": null,
+  "batch_timestamps": {
+    "created_at": 1789545927,
+    "in_progress_at": 1789545993,
+    "finalizing_at": 1789547106,
+    "completed_at": 1789547108,
+    "failed_at": null,
+    "expired_at": null,
+    "cancelled_at": null
+  },
+  "downloaded_at": "2026-09-16T08:25:29+00:00",
+  "downloads": {
+    "output": {
+      "file_id": "file-1sayVNDoZ8sfRf3rZCqWDj",
+      "path": "data/reviewer_rerun/batch_outputs/batch_6aaa4dc736e48190b81b084b03626d90.output.jsonl",
+      "sha256": "fe1548c3447c249affc7733bf74c488c0aa5d7c59f35a76f9bdeeab2d05361a5",
+      "bytes": 365785
+    }
+  }
 }

@@ -4,11 +4,14 @@ Generated: 2026-09-16
 
 ## Outcome
 
-The stricter `matched-pairs-v3` generation contract is implemented, tested,
-and built offline. Its pinned source, 30-request pilot input, and 7,473-request
-full input all have recorded counts and SHA-256 identities. The single paid v3
-preflight passed; no v3 Batch, model-weight download, training run, or corrected
-benchmark evaluation has begun.
+The stricter `matched-pairs-v3` generation contract is implemented and tested.
+Its single-request preflight passed, and the paid 30-request Batch pilot
+completed 30/30 API requests with no failures. After a regression-tested local
+validator correction, 84/90 candidates pass the unchanged shared filter and
+pairing audit. Two genuine generation failures require a separately authorized
+two-request retry before the mandatory 86/90 gate can pass. No v3 retry or full
+Batch, model-weight download, training run, or corrected benchmark evaluation
+has begun.
 
 The prior `matched-pairs-v2` preflight and 30-request Batch are retained as a
 failed quality-pilot record. The API completed 30/30 requests, but only 74/90
@@ -39,6 +42,17 @@ v2 Batch was submitted.
   3/3 filter acceptance, 519 input tokens, 1,054 output tokens, 320 reasoning
   tokens, and SHA-256
   `02b9a4a30a50896d5fe3e24db426e9bc115c156c57e32354a81e6dcdf17997f6`.
+- v3 pilot Batch: `batch_6aaa4dc736e48190b81b084b03626d90`,
+  30/30 requests completed, zero failed, 18,248 input tokens, 41,715 output
+  tokens, 14,208 reasoning tokens, and output SHA-256
+  `fe1548c3447c249affc7733bf74c488c0aa5d7c59f35a76f9bdeeab2d05361a5`.
+- v3 initial canonical output: 28 complete source groups / 84 candidates,
+  SHA-256
+  `325a70a223c1c34d8e9240071a85621b63a6fc3f4a4ae9a1774209a91b745e91`;
+  all 84 pass filtering and matched pairing.
+- Pending two-request retry input: 6,885 bytes, SHA-256
+  `5be8b86b128a3dadc8ff98aa74ed1413a76a960c4a7d37e858d748deda94fd83`;
+  built offline and not submitted.
 - Current M2 preparation volume: approximately 229 GiB free; dataset
   generation is feasible here. Training and evaluation remain assigned to the
   M4 machine and must report that machine's actual environment.
@@ -47,7 +61,7 @@ v2 Batch was submitted.
 
 ## Verification
 
-- 74 unit and fixture-based integration tests pass.
+- 77 unit and fixture-based integration tests pass.
 - Ruff lint and format checks pass.
 - All five reviewer training configurations validate.
 - Both Qwen matched pairs differ only in dataset and adapter paths.
@@ -58,18 +72,21 @@ v2 Batch was submitted.
   pairing, seeds, model revisions, training settings, evaluation protocol, and
   benchmark denominators remain unchanged.
 - The arithmetic validator safely handles compound expressions, fractions,
-  parentheses, currencies, and equality chains using restricted exact-rational
-  evaluation.
+  parentheses, currencies, equality chains, Unicode minus, and final numeric
+  results from unit-bearing calculations while retaining restricted
+  exact-rational evaluation for expressions it evaluates.
 - Paid stages still fail closed without their explicit confirmation arguments.
 
 ## Open gates
 
-1. Separately decide whether to authorize the 30-request v3 Batch pilot.
-2. If authorized, submit, download, assemble, and render the pilot; require at
-   least 86/90 accepted examples and
-   a passed matched-pair audit without weakening filters.
-3. Recompute full cost from measured v3 usage and obtain a separate full-Batch
-   decision.
+1. Separately decide whether to authorize the prepared two-request v3 pilot
+   retry. Its observed-usage projection is approximately USD 0.00587.
+2. If authorized, submit, download, assemble, merge, and render the retry;
+   require at least 86/90 accepted examples and a passed matched-pair audit
+   without weakening filters.
+3. Recompute full cost from merged pilot usage. The initial 30-request Batch
+   linearly projects to approximately USD 21.92 for 7,473 requests; obtain a
+   separate full-Batch authorization and explicit maximum cost.
 4. Generate, assemble, filter, pair, and freeze the final dataset on this
    machine; transfer it without the API key to the M4 operator.
 5. On the M4, run the mandatory three-training/15-greedy-evaluation matrix and

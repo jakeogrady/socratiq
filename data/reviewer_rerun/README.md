@@ -8,6 +8,8 @@ as needed:
 - `batch_inputs/`: OpenAI Batch request JSONL and manifests;
 - `batch_outputs/`: downloaded success/error output files;
 - `canonical/`: validated canonical paired examples;
+- `pilot_v3/`: v3 pilot render and pairing evidence kept separate from the
+  historical v2 pilot paths;
 - `full_feasibilityNN/`: shared-filter feasibility renders kept outside the
   final training paths;
 - `socratic/`: rendered MLX-LM train/validation data;

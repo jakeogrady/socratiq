@@ -886,3 +886,34 @@ This block performs preparation only and launches no paid Batch job or full trai
   distribution before any full-Batch decision.
 - Stopped before the next paid gate. No v3 Batch was submitted. The next
   decision is whether to authorize the 30-request v3 pilot Batch.
+- With separate user authorization, submitted exactly the frozen 30-request
+  v3 pilot as Batch `batch_6aaa4dc736e48190b81b084b03626d90`. It completed
+  30/30 requests with zero API failures and no error file. The 365,785-byte
+  downloaded output has SHA-256
+  `fe1548c3447c249affc7733bf74c488c0aa5d7c59f35a76f9bdeeab2d05361a5`.
+  Measured usage was 18,248 input tokens and 41,715 output tokens, including
+  14,208 reasoning tokens (59,963 total).
+- Initial v3 assembly accepted 25 source groups and flagged five. Inspection
+  showed that three were mathematically correct but exposed two conservative
+  validator gaps: unit-bearing equations were not contributing their final
+  numeric result, and Unicode minus was not parsed as subtraction. Fixed those
+  cases without weakening incorrect-arithmetic or final-answer checks and
+  added three regression tests. The complete preparation gate now passes 77
+  tests, Ruff formatting/lint, and all five training-configuration checks.
+- Reassembly from the identical downloaded bytes accepts 28 source groups and
+  84 candidates. Every accepted record passes the unchanged 120--2,000
+  character filter and 5-gram deduplication policy, and the matched-pair audit
+  passes. Accepted reasoning fields span 60--270 characters, shared reasoning
+  spans 179--615 characters, and all returned model identities are exactly
+  `gpt-5-mini-2025-08-07`.
+- Two source groups are genuine generation failures: one uses trailing
+  whitespace to satisfy the upstream string-length schema while leaving a
+  54-character stripped reasoning step, and one contains inconsistent final
+  answers. The current 84/90 result is below the mandatory 86/90 gate.
+  Prepared, but did not submit, a two-request retry input with SHA-256
+  `5be8b86b128a3dadc8ff98aa74ed1413a76a960c4a7d37e858d748deda94fd83`.
+- At the official Batch rates checked on 16 September 2026, the completed
+  pilot cost estimate is USD 0.087992. A two-request retry projects to about
+  USD 0.00587, and the measured 30-request distribution linearly projects the
+  7,473-request full Batch to about USD 21.92. Stopped at the explicit paid
+  retry gate; no retry or full v3 Batch was submitted.

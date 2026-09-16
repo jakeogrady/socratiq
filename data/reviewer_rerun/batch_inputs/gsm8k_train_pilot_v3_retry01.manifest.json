@@ -1,0 +1,21 @@
+{
+  "created_at": "2026-09-16T08:29:10+00:00",
+  "protocol": {
+    "path": "/Users/eir/Desktop/JOG-FYP-2526/socratiq/configs/reviewer_rerun/protocol.yaml",
+    "sha256": "a4c1a95f00321867b2aef8f0403af929782dad1f10885f161d552a2c03e7cadb"
+  },
+  "prompt_version": "matched-pairs-v3",
+  "canonical_schema_version": "1.1",
+  "stage": "retry_built",
+  "original_batch_input": "data/reviewer_rerun/batch_inputs/gsm8k_train_pilot.jsonl",
+  "original_batch_input_sha256": "dbb92eb9f0a8bf7d54d7f3dd004ec6dfdb7cc14781324dc39760fa233b91f958",
+  "assembly_manifest": "data/reviewer_rerun/canonical/pilot_v3_initial.manifest.json",
+  "retry_request_count": 2,
+  "retry_custom_ids": [
+    "gsm8k-train-000020",
+    "gsm8k-train-000022"
+  ],
+  "batch_input_path": "data/reviewer_rerun/batch_inputs/gsm8k_train_pilot_v3_retry01.jsonl",
+  "batch_input_sha256": "5be8b86b128a3dadc8ff98aa74ed1413a76a960c4a7d37e858d748deda94fd83",
+  "batch_input_bytes": 6885
+}

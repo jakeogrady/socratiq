@@ -46,9 +46,10 @@ ID_PATTERN = re.compile(r"^[A-Za-z0-9][A-Za-z0-9_.:-]*$")
 NUMBER = r"[-+]?(?:\d{1,3}(?:,\d{3})+|\d+)(?:\.\d+)?"
 CALCULATION = re.compile(
     r"(?<![\w.])(?:[-+]?(?:[$€£]\s*)?(?:\d|\())"
-    r"[\d,\s.$€£()+\-*/×÷=]*="
-    r"[\d,\s.$€£()+\-*/×÷=]*(?:\d|\))"
+    r"[\d,\s.$€£()+\-−*/×÷=]*="
+    r"[\d,\s.$€£()+\-−*/×÷=]*(?:\d|\))"
 )
+EQUALITY_RESULT = re.compile(rf"=\s*(?:[$€£]\s*)?({NUMBER})(?![\d,.])(?!\s*[+\-−*/×÷])")
 
 
 class DatasetValidationError(ValueError):
@@ -227,6 +228,7 @@ def _evaluate_arithmetic_expression(expression: str) -> Fraction | None:
         .replace("£", "")
         .replace("×", "*")
         .replace("÷", "/")
+        .replace("−", "-")
         .strip()
     )
     if normalized.endswith("."):
@@ -271,18 +273,22 @@ def _evaluate_arithmetic_expression(expression: str) -> Fraction | None:
 def _contains_arithmetic_operator(expression: str) -> bool:
     """Return whether an equality segment contains an actual operation."""
     unsigned = expression.strip().lstrip("+-").strip()
-    return any(operator in unsigned for operator in ("+", "-", "*", "/", "×", "÷"))
+    return any(operator in unsigned for operator in ("+", "-", "−", "*", "/", "×", "÷"))
 
 
 def _validate_explicit_calculations(
     steps: Sequence[SolutionStep], final_answer: str
 ) -> None:
     """Verify explicit arithmetic equalities and their link to the final answer."""
-    results: list[Fraction] = []
+    final_result: Fraction | None = None
     for step_index, step in enumerate(steps):
+        result_candidates: list[tuple[int, Fraction]] = []
         for match in CALCULATION.finditer(step.reasoning):
             expressions = [part.strip() for part in match.group(0).split("=")]
-            if not any(_contains_arithmetic_operator(part) for part in expressions):
+            # Require an operation on the left-hand side. This avoids treating
+            # prose such as "length minus 2 = 2*5" as the false equation
+            # ``2 = 2*5`` while still validating explicit arithmetic.
+            if not _contains_arithmetic_operator(expressions[0]):
                 continue
             evaluated = [_evaluate_arithmetic_expression(part) for part in expressions]
             if any(value is None for value in evaluated):
@@ -293,10 +299,24 @@ def _validate_explicit_calculations(
                     f"solution_steps[{step_index}] contains an incorrect equality: "
                     f"{match.group(0)}"
                 )
-            results.append(values[-1])
-    if results:
+            result_candidates.append((match.end(), values[-1]))
+
+        # Unit-bearing calculations are intentionally not evaluated (for
+        # example, ``30 foxes * 3 rabbits/fox = 90 rabbits``), but their
+        # explicit numeric result still links the worked trace to the final
+        # answer. Ignore a numeric token when it begins another expression,
+        # such as the ``2`` in ``= 2*5``.
+        for match in EQUALITY_RESULT.finditer(step.reasoning):
+            value = _evaluate_arithmetic_expression(match.group(1))
+            if value is not None:
+                result_candidates.append((match.end(), value))
+
+        if result_candidates:
+            final_result = max(result_candidates, key=lambda candidate: candidate[0])[1]
+
+    if final_result is not None:
         final_match = FINAL_POSITIVE_INTEGER.fullmatch(final_answer)
-        if final_match is None or results[-1] != Fraction(final_match.group(1)):
+        if final_match is None or final_result != Fraction(final_match.group(1)):
             raise DatasetValidationError(
                 "the last explicit equality does not match final_answer"
             )

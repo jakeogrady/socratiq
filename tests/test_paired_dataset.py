@@ -118,6 +118,80 @@ class CanonicalValidationTests(unittest.TestCase):
         with self.assertRaisesRegex(DatasetValidationError, "incorrect equality"):
             CanonicalExample.from_mapping(row)
 
+    def test_unit_bearing_calculations_link_to_final_answer(self) -> None:
+        row = canonical_mapping("x-v01", "x", 1)
+        row["solution_steps"] = [
+            {
+                "guiding_question": "How many foxes are eaten by all eagles?",
+                "reasoning": (
+                    "Each eagle eats 5 foxes and there are 6 eagles, so the total "
+                    "is 5 * 6 = 30 foxes eaten each day."
+                ),
+            },
+            {
+                "guiding_question": "How many rabbits are eaten by those foxes?",
+                "reasoning": (
+                    "Each fox eats 3 rabbits, so the combined amount is "
+                    "30 foxes * 3 rabbits/fox = 90 rabbits each day."
+                ),
+            },
+            {
+                "guiding_question": "How many carrots do those rabbits eat?",
+                "reasoning": (
+                    "Each rabbit eats 12 carrots, so the requested amount is "
+                    "90 rabbits * 12 carrots/rabbit = 1080 carrots each day."
+                ),
+            },
+        ]
+        row["final_answer"] = "#### 1080"
+        CanonicalExample.from_mapping(row)
+
+    def test_unicode_minus_calculation_links_to_final_answer(self) -> None:
+        row = canonical_mapping("x-v01", "x", 1)
+        row["solution_steps"] = [
+            {
+                "guiding_question": "How many objects are in the first four groups?",
+                "reasoning": (
+                    "Each of the first four groups has 7 objects, so together they "
+                    "contain 4 × 7 = 28 objects before the final group."
+                ),
+            },
+            {
+                "guiding_question": "How many objects are in the final group?",
+                "reasoning": (
+                    "Subtracting the first four groups from the total gives "
+                    "40 − 28 = 12 objects in the final group."
+                ),
+            },
+        ]
+        row["final_answer"] = "#### 12"
+        CanonicalExample.from_mapping(row)
+
+    def test_prose_before_equality_is_not_a_false_arithmetic_error(self) -> None:
+        row = canonical_mapping("x-v01", "x", 1)
+        row["solution_steps"] = [
+            {
+                "guiding_question": "How long is the intermediate last name?",
+                "reasoning": (
+                    "If its length minus 2 = 2*5, then the original length is "
+                    "2*5 + 2 = 12 letters before the final subtraction."
+                ),
+            },
+            {
+                "guiding_question": "How long is the requested last name?",
+                "reasoning": (
+                    "The requested last name is three letters shorter, so its "
+                    "length is 12 - 3 = 9 letters in total."
+                ),
+            },
+        ]
+        row["final_answer"] = "#### 9"
+        CanonicalExample.from_mapping(row)
+
+        row["final_answer"] = "#### 11"
+        with self.assertRaisesRegex(DatasetValidationError, "final_answer"):
+            CanonicalExample.from_mapping(row)
+
     def test_compound_explicit_calculations_are_validated_whole(self) -> None:
         row = canonical_mapping("x-v01", "x", 1)
         row["solution_steps"] = [

@@ -90,9 +90,50 @@ The compact evidence is in
 `data/reviewer_rerun/batch_outputs/preflight_v3.manifest.json`. The raw response
 remains Git-ignored and local.
 
-## Next gate
+## Paid v3 Batch pilot
 
-The next operation is the 30-request v3 Batch pilot, which requires a separate
-decision. The full v3 Batch remains prohibited until the pilot passes the
-unchanged requirement of at least 86 accepted examples out of 90 and its
-measured usage supports an accepted cost projection.
+The separately authorized 30-request v3 pilot was submitted on 16 September
+2026 as Batch `batch_6aaa4dc736e48190b81b084b03626d90`. All 30 API requests
+completed, none failed, and no error file was produced. The downloaded output
+is 365,785 bytes with SHA-256
+`fe1548c3447c249affc7733bf74c488c0aa5d7c59f35a76f9bdeeab2d05361a5`.
+The Batch used 18,248 input tokens and 41,715 output tokens, including 14,208
+reasoning tokens, for 59,963 total tokens.
+
+Initial assembly exposed a local validation defect in three otherwise correct
+responses: unit-bearing calculations and Unicode minus caused an earlier
+intermediate result to be compared with the final answer. The validator was
+corrected conservatively and covered by regression tests. It still rejects
+incorrect explicit arithmetic and a last numeric equality result that differs
+from `final_answer`.
+
+Reassembling the same downloaded bytes accepts 28 complete source groups and
+84 candidates. All 84 pass the unchanged shared filter and pairing audit, with
+zero filter or duplicate rejection. Reasoning fields contain 60--270
+characters, shared reasoning contains 179--615 characters, step counts range
+from two to five, every problem and guiding question has the required question
+mark, and every accepted response reports exactly the requested dated model.
+
+Two source groups remain genuine generation failures. Source 20 padded a
+54-character stripped reasoning field with whitespace; source 22 returned two
+final answers inconsistent with its worked arithmetic. Whole-source rejection
+is retained, so the current pilot result is 84/90 and has not yet passed the
+predeclared 86/90 gate.
+
+At the official Batch rates checked on 16 September 2026 (USD 0.25 per million
+input tokens and USD 2.00 per million output tokens), measured pilot usage
+corresponds to USD 0.087992. A linear 7,473-request projection is approximately
+USD 21.92 and remains only a planning estimate.
+
+## Current retry gate
+
+A retry file containing only `gsm8k-train-000020` and
+`gsm8k-train-000022` has been built offline. It contains two requests, is 6,885
+bytes, and has SHA-256
+`5be8b86b128a3dadc8ff98aa74ed1413a76a960c4a7d37e858d748deda94fd83`.
+At the observed per-request usage, its estimated cost is about USD 0.00587.
+
+The retry has not been submitted. It requires a separate paid-call decision.
+The full v3 Batch remains prohibited until the merged pilot reaches at least
+86/90 accepted examples, passes the matched-pair audit without filter changes,
+and its measured usage supports an accepted full-Batch cost ceiling.
