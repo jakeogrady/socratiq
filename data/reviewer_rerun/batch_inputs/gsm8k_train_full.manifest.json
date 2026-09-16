@@ -4,7 +4,7 @@
     "path": "/Users/eir/Desktop/JOG-FYP-2526/socratiq/configs/reviewer_rerun/protocol.yaml",
     "sha256": "be66a73d43e4ceb34cd599fdbec9a4cd60dec6324d394a79292873fe9624d924"
   },
-  "stage": "status_refreshed",
+  "stage": "downloaded",
   "prompt_version": "matched-pairs-v3",
   "source_path": "data/reviewer_rerun/source/gsm8k_train.jsonl",
   "source_sha256": "2aa7add8a119abea3747ae1ec7b090f95338b66a9f3bb606bbbbd419d0ac91d5",
@@ -21,33 +21,48 @@
   "submitted_at": "2026-09-16T10:55:01+00:00",
   "input_file_id": "file-BqCN66BE2djXFqpXAkBrsR",
   "batch_id": "batch_6aaa758451148190ae31f0ad329d582a",
-  "batch_status": "in_progress",
-  "status_checked_at": "2026-09-16T10:57:03+00:00",
+  "batch_status": "completed",
+  "status_checked_at": "2026-09-16T20:41:00+00:00",
   "request_counts": {
-    "completed": 0,
-    "failed": 0,
+    "completed": 7431,
+    "failed": 42,
     "total": 7473
   },
   "usage": {
-    "input_tokens": 0,
+    "input_tokens": 4425998,
     "input_tokens_details": {
       "cached_tokens": 0
     },
-    "output_tokens": 0,
+    "output_tokens": 10025780,
     "output_tokens_details": {
-      "reasoning_tokens": 0
+      "reasoning_tokens": 3582912
     },
-    "total_tokens": 0
+    "total_tokens": 14451778
   },
-  "output_file_id": null,
-  "error_file_id": null,
+  "output_file_id": "file-4FnVDf3qEjZxaXYJLMVBVd",
+  "error_file_id": "file-EsB9tXz8ARhtnvdHtWzkyc",
   "batch_timestamps": {
     "created_at": 1789556100,
     "in_progress_at": 1789556166,
-    "finalizing_at": null,
-    "completed_at": null,
+    "finalizing_at": 1789580897,
+    "completed_at": 1789581167,
     "failed_at": null,
     "expired_at": null,
     "cancelled_at": null
+  },
+  "downloaded_at": "2026-09-16T20:41:29+00:00",
+  "downloads": {
+    "output": {
+      "file_id": "file-4FnVDf3qEjZxaXYJLMVBVd",
+      "path": "data/reviewer_rerun/batch_outputs/batch_6aaa758451148190ae31f0ad329d582a.output.jsonl",
+      "sha256": "047f6fce8a942367f4742b0a50bf7f6145134dcd9cce4d46bbe86c7ae56723d8",
+      "bytes": 89689519
+    },
+    "error": {
+      "file_id": "file-EsB9tXz8ARhtnvdHtWzkyc",
+      "path": "data/reviewer_rerun/batch_outputs/batch_6aaa758451148190ae31f0ad329d582a.error.jsonl",
+      "sha256": "df204102c649eaea860389df6bd11db1762e69f9d9f3ea1b37309113faac5084",
+      "bytes": 18438
+    }
   }
 }
