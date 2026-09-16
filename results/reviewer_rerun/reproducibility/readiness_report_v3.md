@@ -1,13 +1,13 @@
 # Reviewer-rerun v3 readiness report
 
-Generated: 2026-09-15
+Generated: 2026-09-16
 
 ## Outcome
 
 The stricter `matched-pairs-v3` generation contract is implemented, tested,
 and built offline. Its pinned source, 30-request pilot input, and 7,473-request
-full input all have recorded counts and SHA-256 identities. No paid v3 request
-has been made, and no model-weight download, training run, or corrected
+full input all have recorded counts and SHA-256 identities. The single paid v3
+preflight passed; no v3 Batch, model-weight download, training run, or corrected
 benchmark evaluation has begun.
 
 The prior `matched-pairs-v2` preflight and 30-request Batch are retained as a
@@ -35,6 +35,10 @@ v2 Batch was submitted.
 - v3 full input: 7,473 requests / 22,419 candidates / 25,975,624 bytes,
   SHA-256
   `ba4f3715197d3ed58b6eaae0f1fcf60a15aab9eadc990dbd00a34ae9f1af4359`.
+- v3 preflight response: exact requested/returned model, three canonical rows,
+  3/3 filter acceptance, 519 input tokens, 1,054 output tokens, 320 reasoning
+  tokens, and SHA-256
+  `02b9a4a30a50896d5fe3e24db426e9bc115c156c57e32354a81e6dcdf17997f6`.
 - Current M2 preparation volume: approximately 229 GiB free; dataset
   generation is feasible here. Training and evaluation remain assigned to the
   M4 machine and must report that machine's actual environment.
@@ -60,15 +64,15 @@ v2 Batch was submitted.
 
 ## Open gates
 
-1. Run and inspect one separately authorized paid v3 preflight.
-2. If it passes, separately authorize and run the 30-request v3 Batch pilot.
-3. Assemble and render the pilot; require at least 86/90 accepted examples and
+1. Separately decide whether to authorize the 30-request v3 Batch pilot.
+2. If authorized, submit, download, assemble, and render the pilot; require at
+   least 86/90 accepted examples and
    a passed matched-pair audit without weakening filters.
-4. Recompute full cost from measured v3 usage and obtain a separate full-Batch
+3. Recompute full cost from measured v3 usage and obtain a separate full-Batch
    decision.
-5. Generate, assemble, filter, pair, and freeze the final dataset on this
+4. Generate, assemble, filter, pair, and freeze the final dataset on this
    machine; transfer it without the API key to the M4 operator.
-6. On the M4, run the mandatory three-training/15-greedy-evaluation matrix and
+5. On the M4, run the mandatory three-training/15-greedy-evaluation matrix and
    collect the complete resource manifests.
 
 The optional SC@5, Qwen3-1.7B pair, and harder/OOD benchmark remain behind the

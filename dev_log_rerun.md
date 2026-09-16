@@ -851,3 +851,38 @@ This block performs preparation only and launches no paid Batch job or full trai
   reviewer training-configuration validations. Approximately 229 GiB remained
   free. Stopped before the next paid boundary: no v3 preflight, pilot Batch, or
   full Batch has been submitted.
+
+### 2026-09-16
+
+- Reverified that local `HEAD`, `origin/reviewer-rerun`, and tag
+  `reviewer-rerun-ra-handoff-v2` all resolve to commit
+  `44bb05af82ac6f7bb2ebfe5b853d9654db9c4ea6`. Rechecked the protocol, pilot
+  source, and v3 pilot input hashes before crossing the API boundary.
+- Confirmed the personal credential was present in the permission-600,
+  Git-ignored `.env` without printing its value. The v2 preflight was already
+  preserved in its archive, so the new response was written to the separate
+  `data/reviewer_rerun/batch_outputs/preflight_v3.json` path.
+- With user authorization, sent exactly one paid v3 Responses API request. The
+  requested and returned model were both exactly
+  `gpt-5-mini-2025-08-07`; the response completed in 12 seconds and has
+  SHA-256
+  `02b9a4a30a50896d5fe3e24db426e9bc115c156c57e32354a81e6dcdf17997f6`.
+  Usage was 519 input and 1,054 output tokens, including 320 reasoning tokens,
+  for 1,573 total tokens.
+- Parsed the raw response through the canonical schema-1.1 assembler and the
+  unchanged shared filter. All three variants passed, with no rejection or
+  near-duplicate: each contains two steps, individual reasoning fields contain
+  105--132 characters, and shared solutions contain 241--246 characters.
+  Guiding questions and direct problem questions are present, distractors are
+  absent from all solution steps, and arithmetic and final answers agree.
+- Manual review recorded one minor wording defect in variant 3 (`in Monday`
+  instead of `on Monday`). It does not affect the mathematical meaning,
+  validation result, deduplication, or the matched Socratic/non-Socratic
+  ablation, so the preflight gate passed without a prompt or filter change.
+- At the official text-token rates checked on 2026-09-16, the observed request
+  corresponds to an estimated USD 0.00223775. A purely linear projection is
+  about USD 0.0671 for 30 requests and USD 16.72 for 7,473 requests, but these
+  figures are planning aids only; the 30-request pilot must supply the measured
+  distribution before any full-Batch decision.
+- Stopped before the next paid gate. No v3 Batch was submitted. The next
+  decision is whether to authorize the 30-request v3 pilot Batch.

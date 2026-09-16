@@ -94,7 +94,7 @@ automatically read dotenv files.
 
 ## Current state
 
-As of 15 September 2026:
+As of 16 September 2026:
 
 - the submitted state is preserved by tag `submitted-draft-baseline`;
 - the isolated reviewer pipeline, protocol 1.1, M4 bootstrap, and 74
@@ -105,7 +105,9 @@ As of 15 September 2026:
   74/90 filter acceptance failed the 86/90 gate; the complete v2 record is
   preserved and no v2 full Batch was submitted;
 - the stricter `matched-pairs-v3` pilot and full-volume request inputs have been
-  built and hashed offline, but no paid v3 request has been made;
+  built and hashed, and one paid v3 preflight passed with the exact dated model,
+  three valid variants, and 3/3 filter acceptance; no v3 Batch has been
+  submitted;
 - no model-weight download, training run, or corrected benchmark evaluation
   has been performed; and
 - the complete mandatory and optional command matrices, strict completion

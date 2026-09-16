@@ -1,0 +1,102 @@
+{
+  "created_at": "2026-09-16T07:54:03+00:00",
+  "stage": "matched_pairs_v3_preflight_complete",
+  "git_commit": "44bb05af82ac6f7bb2ebfe5b853d9654db9c4ea6",
+  "protocol": {
+    "path": "configs/reviewer_rerun/protocol.yaml",
+    "sha256": "a4c1a95f00321867b2aef8f0403af929782dad1f10885f161d552a2c03e7cadb"
+  },
+  "prompt_version": "matched-pairs-v3",
+  "canonical_schema_version": "1.1",
+  "source": {
+    "path": "data/reviewer_rerun/source/gsm8k_train_pilot.jsonl",
+    "sha256": "aeee6369f6695e9e1937ce3dbf1f4c671d283f09581eba4fa8eff15855ae752f",
+    "source_id": "gsm8k-train-000000"
+  },
+  "response": {
+    "path": "data/reviewer_rerun/batch_outputs/preflight_v3.json",
+    "sha256": "02b9a4a30a50896d5fe3e24db426e9bc115c156c57e32354a81e6dcdf17997f6",
+    "bytes": 12064,
+    "response_id": "resp_001c7c7daaddf73e016aaa4b0f803887d28389354c9024fa01",
+    "status": "completed",
+    "requested_model": "gpt-5-mini-2025-08-07",
+    "returned_model": "gpt-5-mini-2025-08-07",
+    "service_tier": "default",
+    "created_at": "2026-09-16T07:53:51+00:00",
+    "completed_at": "2026-09-16T07:54:03+00:00",
+    "duration_seconds": 12,
+    "output_text_sha256": "9b30f457565c23873576f2ae403ccffde590d01c252905bf3e43f7cb3e9670d1"
+  },
+  "usage": {
+    "input_tokens": 519,
+    "cached_input_tokens": 0,
+    "output_tokens": 1054,
+    "reasoning_tokens": 320,
+    "total_tokens": 1573
+  },
+  "validation": {
+    "status": "passed",
+    "canonical_rows": 3,
+    "canonical_rows_sha256": "e0bddc16425dd2ff6bf93a8ec5b06aab4af84ec6ea72e5410b90451fe458d3a7",
+    "canonical_example_ids_sha256": "ffc4d6248fa294c0d546ae51365e7f06416c0df8098aaf9335d535cc5647dd18",
+    "filter_accepted": 3,
+    "filter_rejected": 0,
+    "step_counts": [
+      2,
+      2,
+      2
+    ],
+    "reasoning_characters": [
+      [
+        127,
+        108
+      ],
+      [
+        127,
+        105
+      ],
+      [
+        132,
+        105
+      ]
+    ],
+    "shared_solution_characters": [
+      244,
+      241,
+      246
+    ],
+    "synthetic_question_characters": [
+      213,
+      220,
+      249
+    ],
+    "all_questions_direct": true,
+    "all_guiding_questions_terminal": true,
+    "distractors_absent_from_solution_steps": true,
+    "shared_reasoning_coherent_without_guiding_questions": true,
+    "explicit_arithmetic_valid": true,
+    "final_answers_valid": true,
+    "manual_audit": "passed_with_minor_language_note",
+    "manual_audit_note": "Variant 3 uses the awkward preposition 'in Monday'; meaning, arithmetic, filtering, and the matched ablation are unaffected."
+  },
+  "planning_cost": {
+    "pricing_checked_at": "2026-09-16",
+    "official_model_page": "https://developers.openai.com/api/docs/models/gpt-5-mini",
+    "input_usd_per_million_tokens": 0.25,
+    "output_usd_per_million_tokens": 2.0,
+    "estimated_preflight_cost_usd": 0.00223775,
+    "linear_30_request_projection_usd": 0.067133,
+    "linear_7473_request_projection_usd": 16.7227,
+    "note": "Linear planning projections from one request are not authorization or a substitute for measured 30-request Batch usage."
+  },
+  "external_model_status": {
+    "official_page_lists_snapshot": true,
+    "official_page_marks_snapshot_deprecated": true
+  },
+  "decision": {
+    "preflight_gate": "passed",
+    "pilot_batch_eligible_for_separate_decision": true,
+    "pilot_batch_submitted": false,
+    "full_batch_submitted": false
+  }
+}

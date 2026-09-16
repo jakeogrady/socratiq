@@ -69,11 +69,30 @@ manifests are preserved locally under
 the Batch/file IDs, hashes, usage, and failure. V2 responses must never be
 assembled against v3 request files.
 
+## Paid v3 preflight
+
+One separately authorized paid v3 preflight completed on 16 September 2026.
+The requested and returned model were both exactly
+`gpt-5-mini-2025-08-07`. The raw response has SHA-256
+`02b9a4a30a50896d5fe3e24db426e9bc115c156c57e32354a81e6dcdf17997f6`.
+It used 519 input and 1,054 output tokens, including 320 reasoning tokens, for
+1,573 total tokens.
+
+All three schema-1.1 variants assembled and passed the unchanged filter. Each
+has two solution steps; reasoning fields contain 105--132 characters and
+complete shared solutions contain 241--246 characters. Distractors are absent
+from all guiding questions and reasoning, and all arithmetic and final answers
+agree. Manual review noted one harmless wording defect, `in Monday` rather than
+`on Monday`, in variant 3; it does not alter the mathematical meaning, filter
+result, or matched ablation.
+
+The compact evidence is in
+`data/reviewer_rerun/batch_outputs/preflight_v3.manifest.json`. The raw response
+remains Git-ignored and local.
+
 ## Next gate
 
-The next operation is a single paid v3 preflight. It must be separately
-authorized and must return the exact dated model, three valid schema-1.1
-variations, and recorded token usage. The 30-request v3 Batch is a later,
-separate decision. The full v3 Batch remains prohibited until the new pilot
-passes the unchanged requirement of at least 86 accepted examples out of 90
-and its measured usage supports an accepted cost projection.
+The next operation is the 30-request v3 Batch pilot, which requires a separate
+decision. The full v3 Batch remains prohibited until the pilot passes the
+unchanged requirement of at least 86 accepted examples out of 90 and its
+measured usage supports an accepted cost projection.
