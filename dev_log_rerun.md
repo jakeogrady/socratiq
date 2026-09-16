@@ -643,7 +643,7 @@ Before full paid generation or long-running training:
 - [ ] Storage plan resolved.
 - [x] Protocol frozen and hashed.
 - [x] GSM8K source snapshot pinned and hashed.
-- [ ] 30-source generation pilot passes.
+- [x] 30-source generation pilot passes.
 - [x] Canonical validation and real deduplication pass on offline fixtures.
 - [x] Paired render invariants pass on offline fixtures.
 - [ ] Exact model IDs load.
@@ -917,3 +917,31 @@ This block performs preparation only and launches no paid Batch job or full trai
   USD 0.00587, and the measured 30-request distribution linearly projects the
   7,473-request full Batch to about USD 21.92. Stopped at the explicit paid
   retry gate; no retry or full v3 Batch was submitted.
+- With separate user authorization and a USD 0.02 ceiling, submitted exactly
+  the prepared two-request retry as Batch
+  `batch_6aaa54bc4cb8819093b8c2b68ba6d037`. Both API requests completed with
+  zero failures and no error file. The 24,073-byte downloaded output has
+  SHA-256
+  `6f52ea7bfba102b53a60f8c6fed55b9056e0f93520ef20e66f855cb39be73110`.
+  No full Batch or additional retry was submitted.
+- The retry used 1,155 input tokens and 2,692 output tokens, including 1,088
+  reasoning tokens (3,847 total), for an estimated USD 0.00567275. It
+  completed in approximately 104 seconds and remained below the authorized
+  ceiling.
+- Both retried source groups assembled cleanly into six candidates with zero
+  audit rows. Manual inspection confirmed coherent problems, harmless unused
+  details, correct arithmetic, standalone declarative reasoning, advancing
+  guiding questions, and matching final answers. Retry canonical SHA-256:
+  `287b445ea90b06bbb453f450c45f7e679b3a61366b8c06b6d4243285c2531fd0`.
+- Merged the six retry candidates with the original 84 without overlapping
+  source groups. The resulting 30-source/90-candidate canonical pilot has
+  SHA-256
+  `9ffc4e0a03252e65b8834809950444d54192023d70412aaa260d210bc60f3259`.
+  Canonical validation, the unchanged shared filter, 5-gram deduplication, and
+  the matched-pair audit all pass: 90/90 accepted, zero rejections, 81 train
+  rows, and 9 validation rows. The mandatory 86/90 pilot gate therefore
+  passes.
+- The two pilot Batches together cost an estimated USD 0.09366475. The primary
+  7,473-request projection is USD 21.92; including retry overhead at the
+  observed two-of-30 source rate projects approximately 498 retry requests and
+  USD 23.33 total. Stopped before the separately authorized full-Batch gate.

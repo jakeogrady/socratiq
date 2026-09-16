@@ -5,13 +5,12 @@ Generated: 2026-09-16
 ## Outcome
 
 The stricter `matched-pairs-v3` generation contract is implemented and tested.
-Its single-request preflight passed, and the paid 30-request Batch pilot
-completed 30/30 API requests with no failures. After a regression-tested local
-validator correction, 84/90 candidates pass the unchanged shared filter and
-pairing audit. Two genuine generation failures require a separately authorized
-two-request retry before the mandatory 86/90 gate can pass. No v3 retry or full
-Batch, model-weight download, training run, or corrected benchmark evaluation
-has begun.
+Its single-request preflight passed, the paid 30-request Batch completed 30/30
+API requests, and a separately authorized two-request retry completed 2/2.
+After merging non-overlapping source groups, all 90/90 candidates pass the
+unchanged shared filter, deduplication, and matched-pair audit. The mandatory
+86/90 pilot gate has passed. No full v3 Batch, model-weight download, training
+run, or corrected benchmark evaluation has begun.
 
 The prior `matched-pairs-v2` preflight and 30-request Batch are retained as a
 failed quality-pilot record. The API completed 30/30 requests, but only 74/90
@@ -50,9 +49,16 @@ v2 Batch was submitted.
   SHA-256
   `325a70a223c1c34d8e9240071a85621b63a6fc3f4a4ae9a1774209a91b745e91`;
   all 84 pass filtering and matched pairing.
-- Pending two-request retry input: 6,885 bytes, SHA-256
+- Two-request retry input: 6,885 bytes, SHA-256
   `5be8b86b128a3dadc8ff98aa74ed1413a76a960c4a7d37e858d748deda94fd83`;
-  built offline and not submitted.
+  submitted as Batch `batch_6aaa54bc4cb8819093b8c2b68ba6d037`.
+- v3 retry Batch: 2/2 requests completed, zero failed, 1,155 input tokens,
+  2,692 output tokens, 1,088 reasoning tokens, and output SHA-256
+  `6f52ea7bfba102b53a60f8c6fed55b9056e0f93520ef20e66f855cb39be73110`.
+- Merged v3 pilot: 30 source groups / 90 candidates, canonical SHA-256
+  `9ffc4e0a03252e65b8834809950444d54192023d70412aaa260d210bc60f3259`;
+  90/90 accepted, zero filter/deduplication rejections, pairing passed, 81
+  training rows and 9 validation rows.
 - Current M2 preparation volume: approximately 229 GiB free; dataset
   generation is feasible here. Training and evaluation remain assigned to the
   M4 machine and must report that machine's actual environment.
@@ -79,17 +85,14 @@ v2 Batch was submitted.
 
 ## Open gates
 
-1. Separately decide whether to authorize the prepared two-request v3 pilot
-   retry. Its observed-usage projection is approximately USD 0.00587.
-2. If authorized, submit, download, assemble, merge, and render the retry;
-   require at least 86/90 accepted examples and a passed matched-pair audit
-   without weakening filters.
-3. Recompute full cost from merged pilot usage. The initial 30-request Batch
-   linearly projects to approximately USD 21.92 for 7,473 requests; obtain a
-   separate full-Batch authorization and explicit maximum cost.
-4. Generate, assemble, filter, pair, and freeze the final dataset on this
+1. Decide whether to authorize the 7,473-request full v3 Batch with an explicit
+   maximum cost. The primary-only projection is USD 21.92; applying the
+   observed two-of-30 retry rate gives a retry-adjusted projection of USD
+   23.33. A USD 30 ceiling would provide contingency.
+2. If authorized, generate, assemble, filter, pair, and freeze the final dataset
+   on this
    machine; transfer it without the API key to the M4 operator.
-5. On the M4, run the mandatory three-training/15-greedy-evaluation matrix and
+3. On the M4, run the mandatory three-training/15-greedy-evaluation matrix and
    collect the complete resource manifests.
 
 The optional SC@5, Qwen3-1.7B pair, and harder/OOD benchmark remain behind the

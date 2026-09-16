@@ -105,10 +105,11 @@ As of 16 September 2026:
   74/90 filter acceptance failed the 86/90 gate; the complete v2 record is
   preserved and no v2 full Batch was submitted;
 - the stricter `matched-pairs-v3` preflight passed and its paid 30-request pilot
-  Batch completed 30/30 requests with no API failures; 84/90 candidates pass
-  the unchanged filter and pairing audit, while two genuine source-group
-  failures are isolated in an unsubmitted two-request retry;
-- no v3 retry or full v3 Batch has been submitted;
+  Batch completed 30/30 requests with no API failures; a separately authorized
+  two-request retry completed 2/2, and the merged pilot passes at 90/90 with
+  zero filter/deduplication rejection and a passed matched-pair audit;
+- the full 7,473-request v3 Batch has not been submitted and remains behind its
+  own cost-authorization gate;
 - no model-weight download, training run, or corrected benchmark evaluation
   has been performed; and
 - the complete mandatory and optional command matrices, strict completion

@@ -117,23 +117,54 @@ mark, and every accepted response reports exactly the requested dated model.
 Two source groups remain genuine generation failures. Source 20 padded a
 54-character stripped reasoning field with whitespace; source 22 returned two
 final answers inconsistent with its worked arithmetic. Whole-source rejection
-is retained, so the current pilot result is 84/90 and has not yet passed the
-predeclared 86/90 gate.
+is retained, so the pre-retry pilot result was 84/90 and had not yet passed
+the predeclared 86/90 gate.
 
 At the official Batch rates checked on 16 September 2026 (USD 0.25 per million
 input tokens and USD 2.00 per million output tokens), measured pilot usage
 corresponds to USD 0.087992. A linear 7,473-request projection is approximately
 USD 21.92 and remains only a planning estimate.
 
-## Current retry gate
+## Completed retry and merged pilot
 
 A retry file containing only `gsm8k-train-000020` and
 `gsm8k-train-000022` has been built offline. It contains two requests, is 6,885
 bytes, and has SHA-256
 `5be8b86b128a3dadc8ff98aa74ed1413a76a960c4a7d37e858d748deda94fd83`.
-At the observed per-request usage, its estimated cost is about USD 0.00587.
+With separate authorization and a USD 0.02 ceiling, this exact file was
+submitted as Batch `batch_6aaa54bc4cb8819093b8c2b68ba6d037`. Both requests
+completed with zero API failures and no error file. The downloaded output is
+24,073 bytes with SHA-256
+`6f52ea7bfba102b53a60f8c6fed55b9056e0f93520ef20e66f855cb39be73110`.
+It used 1,155 input tokens and 2,692 output tokens, including 1,088 reasoning
+tokens, for 3,847 total tokens and an estimated USD 0.00567275.
 
-The retry has not been submitted. It requires a separate paid-call decision.
-The full v3 Batch remains prohibited until the merged pilot reaches at least
-86/90 accepted examples, passes the matched-pair audit without filter changes,
-and its measured usage supports an accepted full-Batch cost ceiling.
+Both source groups assembled successfully into six canonical candidates with
+zero audit rows. The retry canonical SHA-256 is
+`287b445ea90b06bbb453f450c45f7e679b3a61366b8c06b6d4243285c2531fd0`.
+Manual inspection found correct arithmetic and final answers, complete
+standalone reasoning, advancing guiding questions, and harmless distractors
+that are not used by the solutions.
+
+The retry was merged with the non-overlapping 84-candidate initial assembly.
+The final pilot contains 30 source groups and 90 candidates with SHA-256
+`9ffc4e0a03252e65b8834809950444d54192023d70412aaa260d210bc60f3259`.
+All 90 pass canonical validation, the unchanged 120--2,000-character filter,
+exact and near-duplicate checks, and matched Socratic/non-Socratic pairing.
+The deterministic split contains 81 training and 9 validation rows. The
+predeclared requirement of at least 86/90 is therefore satisfied at 90/90.
+
+The initial and retry Batches together cost an estimated USD 0.09366475. A
+primary-only linear projection for all 7,473 source requests is USD 21.92.
+Applying the observed two-of-30 retry incidence and the measured retry cost
+projects approximately 498 retry requests and a combined cost of USD 23.33.
+This is a planning estimate, not an authorization or guaranteed invoice.
+
+## Next gate
+
+The v3 pilot gate has passed. The full 7,473-request Batch remains unsubmitted
+and requires separate authorization with an explicit maximum cost. A ceiling
+of USD 30 would cover the USD 23.33 retry-adjusted projection with contingency.
+No model download, training, or benchmark evaluation should start on this
+machine; those stages remain assigned to the M4 handoff after the full dataset
+is generated, filtered, paired, and frozen.

@@ -1,0 +1,28 @@
+{
+  "created_at": "2026-09-16T08:37:32+00:00",
+  "protocol": {
+    "path": "/Users/eir/Desktop/JOG-FYP-2526/socratiq/configs/reviewer_rerun/protocol.yaml",
+    "sha256": "a4c1a95f00321867b2aef8f0403af929782dad1f10885f161d552a2c03e7cadb"
+  },
+  "prompt_version": "matched-pairs-v3",
+  "canonical_schema_version": "1.1",
+  "inputs": [
+    {
+      "path": "data/reviewer_rerun/canonical/pilot_v3_initial.jsonl",
+      "sha256": "325a70a223c1c34d8e9240071a85621b63a6fc3f4a4ae9a1774209a91b745e91",
+      "canonical_rows": 84
+    },
+    {
+      "path": "data/reviewer_rerun/canonical/pilot_v3_retry01.jsonl",
+      "sha256": "287b445ea90b06bbb453f450c45f7e679b3a61366b8c06b6d4243285c2531fd0",
+      "canonical_rows": 6
+    }
+  ],
+  "input_count": 2,
+  "replace_sources_from_later": false,
+  "replacement_sources": [],
+  "canonical_example_count": 90,
+  "source_count": 30,
+  "output_path": "data/reviewer_rerun/canonical/pilot_v3_merged.jsonl",
+  "output_sha256": "9ffc4e0a03252e65b8834809950444d54192023d70412aaa260d210bc60f3259"
+}

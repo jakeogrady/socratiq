@@ -1,0 +1,29 @@
+{
+  "created_at": "2026-09-16T08:37:20+00:00",
+  "protocol": {
+    "path": "/Users/eir/Desktop/JOG-FYP-2526/socratiq/configs/reviewer_rerun/protocol.yaml",
+    "sha256": "a4c1a95f00321867b2aef8f0403af929782dad1f10885f161d552a2c03e7cadb"
+  },
+  "prompt_version": "matched-pairs-v3",
+  "canonical_schema_version": "1.1",
+  "source_path": "data/reviewer_rerun/source/gsm8k_train_pilot.jsonl",
+  "source_sha256": "aeee6369f6695e9e1937ce3dbf1f4c671d283f09581eba4fa8eff15855ae752f",
+  "batch_output_path": "data/reviewer_rerun/batch_outputs/batch_6aaa54bc4cb8819093b8c2b68ba6d037.output.jsonl",
+  "batch_output_sha256": "6f52ea7bfba102b53a60f8c6fed55b9056e0f93520ef20e66f855cb39be73110",
+  "batch_input_path": "data/reviewer_rerun/batch_inputs/gsm8k_train_pilot_v3_retry01.jsonl",
+  "batch_input_sha256": "5be8b86b128a3dadc8ff98aa74ed1413a76a960c4a7d37e858d748deda94fd83",
+  "expected_model": "gpt-5-mini-2025-08-07",
+  "allow_model_fallback": false,
+  "source_count": 2,
+  "seen_response_count": 2,
+  "successful_response_count": 2,
+  "canonical_example_count": 6,
+  "successful_source_count": 2,
+  "audit_count": 0,
+  "missing_custom_ids": [],
+  "retry_custom_ids": [],
+  "canonical_output_path": "data/reviewer_rerun/canonical/pilot_v3_retry01.jsonl",
+  "canonical_output_sha256": "287b445ea90b06bbb453f450c45f7e679b3a61366b8c06b6d4243285c2531fd0",
+  "audit_output_path": "data/reviewer_rerun/audits/pilot_v3_retry01.jsonl",
+  "audit_output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+}

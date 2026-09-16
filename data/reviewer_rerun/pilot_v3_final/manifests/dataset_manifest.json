@@ -1,0 +1,81 @@
+{
+  "schema_version": "1.1",
+  "created_at": "2026-09-16T08:37:32+00:00",
+  "protocol": {
+    "path": "/Users/eir/Desktop/JOG-FYP-2526/socratiq/configs/reviewer_rerun/protocol.yaml",
+    "sha256": "a4c1a95f00321867b2aef8f0403af929782dad1f10885f161d552a2c03e7cadb"
+  },
+  "input_path": "data/reviewer_rerun/canonical/pilot_v3_merged.jsonl",
+  "input_sha256": "9ffc4e0a03252e65b8834809950444d54192023d70412aaa260d210bc60f3259",
+  "input_rows": 90,
+  "accepted_before_selection": 90,
+  "accepted_rows": 90,
+  "rejected_rows": 0,
+  "target_count": null,
+  "filter": {
+    "min_solution_chars": 120,
+    "max_solution_chars": 2000,
+    "ngram_size": 5,
+    "jaccard_threshold": 0.85
+  },
+  "split": {
+    "seed": 42,
+    "validation_fraction_requested": 0.1,
+    "target_validation_rows": 9,
+    "actual_train_rows": 81,
+    "actual_validation_rows": 9,
+    "train_source_count": 27,
+    "validation_source_count": 3,
+    "validation_source_ids": [
+      "gsm8k-train-000010",
+      "gsm8k-train-000014",
+      "gsm8k-train-000019"
+    ]
+  },
+  "outputs": {
+    "canonical": {
+      "path": "data/reviewer_rerun/pilot_v3_final/canonical/accepted.jsonl",
+      "sha256": "9ffc4e0a03252e65b8834809950444d54192023d70412aaa260d210bc60f3259"
+    },
+    "rejections": {
+      "path": "data/reviewer_rerun/pilot_v3_final/audits/rejections.jsonl",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "socratic_train": {
+      "path": "data/reviewer_rerun/pilot_v3_final/socratic/train.jsonl",
+      "sha256": "04ba9f46345ee7e3a261a5baa4306c5bde06dd7dac0256755323c43a37483ac1"
+    },
+    "socratic_valid": {
+      "path": "data/reviewer_rerun/pilot_v3_final/socratic/valid.jsonl",
+      "sha256": "7c4c709b68764202086be009e1afb9e6c87cdbf7b16399da5f5d674de764c8bd"
+    },
+    "non_socratic_train": {
+      "path": "data/reviewer_rerun/pilot_v3_final/non_socratic/train.jsonl",
+      "sha256": "5a14c5359e6f80caf74bd739935e3f713796cbde42379e13d83ee267d23e32e6"
+    },
+    "non_socratic_valid": {
+      "path": "data/reviewer_rerun/pilot_v3_final/non_socratic/valid.jsonl",
+      "sha256": "d9951c362c6b142a1f11328361138ed47eacaa19dc36890b9d392bf3349abf9d"
+    }
+  },
+  "pairing_report": {
+    "status": "passed",
+    "protocol": {
+      "path": "/Users/eir/Desktop/JOG-FYP-2526/socratiq/configs/reviewer_rerun/protocol.yaml",
+      "sha256": "a4c1a95f00321867b2aef8f0403af929782dad1f10885f161d552a2c03e7cadb"
+    },
+    "total_rows": 90,
+    "train": {
+      "status": "passed",
+      "rows": 81,
+      "canonical_sequence_sha256": "f6eb9a51ef932b5665e6c54fe4cd3c5de5a4f6c816759c268ceaa4874510d244",
+      "checked_at": "2026-09-16T08:37:32+00:00"
+    },
+    "valid": {
+      "status": "passed",
+      "rows": 9,
+      "canonical_sequence_sha256": "d33dbc1293303bc3b5ab82e729dd87e36068d8a8675a55f90966ab95defd4212",
+      "checked_at": "2026-09-16T08:37:32+00:00"
+    }
+  }
+}
