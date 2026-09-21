@@ -100,7 +100,7 @@ if [ "$ACTUAL_PYTHON_VERSION" != "$EXPECTED_PYTHON_VERSION" ]; then
 fi
 
 "$UV_BIN" lock --check
-make rerun-check
+SOCRATIQ_UV_BIN="$UV_BIN" make rerun-check
 make rerun-dry-run-training
 .venv/bin/python -m src.run_training environment
 

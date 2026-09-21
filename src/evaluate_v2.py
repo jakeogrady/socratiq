@@ -29,7 +29,8 @@ from src.rerun_utils import (
 PROMPT_VERSION = "arithmetic-eval-v2"
 REVISION_RE = re.compile(r"^[0-9a-f]{40}$")
 ANSWER_PATTERN = r"[-+]?(?:\d{1,3}(?:,\d{3})+|\d+)(?:\.\d+)?"
-MARKED_ANSWER = re.compile(rf"####\s*({ANSWER_PATTERN})(?=\s*(?:[.!])?\s*$)")
+MARKED_ANSWER = re.compile(rf"####\s*({ANSWER_PATTERN})")
+TERMINAL_MARKED_ANSWER = re.compile(rf"####\s*({ANSWER_PATTERN})(?=\s*(?:[.!])?\s*$)")
 PLAIN_ANSWER = re.compile(rf"^\s*({ANSWER_PATTERN})\s*$")
 
 TASK_INSTRUCTION = (
@@ -118,19 +119,36 @@ def normalize_numeric(value: str) -> str | None:
         return None
     if number == 0:
         return "0"
-    normalized = number.normalize()
-    if normalized == normalized.to_integral_value():
-        return str(normalized.quantize(Decimal(1)))
-    return format(normalized, "f")
+    # Decimal.normalize()/quantize(Decimal(1)) use the active context precision
+    # and can raise InvalidOperation for otherwise valid integers >= 10**28.
+    # Fixed-point formatting preserves every parsed digit without consulting the
+    # context; stripping fractional zeroes then gives one canonical vote key.
+    normalized = format(number, "f")
+    if "." in normalized:
+        normalized = normalized.rstrip("0").rstrip(".")
+    return normalized
 
 
 def extract_marked_number(text: str) -> str | None:
     """Extract and normalize the last explicitly marked numeric answer.
 
-    No unmarked-number fallback is used. This deliberately makes malformed
-    output invalid instead of accidentally grading a number from the reasoning.
+    The submitted-paper rule selects the last ``####``-marked decimal anywhere
+    in the completed response. Text after that marked number (including a stray
+    question mark) does not invalidate it. No unmarked-number fallback is used.
     """
     matches = list(MARKED_ANSWER.finditer(text))
+    if not matches:
+        return None
+    return normalize_numeric(matches[-1].group(1))
+
+
+def extract_terminal_marked_number(text: str) -> str | None:
+    """Extract a marked answer only when it terminates the response.
+
+    This stricter rule is retained as a format-adherence diagnostic. It is not
+    the primary exact-match rule declared in the submitted manuscript.
+    """
+    matches = list(TERMINAL_MARKED_ANSWER.finditer(text))
     if not matches:
         return None
     return normalize_numeric(matches[-1].group(1))

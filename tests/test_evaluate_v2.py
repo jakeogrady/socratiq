@@ -12,6 +12,7 @@ from src.evaluate_v2 import (
     build_prompt,
     derive_seed,
     extract_marked_number,
+    extract_terminal_marked_number,
     majority_vote,
     materialize_evaluation_model,
     normalize_numeric,
@@ -28,13 +29,25 @@ class AnswerExtractionTests(unittest.TestCase):
     def test_has_no_unmarked_fallback(self) -> None:
         self.assertIsNone(extract_marked_number("The calculation uses 5 and gives 9."))
 
-    def test_rejects_text_after_the_final_marked_number(self) -> None:
-        self.assertIsNone(extract_marked_number("#### 8 apples"))
+    def test_accepts_text_after_the_last_marked_number(self) -> None:
+        self.assertEqual(extract_marked_number("#### 8 apples"), "8")
+
+    def test_accepts_trailing_question_mark_from_socratic_output(self) -> None:
+        self.assertEqual(extract_marked_number("work\n#### 8\n?"), "8")
+
+    def test_terminal_diagnostic_rejects_trailing_question_mark(self) -> None:
+        self.assertIsNone(extract_terminal_marked_number("work\n#### 8\n?"))
+        self.assertEqual(extract_terminal_marked_number("work\n#### 8"), "8")
 
     def test_normalizes_commas_signs_and_decimals(self) -> None:
         self.assertEqual(extract_marked_number("#### +1,200.500"), "1200.5")
         self.assertEqual(extract_marked_number("#### -0.00"), "0")
         self.assertEqual(normalize_numeric("8.000"), "8")
+
+    def test_normalizes_integers_at_or_above_decimal_context_precision(self) -> None:
+        value = "10000000000000000000000000000"
+        self.assertEqual(normalize_numeric(value), value)
+        self.assertEqual(extract_marked_number(f"#### {value}"), value)
 
     def test_reference_accepts_marked_or_bare_number(self) -> None:
         self.assertEqual(normalize_reference_answer("work #### 8"), "8")

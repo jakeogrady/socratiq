@@ -108,6 +108,7 @@ rerun-lint:
 		src/paired_dataset.py \
 		src/openai_conversion_v2.py \
 		src/evaluate_v2.py \
+		src/rescore_predictions.py \
 		src/run_training.py \
 		src/summarize_results.py \
 		tests
@@ -116,6 +117,7 @@ rerun-lint:
 		src/paired_dataset.py \
 		src/openai_conversion_v2.py \
 		src/evaluate_v2.py \
+		src/rescore_predictions.py \
 		src/run_training.py \
 		src/summarize_results.py \
 		tests

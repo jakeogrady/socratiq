@@ -3,6 +3,7 @@ from __future__ import annotations
 import copy
 import unittest
 from pathlib import Path
+from unittest.mock import patch
 
 from src.run_training import (
     TrainingConfigurationError,
@@ -73,23 +74,35 @@ class TrainingConfigurationTests(unittest.TestCase):
             compare_paired_configs(left, right)
 
     def test_dry_run_requires_no_model_or_dataset_download(self) -> None:
-        result = run_training_job(
-            CONFIG_DIR / "qwen3_0.6b_socratic.yaml",
-            experiment_id="dry-run-test",
-            run_dir=None,
-            dry_run=True,
-            smoke_iters=None,
-            minimum_free_gib=40,
-            skip_model_preflight=False,
-            skip_revision_resolution=False,
-        )
+        with (
+            patch(
+                "src.run_training.resolve_model_revision",
+                side_effect=AssertionError("dry run resolved a remote revision"),
+            ) as resolve_revision,
+            patch(
+                "src.run_training.materialize_model_snapshot",
+                side_effect=AssertionError("dry run downloaded a model snapshot"),
+            ) as materialize_snapshot,
+        ):
+            result = run_training_job(
+                CONFIG_DIR / "qwen3_0.6b_socratic.yaml",
+                experiment_id="dry-run-test",
+                run_dir=None,
+                dry_run=True,
+                smoke_iters=None,
+                minimum_free_gib=40,
+                skip_model_preflight=False,
+                skip_revision_resolution=False,
+            )
         self.assertEqual(result["status"], "dry_run")
         self.assertEqual(
             result["model"]["resolved_revision"],
             "42096995f6402fde107068cf530136fe64b604f8",
         )
         self.assertTrue(result["resolved_executable"].endswith("mlx_lm.lora"))
-        self.assertFalse(result["dataset"]["files"]["train"]["exists"])
+        self.assertEqual(result["dataset"]["path"], "data/reviewer_rerun/socratic")
+        resolve_revision.assert_not_called()
+        materialize_snapshot.assert_not_called()
 
 
 class TrainingReportingTests(unittest.TestCase):

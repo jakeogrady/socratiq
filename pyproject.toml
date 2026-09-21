@@ -92,7 +92,7 @@ dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
 # Reviewer-rerun CLIs deliberately use lazy imports so schema/parser tests can
 # run without downloading the large API/MLX stack. ML model/tokenizer objects
 # also do not expose stable static protocols across the pinned libraries.
-"src/{evaluate_v2,openai_conversion_v2,paired_dataset,rerun_utils,run_training,summarize_results}.py" = [
+"src/{evaluate_v2,openai_conversion_v2,paired_dataset,rerun_utils,rescore_predictions,run_training,summarize_results}.py" = [
     "ANN401",
     "C901",
     "EM101",
