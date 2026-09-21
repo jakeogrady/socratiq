@@ -5,12 +5,14 @@ from pathlib import Path
 from tempfile import TemporaryDirectory
 
 from src.evaluate_v2 import (
+    ANSWER_SCORER_ID,
     BENCHMARKS,
     MODEL_REVISIONS,
     EvaluationError,
     answers_equal,
     build_prompt,
     derive_seed,
+    evaluator_identity,
     extract_marked_number,
     extract_terminal_marked_number,
     majority_vote,
@@ -80,6 +82,13 @@ class VotingAndSeedTests(unittest.TestCase):
 
 
 class PromptTests(unittest.TestCase):
+    def test_evaluator_identity_pins_scorer_and_source_code(self) -> None:
+        identity = evaluator_identity()
+        self.assertEqual(identity["evaluator"], "evaluate_v2")
+        self.assertEqual(identity["answer_scorer_id"], ANSWER_SCORER_ID)
+        self.assertEqual(len(identity["evaluator_code_sha256"]), 64)
+        self.assertIn("last ####-marked", identity["answer_scorer_rule"])
+
     def test_prompt_contains_only_supplied_train_shots_and_target(self) -> None:
         shots = [{"question": "TRAIN SHOT", "answer": "work #### 1"}]
         prompt = build_prompt(

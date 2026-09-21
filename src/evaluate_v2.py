@@ -27,6 +27,12 @@ from src.rerun_utils import (
 )
 
 PROMPT_VERSION = "arithmetic-eval-v2"
+ANSWER_SCORER_ID = "submitted-last-marked-decimal-v1"
+ANSWER_SCORER_RULE = (
+    "Select the last ####-marked integer or decimal anywhere in the response; "
+    "ignore trailing text; do not fall back to unmarked numbers."
+)
+TERMINAL_DIAGNOSTIC_ID = "terminal-marked-decimal-diagnostic-v1"
 REVISION_RE = re.compile(r"^[0-9a-f]{40}$")
 ANSWER_PATTERN = r"[-+]?(?:\d{1,3}(?:,\d{3})+|\d+)(?:\.\d+)?"
 MARKED_ANSWER = re.compile(rf"####\s*({ANSWER_PATTERN})")
@@ -106,6 +112,16 @@ MODEL_REVISIONS = {
 
 class EvaluationError(RuntimeError):
     """Raised when evaluation provenance or completeness is unsafe."""
+
+
+def evaluator_identity() -> dict[str, str]:
+    """Return the scorer and source-code identity used for safe resume."""
+    return {
+        "evaluator": "evaluate_v2",
+        "evaluator_code_sha256": file_sha256(Path(__file__)),
+        "answer_scorer_id": ANSWER_SCORER_ID,
+        "answer_scorer_rule": ANSWER_SCORER_RULE,
+    }
 
 
 def normalize_numeric(value: str) -> str | None:
@@ -467,7 +483,7 @@ def _configuration(args: argparse.Namespace, spec: BenchmarkSpec) -> dict[str, A
     )
     local_model_path = Path(args.model).expanduser()
     return {
-        "evaluator": "evaluate_v2",
+        **evaluator_identity(),
         "prompt_version": PROMPT_VERSION,
         "experiment_id": args.experiment_id,
         "model": args.model,

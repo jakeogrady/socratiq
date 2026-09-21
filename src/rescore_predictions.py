@@ -11,6 +11,9 @@ from pathlib import Path
 from typing import Any
 
 from src.evaluate_v2 import (
+    ANSWER_SCORER_ID,
+    ANSWER_SCORER_RULE,
+    TERMINAL_DIAGNOSTIC_ID,
     answers_equal,
     extract_marked_number,
     extract_terminal_marked_number,
@@ -26,12 +29,6 @@ from src.rerun_utils import (
 )
 from src.summarize_results import wilson_interval
 
-SCORER_ID = "submitted-last-marked-decimal-v1"
-SCORER_RULE = (
-    "Select the last ####-marked integer or decimal anywhere in the response; "
-    "ignore trailing text; do not fall back to unmarked numbers."
-)
-TERMINAL_DIAGNOSTIC_ID = "terminal-marked-decimal-diagnostic-v1"
 PAIRED_COMPARISONS = (
     ("qwen3-0.6b-socratic-vs-base", "qwen3-0.6b-socratic", "qwen3-0.6b-base"),
     (
@@ -180,7 +177,7 @@ def rescore_prediction_row(
 
     return {
         "schema_version": "1.0",
-        "scorer_id": SCORER_ID,
+        "scorer_id": ANSWER_SCORER_ID,
         "experiment_id": row.get("experiment_id"),
         "model": row.get("model"),
         "model_revision": row.get("model_revision"),
@@ -313,15 +310,15 @@ def exact_mcnemar_p(left_only: int, right_only: int) -> float:
 
 
 def paired_comparisons(
-    decisions: Mapping[tuple[str, str], Mapping[str, bool]],
+    decisions: Mapping[tuple[str, str, str], Mapping[str, bool]],
 ) -> list[dict[str, Any]]:
     """Build predeclared paired comparisons from corrected per-example decisions."""
-    benchmarks = sorted({benchmark for _, benchmark in decisions})
+    benchmark_modes = sorted({(benchmark, mode) for _, benchmark, mode in decisions})
     rows: list[dict[str, Any]] = []
     for comparison_id, left_experiment, right_experiment in PAIRED_COMPARISONS:
-        for benchmark in benchmarks:
-            left = decisions.get((left_experiment, benchmark))
-            right = decisions.get((right_experiment, benchmark))
+        for benchmark, mode in benchmark_modes:
+            left = decisions.get((left_experiment, benchmark, mode))
+            right = decisions.get((right_experiment, benchmark, mode))
             if left is None or right is None:
                 continue
             if set(left) != set(right):
@@ -339,6 +336,7 @@ def paired_comparisons(
                 {
                     "comparison_id": comparison_id,
                     "benchmark": benchmark,
+                    "mode": mode,
                     "left_experiment": left_experiment,
                     "right_experiment": right_experiment,
                     "observed_pairs": len(example_ids),
@@ -394,7 +392,7 @@ def rescore_evaluations(evaluation_root: Path, output_root: Path) -> dict[str, A
     output_root.mkdir(parents=True)
     summary_rows: list[dict[str, Any]] = []
     run_records: list[dict[str, Any]] = []
-    decisions: dict[tuple[str, str], dict[str, bool]] = {}
+    decisions: dict[tuple[str, str, str], dict[str, bool]] = {}
     for manifest_path, manifest, prediction_path in sources:
         configuration = manifest["configuration"]
         mode = configuration.get("mode")
@@ -415,7 +413,7 @@ def rescore_evaluations(evaluation_root: Path, output_root: Path) -> dict[str, A
                 f"benchmark configuration is missing in {manifest_path}"
             )
         benchmark = str(benchmark_config.get("key"))
-        decision_key = (experiment_id, benchmark)
+        decision_key = (experiment_id, benchmark, str(mode))
         if decision_key in decisions:
             raise RescoringError(f"duplicate evaluation run for {decision_key}")
         decisions[decision_key] = {
@@ -432,8 +430,8 @@ def rescore_evaluations(evaluation_root: Path, output_root: Path) -> dict[str, A
         summary_rows.append(summary)
         run_manifest = {
             "schema_version": "1.0",
-            "scorer_id": SCORER_ID,
-            "scorer_rule": SCORER_RULE,
+            "scorer_id": ANSWER_SCORER_ID,
+            "scorer_rule": ANSWER_SCORER_RULE,
             "terminal_diagnostic_id": TERMINAL_DIAGNOSTIC_ID,
             "generated_at": utc_now(),
             **summary,
@@ -449,7 +447,11 @@ def rescore_evaluations(evaluation_root: Path, output_root: Path) -> dict[str, A
         )
 
     summary_rows.sort(
-        key=lambda row: (str(row["experiment_id"]), str(row["benchmark"]))
+        key=lambda row: (
+            str(row["experiment_id"]),
+            str(row["benchmark"]),
+            str(row["mode"]),
+        )
     )
     summary_path = output_root / "summary.csv"
     _write_csv(summary_path, summary_rows)
@@ -458,8 +460,8 @@ def rescore_evaluations(evaluation_root: Path, output_root: Path) -> dict[str, A
     _write_csv(comparison_path, comparison_rows)
     aggregate = {
         "schema_version": "1.0",
-        "scorer_id": SCORER_ID,
-        "scorer_rule": SCORER_RULE,
+        "scorer_id": ANSWER_SCORER_ID,
+        "scorer_rule": ANSWER_SCORER_RULE,
         "terminal_diagnostic_id": TERMINAL_DIAGNOSTIC_ID,
         "generated_at": utc_now(),
         "evaluation_root": str(evaluation_root),

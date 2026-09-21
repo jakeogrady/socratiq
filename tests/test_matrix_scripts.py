@@ -7,6 +7,7 @@ from pathlib import Path
 REPOSITORY_ROOT = Path(__file__).resolve().parents[1]
 TRAINING_SCRIPT = REPOSITORY_ROOT / "scripts/run_training_matrix.sh"
 EVALUATION_SCRIPT = REPOSITORY_ROOT / "scripts/run_evaluation_matrix.sh"
+CLEAN_EVALUATION_SCRIPT = REPOSITORY_ROOT / "scripts/run_clean_evaluation_matrix.sh"
 
 
 def run_plan(script: Path, *arguments: str) -> str:
@@ -24,7 +25,7 @@ def run_plan(script: Path, *arguments: str) -> str:
 
 class MatrixScriptTests(unittest.TestCase):
     def test_shell_syntax_is_valid(self) -> None:
-        for script in (TRAINING_SCRIPT, EVALUATION_SCRIPT):
+        for script in (TRAINING_SCRIPT, EVALUATION_SCRIPT, CLEAN_EVALUATION_SCRIPT):
             with self.subTest(script=script.name):
                 completed = subprocess.run(  # noqa: S603
                     ["/bin/sh", "-n", str(script)],
@@ -69,6 +70,31 @@ class MatrixScriptTests(unittest.TestCase):
         self.assertIn("qwen3-1.7b-base", output)
         self.assertIn("qwen3-1.7b-socratic", output)
         self.assertIn("qwen3-1.7b-non-socratic", output)
+
+    def test_clean_matrix_uses_isolated_roots_and_final_adapters(self) -> None:
+        full = run_plan(
+            CLEAN_EVALUATION_SCRIPT,
+            "--full",
+            "--greedy",
+            "--include-qwen-1.7b",
+        )
+        smoke = run_plan(
+            CLEAN_EVALUATION_SCRIPT,
+            "--smoke",
+            "--sc5",
+            "--include-qwen-1.7b",
+        )
+        self.assertEqual(full.count("PLAN:"), 24)
+        self.assertEqual(smoke.count("PLAN:"), 24)
+        self.assertIn("runs/reviewer_rerun/evaluation_clean_v1/", full)
+        self.assertNotIn("runs/reviewer_rerun/evaluation/", full)
+        self.assertIn("runs/reviewer_rerun/evaluation_clean_v1_smoke/", smoke)
+        self.assertIn(
+            "runs/reviewer_rerun/training/qwen3_0.6b_socratic/adapter",
+            smoke,
+        )
+        self.assertNotIn("smoke_adapter", smoke)
+        self.assertIn("--limit 20", smoke)
 
 
 if __name__ == "__main__":

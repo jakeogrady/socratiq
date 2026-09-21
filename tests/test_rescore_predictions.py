@@ -10,6 +10,7 @@ from src.rerun_utils import file_sha256, write_json, write_jsonl
 from src.rescore_predictions import (
     RescoringError,
     exact_mcnemar_p,
+    paired_comparisons,
     rescore_evaluations,
 )
 
@@ -63,6 +64,20 @@ class RescorePredictionsTests(unittest.TestCase):
         self.assertAlmostEqual(exact_mcnemar_p(2, 0), 0.5)
         self.assertAlmostEqual(exact_mcnemar_p(1, 9), 0.021484375)
         self.assertGreater(exact_mcnemar_p(659, 660), 0.9)
+
+    def test_paired_comparisons_keep_decoding_modes_separate(self) -> None:
+        decisions = {
+            ("qwen3-0.6b-socratic", "gsm8k", "greedy"): {"one": True},
+            ("qwen3-0.6b-non-socratic", "gsm8k", "greedy"): {"one": False},
+            ("qwen3-0.6b-socratic", "gsm8k", "self_consistency"): {"one": False},
+            ("qwen3-0.6b-non-socratic", "gsm8k", "self_consistency"): {"one": True},
+        }
+        rows = [
+            row
+            for row in paired_comparisons(decisions)
+            if row["comparison_id"] == "qwen3-0.6b-socratic-vs-non-socratic"
+        ]
+        self.assertEqual({row["mode"] for row in rows}, {"greedy", "self_consistency"})
 
     def test_recovers_trailing_question_mark_without_overwriting_source(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:

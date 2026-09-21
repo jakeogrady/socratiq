@@ -10,6 +10,17 @@ ACTION="plan"
 STAGE="full"
 MODE="greedy"
 INCLUDE_QWEN_17="0"
+FULL_OUTPUT_ROOT=${SOCRATIQ_EVALUATION_OUTPUT_ROOT:-runs/reviewer_rerun/evaluation}
+SMOKE_OUTPUT_ROOT=${SOCRATIQ_EVALUATION_SMOKE_OUTPUT_ROOT:-runs/reviewer_rerun/smoke/evaluation}
+SMOKE_USE_FULL_ADAPTERS=${SOCRATIQ_SMOKE_USE_FULL_ADAPTERS:-0}
+
+case "$SMOKE_USE_FULL_ADAPTERS" in
+    0|1) ;;
+    *)
+        printf '%s\n' "ERROR: SOCRATIQ_SMOKE_USE_FULL_ADAPTERS must be 0 or 1." >&2
+        exit 2
+        ;;
+esac
 
 usage() {
     printf '%s\n' \
@@ -63,11 +74,11 @@ run_one() {
     benchmark=$5
 
     if [ "$STAGE" = "smoke" ]; then
-        output_root="runs/reviewer_rerun/smoke/evaluation"
+        output_root="$SMOKE_OUTPUT_ROOT"
         limit_args="--limit 20"
         actual_experiment_id="$experiment_id-smoke"
     else
-        output_root="runs/reviewer_rerun/evaluation"
+        output_root="$FULL_OUTPUT_ROOT"
         limit_args=""
         actual_experiment_id="$experiment_id"
     fi
@@ -120,7 +131,9 @@ run_condition() {
     full_adapter=$4
 
     adapter_path="$full_adapter"
-    if [ "$STAGE" = "smoke" ] && [ -n "$full_adapter" ]; then
+    if [ "$STAGE" = "smoke" ] && \
+        [ "$SMOKE_USE_FULL_ADAPTERS" != "1" ] && \
+        [ -n "$full_adapter" ]; then
         adapter_path="runs/reviewer_rerun/smoke/training/$condition_path/smoke_adapter"
     fi
     for benchmark in gsm8k multiarith svamp; do
@@ -178,4 +191,4 @@ if [ "$INCLUDE_QWEN_17" = "1" ]; then
 fi
 
 printf '%s\n' \
-    "Evaluation matrix $ACTION completed: stage=$STAGE mode=$MODE include_qwen_1.7b=$INCLUDE_QWEN_17"
+    "Evaluation matrix $ACTION completed: stage=$STAGE mode=$MODE include_qwen_1.7b=$INCLUDE_QWEN_17 output_root=$output_root"

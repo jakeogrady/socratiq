@@ -249,6 +249,8 @@ def summarize_evaluation_run(
         {
             "mode": configuration.get("mode"),
             "samples": configuration.get("samples"),
+            "answer_scorer_id": configuration.get("answer_scorer_id"),
+            "evaluator_code_sha256": configuration.get("evaluator_code_sha256"),
             "adapter_path": (
                 configuration.get("adapter", {}).get("path")
                 if isinstance(configuration.get("adapter"), Mapping)
