@@ -1,0 +1,85 @@
+extension_version: "1.0"
+extension_name: "gsm-hard-numerical-robustness-2026"
+status: "reviewer-motivated-optional-extension"
+
+# The completed three-benchmark rerun remains frozen. This file supplements it
+# and is hashed into every GSM-Hard evaluation manifest.
+base_protocol:
+  path: "configs/reviewer_rerun/protocol.yaml"
+  sha256: "be66a73d43e4ceb34cd599fdbec9a4cd60dec6324d394a79292873fe9624d924"
+
+benchmark:
+  key: "gsm_hard"
+  display_name: "GSM-Hard"
+  purpose: "large-number numerical-robustness extension"
+  dataset: "reasoning-machines/gsm-hard"
+  source_url: "https://huggingface.co/datasets/reasoning-machines/gsm-hard"
+  config: null
+  revision: "960448f73503112d4226baeb8eb41d3fb5ae2506"
+  target_split: "train"
+  expected_rows: 1319
+  question_column: "input"
+  answer_column: "target"
+
+few_shot_source:
+  dataset: "openai/gsm8k"
+  config: "main"
+  revision: "740312add88f781978c0658806c59bc2815b9866"
+  split: "train"
+  indices: [0, 1, 2, 3]
+  question_column: "question"
+  answer_column: "answer"
+  rationale: "match the four-shot GSM8K protocol without target leakage"
+
+evaluation:
+  models_and_adapters: "reuse all eight completed clean-v1 conditions"
+  adapter_checksum_manifest:
+    path: "configs/reviewer_rerun/gsmhard_adapters.sha256"
+    sha256: "7d7b3e931f3a06ac0444f386cafce6362d0a2be3dd64dc80bdfc7d320507a09a"
+  prompt_version: "arithmetic-eval-v2"
+  scorer_id: "submitted-last-marked-decimal-v1"
+  primary:
+    mode: "greedy"
+    samples: 1
+    temperature: 0.0
+    top_p: 1.0
+    top_k: 0
+  self_consistency:
+    mode: "self_consistency"
+    samples: 5
+    temperature: 0.7
+    top_p: 0.95
+    top_k: 20
+    tie_break: "greedy_then_numeric_lexical"
+  max_new_tokens: 512
+  base_seed: 42
+  qwen_enable_thinking: false
+
+matrix:
+  conditions:
+    - "qwen3-0.6b-base"
+    - "qwen3-0.6b-socratic"
+    - "qwen3-0.6b-non-socratic"
+    - "qwen3-1.7b-base"
+    - "qwen3-1.7b-socratic"
+    - "qwen3-1.7b-non-socratic"
+    - "llama3.2-1b-base"
+    - "llama3.2-1b-socratic"
+  modes: ["greedy", "self_consistency"]
+  expected_full_runs: 16
+  expected_rows_per_run: 1319
+  expected_full_decisions: 21104
+
+outputs:
+  smoke_root: "runs/reviewer_rerun/evaluation_gsmhard_v1_smoke"
+  full_root: "runs/reviewer_rerun/evaluation_gsmhard_v1"
+  report_root: "results/reviewer_rerun/evaluation_gsmhard_v1"
+  scoring_audit_root: "results/reviewer_rerun/evaluation_gsmhard_v1_scoring_audit"
+
+interpretation:
+  classification: "in-distribution numerical perturbation, not a fully independent OOD corpus"
+  primary_use: "relative comparison of conditions under larger and less common numbers"
+  construction_caveat: >-
+    Automatically perturbed questions can contain awkward, negative, or
+    non-commonsensical quantities; report this limitation and avoid treating
+    absolute accuracy as a clean estimate of real-world arithmetic ability.

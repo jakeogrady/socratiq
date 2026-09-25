@@ -3,8 +3,9 @@ from __future__ import annotations
 import unittest
 from pathlib import Path
 
+from src.evaluate_v2 import BENCHMARKS
 from src.openai_conversion_v2 import _build_parser
-from src.rerun_utils import protocol_identity
+from src.rerun_utils import file_sha256, protocol_identity
 from src.run_training import load_yaml
 
 
@@ -76,6 +77,36 @@ class ProtocolTests(unittest.TestCase):
                 self.assertEqual(config["model"], model["identifier"])
                 self.assertEqual(config["model_revision"], model["revision"])
                 self.assertEqual(config["model_precision"], model["precision"])
+
+    def test_gsmhard_extension_matches_registry_and_preserves_base_protocol(
+        self,
+    ) -> None:
+        extension_path = Path(
+            "configs/reviewer_rerun/extensions/gsmhard_extension_v1.yaml"
+        )
+        extension = load_yaml(extension_path)
+        benchmark = extension["benchmark"]
+        registered = BENCHMARKS["gsm_hard"]
+
+        self.assertEqual(extension["extension_version"], "1.0")
+        self.assertEqual(benchmark["dataset"], registered.dataset)
+        self.assertEqual(benchmark["revision"], registered.revision)
+        self.assertEqual(benchmark["expected_rows"], registered.expected_rows)
+        self.assertEqual(
+            extension["few_shot_source"]["revision"],
+            registered.few_shot_revision,
+        )
+        base_protocol = Path(extension["base_protocol"]["path"])
+        self.assertEqual(
+            extension["base_protocol"]["sha256"], file_sha256(base_protocol)
+        )
+        adapter_checksums = extension["evaluation"]["adapter_checksum_manifest"]
+        self.assertEqual(
+            adapter_checksums["sha256"],
+            file_sha256(Path(adapter_checksums["path"])),
+        )
+        self.assertEqual(extension["matrix"]["expected_full_runs"], 16)
+        self.assertEqual(extension["matrix"]["expected_full_decisions"], 21104)
 
 
 if __name__ == "__main__":

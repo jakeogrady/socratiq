@@ -8,6 +8,7 @@ REPOSITORY_ROOT = Path(__file__).resolve().parents[1]
 TRAINING_SCRIPT = REPOSITORY_ROOT / "scripts/run_training_matrix.sh"
 EVALUATION_SCRIPT = REPOSITORY_ROOT / "scripts/run_evaluation_matrix.sh"
 CLEAN_EVALUATION_SCRIPT = REPOSITORY_ROOT / "scripts/run_clean_evaluation_matrix.sh"
+GSMHARD_EVALUATION_SCRIPT = REPOSITORY_ROOT / "scripts/run_gsmhard_evaluation_matrix.sh"
 
 
 def run_plan(script: Path, *arguments: str) -> str:
@@ -25,7 +26,12 @@ def run_plan(script: Path, *arguments: str) -> str:
 
 class MatrixScriptTests(unittest.TestCase):
     def test_shell_syntax_is_valid(self) -> None:
-        for script in (TRAINING_SCRIPT, EVALUATION_SCRIPT, CLEAN_EVALUATION_SCRIPT):
+        for script in (
+            TRAINING_SCRIPT,
+            EVALUATION_SCRIPT,
+            CLEAN_EVALUATION_SCRIPT,
+            GSMHARD_EVALUATION_SCRIPT,
+        ):
             with self.subTest(script=script.name):
                 completed = subprocess.run(  # noqa: S603
                     ["/bin/sh", "-n", str(script)],
@@ -95,6 +101,24 @@ class MatrixScriptTests(unittest.TestCase):
         )
         self.assertNotIn("smoke_adapter", smoke)
         self.assertIn("--limit 20", smoke)
+
+    def test_gsmhard_matrix_is_complete_and_isolated(self) -> None:
+        full = run_plan(GSMHARD_EVALUATION_SCRIPT, "--full", "--greedy")
+        smoke = run_plan(GSMHARD_EVALUATION_SCRIPT, "--smoke", "--sc5")
+
+        self.assertEqual(full.count("PLAN:"), 8)
+        self.assertEqual(smoke.count("PLAN:"), 8)
+        self.assertEqual(full.count("--benchmark gsm_hard"), 8)
+        self.assertEqual(full.count("--protocol-extension"), 8)
+        self.assertIn("runs/reviewer_rerun/evaluation_gsmhard_v1/", full)
+        self.assertNotIn("runs/reviewer_rerun/evaluation_clean_v1/", full)
+        self.assertIn("runs/reviewer_rerun/evaluation_gsmhard_v1_smoke/", smoke)
+        self.assertEqual(smoke.count("--limit 20"), 8)
+        self.assertEqual(smoke.count("--mode self_consistency --samples 5"), 8)
+        self.assertIn(
+            "runs/reviewer_rerun/training/qwen3_1.7b_non_socratic/adapter",
+            smoke,
+        )
 
 
 if __name__ == "__main__":

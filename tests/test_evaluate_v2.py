@@ -3,6 +3,7 @@ from __future__ import annotations
 import unittest
 from pathlib import Path
 from tempfile import TemporaryDirectory
+from unittest.mock import call, patch
 
 from src.evaluate_v2 import (
     ANSWER_SCORER_ID,
@@ -15,6 +16,7 @@ from src.evaluate_v2 import (
     evaluator_identity,
     extract_marked_number,
     extract_terminal_marked_number,
+    load_benchmark,
     majority_vote,
     materialize_evaluation_model,
     normalize_numeric,
@@ -55,6 +57,12 @@ class AnswerExtractionTests(unittest.TestCase):
         self.assertEqual(normalize_reference_answer("work #### 8"), "8")
         self.assertEqual(normalize_reference_answer(8.0), "8")
         self.assertIsNone(normalize_reference_answer("answer is 8"))
+
+    def test_reference_accepts_finite_scientific_notation_only(self) -> None:
+        self.assertEqual(normalize_reference_answer(1.25e-5), "0.0000125")
+        self.assertEqual(normalize_reference_answer("-9.284e+12"), "-9284000000000")
+        self.assertIsNone(normalize_reference_answer("NaN"))
+        self.assertIsNone(normalize_reference_answer("Infinity"))
 
     def test_decimal_equivalence(self) -> None:
         self.assertTrue(answers_equal("8", "8.00"))
@@ -104,6 +112,7 @@ class PromptTests(unittest.TestCase):
 
     def test_benchmark_registry_has_full_counts_and_train_only_gsm_shots(self) -> None:
         self.assertEqual(BENCHMARKS["gsm8k"].expected_rows, 1319)
+        self.assertEqual(BENCHMARKS["gsm_hard"].expected_rows, 1319)
         self.assertEqual(BENCHMARKS["multiarith"].expected_rows, 180)
         self.assertEqual(BENCHMARKS["svamp"].expected_rows, 300)
         self.assertTrue(
@@ -117,6 +126,50 @@ class PromptTests(unittest.TestCase):
             BENCHMARKS["gsm8k"].few_shot_split,
             BENCHMARKS["gsm8k"].target_split,
         )
+        gsm_hard = BENCHMARKS["gsm_hard"]
+        self.assertEqual(gsm_hard.dataset, "reasoning-machines/gsm-hard")
+        self.assertEqual(gsm_hard.few_shot_dataset, "openai/gsm8k")
+        self.assertEqual(gsm_hard.few_shot_indices, (0, 1, 2, 3))
+        self.assertEqual(gsm_hard.few_shot_question_column, "question")
+        self.assertEqual(gsm_hard.few_shot_answer_column, "answer")
+
+    def test_gsm_hard_loads_targets_and_shots_from_separate_pinned_sources(
+        self,
+    ) -> None:
+        class FakeRows(list):
+            _fingerprint = "fake-fingerprint"
+
+        targets = FakeRows(
+            {"input": f"hard question {index}", "target": str(index)}
+            for index in range(1319)
+        )
+        shots = FakeRows(
+            {"question": f"shot {index}", "answer": f"work #### {index}"}
+            for index in range(4)
+        )
+        spec = BENCHMARKS["gsm_hard"]
+        with patch(
+            "src.evaluate_v2._load_dataset_split",
+            side_effect=(targets, shots),
+        ) as loader:
+            loaded_targets, loaded_shots, provenance = load_benchmark(spec)
+
+        self.assertIs(loaded_targets, targets)
+        self.assertEqual(loaded_shots, list(shots))
+        self.assertEqual(
+            loader.call_args_list,
+            [
+                call(spec.dataset, spec.config, "train", spec.revision),
+                call(
+                    spec.few_shot_dataset,
+                    spec.few_shot_config,
+                    "train",
+                    spec.few_shot_revision,
+                ),
+            ],
+        )
+        self.assertEqual(provenance["few_shot_dataset"], "openai/gsm8k")
+        self.assertEqual(provenance["few_shot_question_column"], "question")
 
     def test_model_registry_uses_immutable_revisions(self) -> None:
         self.assertEqual(len(MODEL_REVISIONS), 3)

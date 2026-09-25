@@ -163,11 +163,24 @@ rerun-plan-matrices:
 	./scripts/run_training_matrix.sh --full --mandatory --plan
 	./scripts/run_evaluation_matrix.sh --full --greedy --mandatory --plan
 
+rerun-plan-gsmhard:
+	./scripts/run_gsmhard_evaluation_matrix.sh --smoke --greedy --plan
+	./scripts/run_gsmhard_evaluation_matrix.sh --smoke --sc5 --plan
+	./scripts/run_gsmhard_evaluation_matrix.sh --full --greedy --plan
+	./scripts/run_gsmhard_evaluation_matrix.sh --full --sc5 --plan
+
 rerun-reports:
 	$(RERUN_PYTHON) -m src.summarize_results --require-mandatory-matrix
 
 rerun-reports-partial:
 	$(RERUN_PYTHON) -m src.summarize_results --allow-partial
+
+rerun-gsmhard-reports:
+	$(RERUN_PYTHON) -m src.summarize_results \
+		--evaluation-root runs/reviewer_rerun/evaluation_gsmhard_v1 \
+		--training-root runs/reviewer_rerun/training \
+		--output-root results/reviewer_rerun/evaluation_gsmhard_v1 \
+		--require-gsmhard-matrix
 
 rerun-smoke-reports:
 	$(RERUN_PYTHON) -m src.summarize_results \

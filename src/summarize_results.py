@@ -42,6 +42,19 @@ MANDATORY_EVALUATION_EXPERIMENTS = frozenset(
     }
 )
 MANDATORY_BENCHMARKS = frozenset({"gsm8k", "multiarith", "svamp"})
+GSMHARD_EVALUATION_EXPERIMENTS = frozenset(
+    {
+        "qwen3-0.6b-base",
+        "qwen3-0.6b-socratic",
+        "qwen3-0.6b-non-socratic",
+        "qwen3-1.7b-base",
+        "qwen3-1.7b-socratic",
+        "qwen3-1.7b-non-socratic",
+        "llama3.2-1b-base",
+        "llama3.2-1b-socratic",
+    }
+)
+GSMHARD_MODES = frozenset({"greedy", "self_consistency"})
 
 
 def validate_mandatory_matrix(
@@ -88,6 +101,42 @@ def validate_mandatory_matrix(
         "status": "passed",
         "mandatory_training_runs": len(MANDATORY_TRAINING_EXPERIMENTS),
         "mandatory_evaluation_runs": len(expected_evaluations),
+    }
+
+
+def validate_gsmhard_matrix(
+    evaluation_rows: Sequence[Mapping[str, Any]],
+) -> dict[str, Any]:
+    """Require the isolated eight-condition, two-decoding GSM-Hard matrix."""
+    expected = {
+        (experiment, "gsm_hard", mode)
+        for experiment in GSMHARD_EVALUATION_EXPERIMENTS
+        for mode in GSMHARD_MODES
+    }
+    observed = [
+        (
+            str(row.get("experiment_id")),
+            str(row.get("benchmark")),
+            str(row.get("mode")),
+        )
+        for row in evaluation_rows
+    ]
+    duplicates = sorted(
+        {identity for identity in observed if observed.count(identity) > 1}
+    )
+    missing = sorted(expected - set(observed))
+    unexpected = sorted(set(observed) - expected)
+    if missing or unexpected or duplicates:
+        raise ReportingError(
+            "GSM-Hard extension matrix is incomplete, unexpected, or duplicated: "
+            f"missing={missing}, unexpected={unexpected}, duplicates={duplicates}"
+        )
+    return {
+        "status": "passed",
+        "benchmark": "gsm_hard",
+        "conditions": len(GSMHARD_EVALUATION_EXPERIMENTS),
+        "modes": len(GSMHARD_MODES),
+        "evaluation_runs": len(expected),
     }
 
 
@@ -261,6 +310,16 @@ def summarize_evaluation_run(
             "prediction_path": str(prediction_path),
             "prediction_sha256": file_sha256(prediction_path),
             "completed_at": manifest.get("completed_at"),
+            "protocol_extension_path": (
+                configuration.get("protocol_extension", {}).get("path")
+                if isinstance(configuration.get("protocol_extension"), Mapping)
+                else None
+            ),
+            "protocol_extension_sha256": (
+                configuration.get("protocol_extension", {}).get("sha256")
+                if isinstance(configuration.get("protocol_extension"), Mapping)
+                else None
+            ),
         }
     )
     return summary
@@ -330,6 +389,7 @@ def _reproducibility_markdown(
     *,
     generated_at: str,
 ) -> str:
+    observed_benchmarks = {str(row.get("benchmark")) for row in evaluation_rows}
     lines = [
         "# Reviewer-rerun reproducibility note",
         "",
@@ -351,6 +411,20 @@ def _reproducibility_markdown(
         "- MultiArith: zero-shot; all 180 test rows are targets.",
         "- SVAMP: zero-shot; all 300 rows in the pinned ChilleD test split are "
         "targets.",
+        *(
+            [
+                "- GSM-Hard: all 1,319 target rows from the pinned "
+                "`reasoning-machines/gsm-hard` train-labelled split; 4 fixed "
+                "demonstrations at indices 0, 1, 2, and 3 come from the pinned "
+                "GSM8K training split.",
+                "- GSM-Hard interpretation: an in-distribution large-number "
+                "perturbation for numerical robustness, not a fully independent "
+                "out-of-distribution corpus; automatically perturbed questions "
+                "can contain awkward quantities.",
+            ]
+            if "gsm_hard" in observed_benchmarks
+            else []
+        ),
         "- Chat template: the selected model tokenizer's template, with Qwen "
         "thinking explicitly disabled for the frozen primary protocol.",
         "- Required output: final `#### <number>` marker.",
@@ -441,6 +515,7 @@ def generate_reports(
     *,
     require_full: bool = True,
     require_mandatory_matrix: bool = False,
+    require_gsmhard_matrix: bool = False,
     confidence: float = 0.95,
 ) -> dict[str, Any]:
     """Discover run manifests and generate canonical compact reports."""
@@ -475,8 +550,12 @@ def generate_reports(
     )
     resource_rows.sort(key=lambda row: str(row.get("experiment_id")))
     matrix_validation = None
+    if require_mandatory_matrix and require_gsmhard_matrix:
+        raise ReportingError("select only one matrix validation rule")
     if require_mandatory_matrix:
         matrix_validation = validate_mandatory_matrix(evaluation_rows, resource_rows)
+    if require_gsmhard_matrix:
+        matrix_validation = validate_gsmhard_matrix(evaluation_rows)
     summary_path = output_root / "summaries" / "summary.csv"
     resource_path = output_root / "summaries" / "resource_summary.csv"
     reproducibility_path = output_root / "reproducibility" / "reproducibility.md"
@@ -495,8 +574,23 @@ def generate_reports(
     report_manifest = {
         "generated_at": generated_at,
         "protocol": protocol_identity(),
+        "protocol_extensions": [
+            {"path": path, "sha256": digest}
+            for path, digest in sorted(
+                {
+                    (
+                        str(row["protocol_extension_path"]),
+                        str(row["protocol_extension_sha256"]),
+                    )
+                    for row in evaluation_rows
+                    if row.get("protocol_extension_path")
+                    and row.get("protocol_extension_sha256")
+                }
+            )
+        ],
         "require_full": require_full,
         "require_mandatory_matrix": require_mandatory_matrix,
+        "require_gsmhard_matrix": require_gsmhard_matrix,
         "matrix_validation": matrix_validation,
         "confidence": confidence,
         "evaluation_runs": len(evaluation_rows),
@@ -542,6 +636,7 @@ def _build_parser() -> argparse.ArgumentParser:
     )
     parser.add_argument("--allow-partial", action="store_true")
     parser.add_argument("--require-mandatory-matrix", action="store_true")
+    parser.add_argument("--require-gsmhard-matrix", action="store_true")
     parser.add_argument("--confidence", type=float, default=0.95)
     return parser
 
@@ -555,6 +650,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         args.output_root,
         require_full=not args.allow_partial,
         require_mandatory_matrix=args.require_mandatory_matrix,
+        require_gsmhard_matrix=args.require_gsmhard_matrix,
         confidence=args.confidence,
     )
     print(json.dumps(manifest, indent=2, ensure_ascii=False))

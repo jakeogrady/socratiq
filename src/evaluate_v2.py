@@ -37,7 +37,7 @@ REVISION_RE = re.compile(r"^[0-9a-f]{40}$")
 ANSWER_PATTERN = r"[-+]?(?:\d{1,3}(?:,\d{3})+|\d+)(?:\.\d+)?"
 MARKED_ANSWER = re.compile(rf"####\s*({ANSWER_PATTERN})")
 TERMINAL_MARKED_ANSWER = re.compile(rf"####\s*({ANSWER_PATTERN})(?=\s*(?:[.!])?\s*$)")
-PLAIN_ANSWER = re.compile(rf"^\s*({ANSWER_PATTERN})\s*$")
+REFERENCE_ANSWER = re.compile(rf"^\s*({ANSWER_PATTERN}(?:[eE][-+]?\d+)?)\s*$")
 
 TASK_INSTRUCTION = (
     "Solve the arithmetic word problem using concise step-by-step reasoning. "
@@ -60,6 +60,11 @@ class BenchmarkSpec:
     question_column: str
     answer_column: str
     revision: str | None = None
+    few_shot_dataset: str | None = None
+    few_shot_config: str | None = None
+    few_shot_revision: str | None = None
+    few_shot_question_column: str | None = None
+    few_shot_answer_column: str | None = None
 
 
 BENCHMARKS: dict[str, BenchmarkSpec] = {
@@ -98,6 +103,23 @@ BENCHMARKS: dict[str, BenchmarkSpec] = {
         question_column="question_concat",
         answer_column="Answer",
         revision="5e0bf1e5e7c0e9c4bc39180d224f41f3f801b7ef",
+    ),
+    "gsm_hard": BenchmarkSpec(
+        key="gsm_hard",
+        dataset="reasoning-machines/gsm-hard",
+        config=None,
+        target_split="train",
+        few_shot_split="train",
+        few_shot_indices=(0, 1, 2, 3),
+        expected_rows=1319,
+        question_column="input",
+        answer_column="target",
+        revision="960448f73503112d4226baeb8eb41d3fb5ae2506",
+        few_shot_dataset="openai/gsm8k",
+        few_shot_config="main",
+        few_shot_revision="740312add88f781978c0658806c59bc2815b9866",
+        few_shot_question_column="question",
+        few_shot_answer_column="answer",
     ),
 }
 
@@ -171,11 +193,16 @@ def extract_terminal_marked_number(text: str) -> str | None:
 
 
 def normalize_reference_answer(value: Any) -> str | None:
-    """Normalize a benchmark reference, accepting marked or bare numeric data."""
+    """Normalize marked or bare finite benchmark-reference numeric data.
+
+    Dataset libraries may materialize JSON numbers as floats whose string form
+    uses scientific notation. References therefore accept an exponent while
+    model responses remain governed by the stricter marked-decimal scorer.
+    """
     text = str(value).strip()
     if "####" in text:
         return extract_marked_number(text)
-    match = PLAIN_ANSWER.fullmatch(text)
+    match = REFERENCE_ANSWER.fullmatch(text)
     return normalize_numeric(match.group(1)) if match else None
 
 
@@ -274,7 +301,12 @@ def render_model_prompt(
         return apply_template(messages, tokenize=False, add_generation_prompt=True)
 
 
-def _load_dataset_split(spec: BenchmarkSpec, split: str, revision: str | None) -> Any:
+def _load_dataset_split(
+    dataset: str,
+    config: str | None,
+    split: str,
+    revision: str | None,
+) -> Any:
     try:
         from datasets import load_dataset
     except ImportError as exc:
@@ -284,16 +316,22 @@ def _load_dataset_split(spec: BenchmarkSpec, split: str, revision: str | None) -
     kwargs: dict[str, Any] = {"split": split}
     if revision:
         kwargs["revision"] = revision
-    if spec.config is None:
-        return load_dataset(spec.dataset, **kwargs)
-    return load_dataset(spec.dataset, spec.config, **kwargs)
+    if config is None:
+        return load_dataset(dataset, **kwargs)
+    return load_dataset(dataset, config, **kwargs)
 
 
 def load_benchmark(
     spec: BenchmarkSpec, *, revision: str | None = None
 ) -> tuple[Any, list[Mapping[str, Any]], dict[str, Any]]:
-    """Load the target and fixed few-shot rows from separate declared splits."""
-    target = _load_dataset_split(spec, spec.target_split, revision or spec.revision)
+    """Load targets and fixed shots from their separately declared sources."""
+    target_revision = revision or spec.revision
+    target = _load_dataset_split(
+        spec.dataset,
+        spec.config,
+        spec.target_split,
+        target_revision,
+    )
     if len(target) != spec.expected_rows:
         raise EvaluationError(
             f"{spec.key} expected {spec.expected_rows} target rows, found {len(target)}"
@@ -301,13 +339,29 @@ def load_benchmark(
 
     shots: list[Mapping[str, Any]] = []
     shot_fingerprint = None
+    shot_dataset_name = spec.few_shot_dataset or spec.dataset
+    shot_config = (
+        spec.few_shot_config if spec.few_shot_dataset is not None else spec.config
+    )
+    shot_revision = (
+        spec.few_shot_revision if spec.few_shot_dataset is not None else target_revision
+    )
     if spec.few_shot_indices:
-        if spec.few_shot_split is None or spec.few_shot_split == spec.target_split:
+        same_target_source = (
+            shot_dataset_name == spec.dataset
+            and shot_config == spec.config
+            and spec.few_shot_split == spec.target_split
+        )
+        if spec.few_shot_split is None or same_target_source:
             raise EvaluationError(
-                "few-shot examples must come from a separate train split"
+                "few-shot examples must come from a source separate from the "
+                "target rows"
             )
         shot_dataset = _load_dataset_split(
-            spec, spec.few_shot_split, revision or spec.revision
+            shot_dataset_name,
+            shot_config,
+            spec.few_shot_split,
+            shot_revision,
         )
         shots = [shot_dataset[index] for index in spec.few_shot_indices]
         shot_fingerprint = getattr(shot_dataset, "_fingerprint", None)
@@ -315,12 +369,25 @@ def load_benchmark(
     provenance = {
         "dataset": spec.dataset,
         "config": spec.config,
-        "requested_revision": revision or spec.revision,
+        "requested_revision": target_revision,
         "target_split": spec.target_split,
         "target_rows": len(target),
         "target_fingerprint": getattr(target, "_fingerprint", None),
+        "few_shot_dataset": shot_dataset_name if spec.few_shot_indices else None,
+        "few_shot_config": shot_config if spec.few_shot_indices else None,
+        "few_shot_revision": shot_revision if spec.few_shot_indices else None,
         "few_shot_split": spec.few_shot_split,
         "few_shot_indices": list(spec.few_shot_indices),
+        "few_shot_question_column": (
+            spec.few_shot_question_column or spec.question_column
+            if spec.few_shot_indices
+            else None
+        ),
+        "few_shot_answer_column": (
+            spec.few_shot_answer_column or spec.answer_column
+            if spec.few_shot_indices
+            else None
+        ),
         "few_shot_fingerprint": shot_fingerprint,
     }
     return target, shots, provenance
@@ -482,6 +549,7 @@ def _configuration(args: argparse.Namespace, spec: BenchmarkSpec) -> dict[str, A
         args.model, getattr(args, "model_revision", None)
     )
     local_model_path = Path(args.model).expanduser()
+    protocol_extension = getattr(args, "protocol_extension", None)
     return {
         **evaluator_identity(),
         "prompt_version": PROMPT_VERSION,
@@ -494,6 +562,11 @@ def _configuration(args: argparse.Namespace, spec: BenchmarkSpec) -> dict[str, A
         "adapter": _adapter_identity(args.adapter_path),
         "benchmark": asdict(spec),
         "dataset_revision_override": args.dataset_revision,
+        "protocol_extension": (
+            protocol_identity(protocol_extension)
+            if protocol_extension is not None
+            else None
+        ),
         "mode": args.mode,
         "samples": args.samples,
         "temperature": args.temperature,
@@ -550,6 +623,7 @@ def run_evaluation(args: argparse.Namespace) -> dict[str, Any]:
         "status": "running",
         "started_at": started_at,
         "protocol": protocol_identity(),
+        "protocol_extension": configuration["protocol_extension"],
         "configuration": configuration,
         "configuration_sha256": configuration_hash,
         "base_model": model_provenance,
@@ -567,8 +641,8 @@ def run_evaluation(args: argparse.Namespace) -> dict[str, Any]:
         semantic_prompt = build_prompt(
             target_question,
             shots,
-            question_column=spec.question_column,
-            answer_column=spec.answer_column,
+            question_column=(spec.few_shot_question_column or spec.question_column),
+            answer_column=spec.few_shot_answer_column or spec.answer_column,
         )
         model_prompt = render_model_prompt(
             tokenizer,
@@ -705,6 +779,11 @@ def _build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--adapter-path", type=Path)
     parser.add_argument("--benchmark", choices=sorted(BENCHMARKS), required=True)
     parser.add_argument("--dataset-revision")
+    parser.add_argument(
+        "--protocol-extension",
+        type=Path,
+        help="supplemental protocol file whose path and SHA-256 enter provenance",
+    )
     parser.add_argument(
         "--mode", choices=("greedy", "self_consistency"), default="greedy"
     )

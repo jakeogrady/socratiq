@@ -6,12 +6,15 @@ from pathlib import Path
 
 from src.rerun_utils import write_json, write_jsonl
 from src.summarize_results import (
+    GSMHARD_EVALUATION_EXPERIMENTS,
+    GSMHARD_MODES,
     MANDATORY_BENCHMARKS,
     MANDATORY_EVALUATION_EXPERIMENTS,
     MANDATORY_TRAINING_EXPERIMENTS,
     ReportingError,
     generate_reports,
     summarize_prediction_rows,
+    validate_gsmhard_matrix,
     validate_mandatory_matrix,
     wilson_interval,
 )
@@ -99,6 +102,44 @@ class MandatoryMatrixTests(unittest.TestCase):
         ]
         with self.assertRaisesRegex(ReportingError, "duplicate_evaluations"):
             validate_mandatory_matrix([*evaluations, evaluations[0]], resources)
+
+    def test_requires_all_sixteen_gsmhard_evaluations(self) -> None:
+        evaluations = [
+            {
+                "experiment_id": experiment,
+                "benchmark": "gsm_hard",
+                "mode": mode,
+            }
+            for experiment in GSMHARD_EVALUATION_EXPERIMENTS
+            for mode in GSMHARD_MODES
+        ]
+        result = validate_gsmhard_matrix(evaluations)
+        self.assertEqual(result["conditions"], 8)
+        self.assertEqual(result["modes"], 2)
+        self.assertEqual(result["evaluation_runs"], 16)
+
+        with self.assertRaisesRegex(ReportingError, "missing="):
+            validate_gsmhard_matrix(evaluations[:-1])
+
+    def test_gsmhard_matrix_rejects_unexpected_or_duplicate_runs(self) -> None:
+        evaluations = [
+            {
+                "experiment_id": experiment,
+                "benchmark": "gsm_hard",
+                "mode": mode,
+            }
+            for experiment in GSMHARD_EVALUATION_EXPERIMENTS
+            for mode in GSMHARD_MODES
+        ]
+        with self.assertRaisesRegex(ReportingError, "duplicates="):
+            validate_gsmhard_matrix([*evaluations, evaluations[0]])
+        unexpected = {
+            "experiment_id": "extra-condition",
+            "benchmark": "gsm_hard",
+            "mode": "greedy",
+        }
+        with self.assertRaisesRegex(ReportingError, "unexpected="):
+            validate_gsmhard_matrix([*evaluations, unexpected])
 
 
 class ReportGenerationTests(unittest.TestCase):
