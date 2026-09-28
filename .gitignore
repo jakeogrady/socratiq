@@ -36,3 +36,10 @@ data/
 **.jsonl
 
 eval_results/**.csv
+
+# The synthetic corpus is tracked - 21,250 examples (19,125 train / 2,125 valid).
+# new_data/ is the raw question/answer pairs; new_data_text/ is the cleaned,
+# flattened set the published Qwen3-1.7B adapters were trained on. Until now
+# these were caught by **.jsonl above and existed only on one machine.
+!new_data/*.jsonl
+!new_data_text/*.jsonl
