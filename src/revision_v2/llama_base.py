@@ -9,7 +9,9 @@ and every evaluation render the same prompt regardless of the run date.
 
 Commands:
   compare  bitwise tensor comparison of two safetensors files
-  build    assemble the checkpoint directory and write its manifest
+  build    assemble the checkpoint directory and write its manifest (PI, once)
+  fetch    download the pinned weights repository, apply the date fix, and
+           refuse unless every file matches the tracked manifest (students)
   verify   check a placed checkpoint against the tracked manifest
 """
 
@@ -127,6 +129,13 @@ def patch_chat_template(tokenizer_config: dict[str, Any]) -> dict[str, Any]:
     return patched
 
 
+def write_tokenizer_config(path: Path, config: dict[str, Any]) -> None:
+    """Write tokenizer_config.json in the one format whose hash the manifest records."""
+    path.write_text(
+        json.dumps(config, ensure_ascii=False, indent=2) + "\n", encoding="utf-8"
+    )
+
+
 def build_checkpoint(
     source_dir: Path,
     meta_reference: Path,
@@ -154,9 +163,7 @@ def build_checkpoint(
         shutil.copy2(source_dir / name, output_dir / name)
     original = json.loads((source_dir / "tokenizer_config.json").read_text("utf-8"))
     patched = patch_chat_template(original)
-    (output_dir / "tokenizer_config.json").write_text(
-        json.dumps(patched, ensure_ascii=False, indent=2) + "\n", encoding="utf-8"
-    )
+    write_tokenizer_config(output_dir / "tokenizer_config.json", patched)
     unchanged_keys = sorted(
         k for k in original if k != "chat_template" and original[k] == patched[k]
     )
@@ -184,6 +191,55 @@ def build_checkpoint(
     }
     write_json(manifest_path, manifest)
     return {"manifest": manifest, "comparison": final}
+
+
+def fetch_checkpoint(
+    output_dir: Path | None = None, manifest_path: Path = DEFAULT_MANIFEST
+) -> dict[str, Any]:
+    """Download the pinned weights repository, apply the date fix and verify every hash.
+
+    The result is byte-identical to the PI's checkpoint or the command fails; the
+    tracked manifest, not the download, decides.
+    """
+    manifest = json.loads(manifest_path.read_text("utf-8"))
+    output_dir = output_dir or Path(manifest["local_path"])
+    if output_dir.exists() and any(output_dir.iterdir()):
+        check = verify_checkpoint(output_dir, manifest_path)
+        if check["status"] == "passed":
+            return {**check, "action": "already present and verified"}
+        msg = f"{output_dir} exists but does not verify: {check['problems']}. Move it aside and rerun."
+        raise LlamaBaseError(msg)
+    from huggingface_hub import snapshot_download
+
+    source = manifest["weights_source"]
+    staging = output_dir.with_name(output_dir.name + ".download")
+    if staging.exists():
+        shutil.rmtree(staging)
+    snapshot_download(
+        repo_id=source["repo"],
+        revision=source["revision"],
+        local_dir=staging,
+        allow_patterns=list(CHECKPOINT_FILES),
+    )
+    output_dir.mkdir(parents=True, exist_ok=True)
+    for name in CHECKPOINT_FILES:
+        if name != "tokenizer_config.json":
+            shutil.move(staging / name, output_dir / name)
+    original = json.loads((staging / "tokenizer_config.json").read_text("utf-8"))
+    write_tokenizer_config(
+        output_dir / "tokenizer_config.json", patch_chat_template(original)
+    )
+    shutil.rmtree(staging)
+    check = verify_checkpoint(output_dir, manifest_path)
+    if check["status"] != "passed":
+        msg = f"fetched checkpoint does not match the manifest: {check['problems']}"
+        raise LlamaBaseError(msg)
+    return {
+        **check,
+        "action": "fetched",
+        "repo": source["repo"],
+        "revision": source["revision"],
+    }
 
 
 def verify_checkpoint(
@@ -232,6 +288,9 @@ def _parser() -> argparse.ArgumentParser:
     )
     build.add_argument("--output-dir", type=Path, required=True)
     build.add_argument("--manifest", type=Path, default=DEFAULT_MANIFEST)
+    fetch = commands.add_parser("fetch")
+    fetch.add_argument("--output-dir", type=Path)
+    fetch.add_argument("--manifest", type=Path, default=DEFAULT_MANIFEST)
     verify = commands.add_parser("verify")
     verify.add_argument("path", type=Path)
     verify.add_argument("--manifest", type=Path, default=DEFAULT_MANIFEST)
@@ -256,6 +315,8 @@ def main(argv: Sequence[str] | None = None) -> int:
             manifest_path=args.manifest,
         )
         result = built["manifest"]
+    elif args.command == "fetch":
+        result = fetch_checkpoint(args.output_dir, args.manifest)
     else:
         result = verify_checkpoint(args.path, args.manifest)
     print(json.dumps(result, indent=2, ensure_ascii=False))

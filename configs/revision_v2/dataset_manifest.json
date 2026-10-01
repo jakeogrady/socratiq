@@ -1,9 +1,9 @@
 {
   "schema_version": "1.0",
-  "created_at": "2026-10-01T23:23:15+00:00",
+  "created_at": "2026-10-01T23:52:27+00:00",
   "protocol": {
     "path": "configs/revision_v2/protocol.yaml",
-    "sha256": "878614c51df8066e655d828cecb2b409d4cc9103c825bfb26f4fc5a5e2ed7386"
+    "sha256": "c762989911cedbbf020266569365aca950f17a3a7f59f39991241394a588d0c5"
   },
   "protocol_data_section_sha256": "8c5516e57e557cad09f27a7771fc2f86e17f83c29e04b3c8fd1305bbb2a27284",
   "row_order_seed": 2026,

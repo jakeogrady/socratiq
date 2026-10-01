@@ -107,6 +107,7 @@ training:
       iteration: 6000
       validation_loss: 0.949
     on_failure: "halve the peak to 4e-5 once and repeat; decide on validation loss only"
+    decision_procedure: "automatic, on isik, by the queue: 8e-5 first, 4e-5 once only if 8e-5 fails the rule; the first accepted peak is recorded in runs/revision_v2/pilot_decision.json and used for every Qwen3-0.6B and Llama run; if both fail, the queue stops for the PI (PI decision, 2 October 2026: no separate approval step)"
     applies_to: ["qwen3_0.6b", "llama3.2_1b"]
 
 evaluation:

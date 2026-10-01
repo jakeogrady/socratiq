@@ -1,7 +1,8 @@
 # Machine assignment for the revision-v2 runs (Phase 2b).
 # Expanded into ordered items by src.revision_v2.queue. Order on each machine:
 # core training, determinism check, core greedy evaluation, SC@5, second tier.
-# "{peak}" is the accepted Qwen3-0.6B / Llama peak label (8e-5 or 4e-5).
+# "{peak}" is the Qwen3-0.6B / Llama peak chosen by the pilot on isik (8e-5 or 4e-5).
+# The isik queue runs the pilot first and applies the acceptance rule itself.
 #
 # Split: the PI default (chee: Qwen3-1.7B pair and base, then the second tier;
 # isik: pilot, Qwen3-0.6B pair, Llama pair and their bases), rebalanced from the
@@ -14,11 +15,13 @@ machines:
     core_conditions: ["qwen3_0.6b_socratic_lr{peak}", "qwen3_0.6b_non_socratic_lr{peak}", "llama3.2_1b_socratic_lr{peak}", "llama3.2_1b_non_socratic_lr{peak}", "qwen3_0.6b_base"]
     second_tier: []
     needs_llama_checkpoint: true
+    v1_determinism_reference: "runs/reviewer_rerun/evaluation/qwen3_0.6b_base/multiarith/greedy/predictions.jsonl"
   chee:
     train: ["qwen3_1.7b_socratic_lr1e-4", "qwen3_1.7b_non_socratic_lr1e-4"]
     core_conditions: ["qwen3_1.7b_socratic_lr1e-4", "qwen3_1.7b_non_socratic_lr1e-4", "qwen3_1.7b_base", "llama3.2_1b_base"]
     second_tier: ["qwen3_0.6b_socratic_5k_lr{peak}", "qwen3_0.6b_non_socratic_5k_lr{peak}", "qwen3_0.6b_socratic_10k_lr{peak}", "qwen3_0.6b_non_socratic_10k_lr{peak}"]
     needs_llama_checkpoint: true
+    v1_determinism_reference: "runs/reviewer_rerun/evaluation_clean_v1/qwen3_0.6b_base/multiarith/greedy/predictions.jsonl"
 
 pilot:
   machine: "isik"

@@ -2,9 +2,9 @@
 
 # Set up and verify one M4 Pro machine for the revision-v2 runs.
 #
-#   ./scripts/phase2_setup.sh --machine isik --before-freeze   Friday, on branch revision-v2
-#   ./scripts/phase2_setup.sh --machine chee --before-freeze   Friday, on branch revision-v2
-#   ./scripts/phase2_setup.sh --machine chee                   after the freeze, on tag protocol-v2-frozen
+#   ./scripts/phase2_setup.sh --machine isik    on the tag protocol-v2-frozen
+#   ./scripts/phase2_setup.sh --machine chee    on the tag protocol-v2-frozen
+#   (--before-freeze allows branch revision-v2 instead of the tag, for PI testing)
 #
 # Syncs the locked environment, rebuilds the v2 data and checks it against the
 # tracked hashes, verifies the Llama checkpoint, runs the tests and config
@@ -88,7 +88,7 @@ printf '%s\n' "--- Verifying the Llama checkpoint"
 printf '%s\n' "--- Tests, lint and configuration checks"
 make phase2-check RERUN_PYTHON="$PYTHON" RERUN_RUFF=.venv/bin/ruff
 
-printf '%s\n' "--- Queue for $MACHINE (peak shown as 8e-5; use the PI-approved value when running)"
-SOCRATIQ_MACHINE="$MACHINE" "$PYTHON" -m src.revision_v2.queue plan --machine "$MACHINE" --peak 8e-5
+printf '%s\n' "--- Queue for $MACHINE"
+SOCRATIQ_MACHINE="$MACHINE" "$PYTHON" -m src.revision_v2.queue plan --machine "$MACHINE"
 
 printf '%s\n' "Setup passed on $MACHINE. No training or evaluation was started."

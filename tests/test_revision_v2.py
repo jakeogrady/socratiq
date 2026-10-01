@@ -6,6 +6,7 @@ import subprocess
 import tempfile
 import unittest
 from pathlib import Path
+from unittest import mock
 
 from src.paired_dataset import CanonicalExample
 from src.rerun_utils import file_sha256
@@ -357,6 +358,72 @@ class QueueTests(unittest.TestCase):
         text = queue.report("chee", "8e-5")
         self.assertEqual(len(text.splitlines()), len(queue.expand("chee", "8e-5")) + 2)
         self.assertIn("machine=chee peak=8e-5", text)
+
+    def test_chee_without_peak_runs_only_core_items(self) -> None:
+        core = queue.expand("chee", None)
+        full = queue.expand("chee", "8e-5")
+        self.assertEqual(len(core), 35)
+        self.assertEqual(len(full), 55)
+        self.assertFalse(any("second_tier" in i["stage"] for i in core))
+        self.assertEqual([i["id"] for i in core], [i["id"] for i in full][:35])
+
+    def pilot_mocks(self, decisions: list[str], tmp: str) -> list:
+        checks = iter(
+            {
+                "decision": d,
+                "initial_validation_loss": 2.4,
+                "final_validation_loss": 0.9,
+                "v1_reference_final_validation_loss": 0.949,
+            }
+            for d in decisions
+        )
+        return [
+            mock.patch.object(
+                queue,
+                "pilot_decision_path",
+                return_value=Path(tmp, "pilot_decision.json"),
+            ),
+            mock.patch.object(queue, "item_status", return_value="pending"),
+            mock.patch.object(queue, "run_item"),
+            mock.patch.object(queue, "log_event"),
+            mock.patch.object(queue, "git", return_value="abc123"),
+            mock.patch(
+                "src.revision_v2.train.pilot_check",
+                side_effect=lambda _run_dir: next(checks),
+            ),
+        ]
+
+    def test_pilot_falls_back_to_halved_peak_once_and_records_it(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            patches = self.pilot_mocks(["reject", "accept"], tmp)
+            for patch in patches:
+                patch.start()
+            try:
+                self.assertEqual(queue.decide_pilot("isik"), "4e-5")
+                decision = json.loads(Path(tmp, "pilot_decision.json").read_text())
+                self.assertEqual(
+                    [a["peak"] for a in decision["attempts"]], ["8e-5", "4e-5"]
+                )
+                self.assertEqual(queue.decide_pilot("isik"), "4e-5")
+                self.assertEqual(queue.effective_peak("isik", None), "4e-5")
+                with self.assertRaises(queue.QueueError):
+                    queue.effective_peak("isik", "8e-5")
+            finally:
+                for patch in patches:
+                    patch.stop()
+
+    def test_pilot_stops_when_both_peaks_fail(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            patches = self.pilot_mocks(["reject", "reject"], tmp)
+            for patch in patches:
+                patch.start()
+            try:
+                with self.assertRaises(queue.QueueError):
+                    queue.decide_pilot("isik")
+                self.assertFalse(Path(tmp, "pilot_decision.json").exists())
+            finally:
+                for patch in patches:
+                    patch.stop()
 
     def test_halved_peak_changes_only_affected_models(self) -> None:
         runs = {

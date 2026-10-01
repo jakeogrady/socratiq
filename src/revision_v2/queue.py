@@ -3,8 +3,10 @@
 Commands:
   plan / status   list the machine's items in order with status and expected minutes
   report          plain-text progress report with the learning-rate checks, to paste into an email
-  pilot           isik only, before the freeze: train the pilot and apply the acceptance rule
-  run             after the freeze: run every unfinished item in order, stop on the first failure
+  run             run every unfinished item in order, stop on the first failure. On isik
+                  it first runs the pilot and applies the acceptance rule itself (8e-5,
+                  then 4e-5 once); the decision is saved and reused. On chee, --peak is
+                  needed only for the second tier and the queue asks for it when it gets there.
   package         build the return packet (logs, manifests, predictions, final adapters, SHA-256)
   determinism     compare two prediction files response by response
   archive-v1      archive v1 runs and results before anything new starts
@@ -41,6 +43,11 @@ QUEUE_PATH = REPOSITORY_ROOT / "configs/revision_v2/queue.yaml"
 PEAKS = ("8e-5", "4e-5")
 PINNED = {"mlx": "0.30.3", "mlx-lm": "0.29.1"}
 MIN_FREE_GIB = 60.0
+
+
+def pilot_decision_path() -> Path:
+    """Where the isik queue records the pilot decision."""
+    return REPOSITORY_ROOT / RUNS_ROOT / "pilot_decision.json"
 
 
 class QueueError(RuntimeError):
@@ -132,9 +139,16 @@ def train_item(stage: str, run_id: str, machine: str) -> dict[str, Any]:
     }
 
 
-def expand(machine: str, peak: str) -> list[dict[str, Any]]:
-    """Return the machine's full ordered item list."""
-    if peak not in PEAKS:
+def resolve(templates: list[str], peak: str | None) -> list[str]:
+    """Fill in the peak; without a peak, keep only the templates that do not need one."""
+    return [
+        t.format(peak=peak) for t in templates if peak is not None or "{peak}" not in t
+    ]
+
+
+def expand(machine: str, peak: str | None) -> list[dict[str, Any]]:
+    """Return the machine's ordered item list (items needing an unknown peak are left out)."""
+    if peak is not None and peak not in PEAKS:
         msg = f"--peak must be one of {PEAKS}"
         raise QueueError(msg)
     queue, protocol = load_queue(), load_protocol()
@@ -142,8 +156,8 @@ def expand(machine: str, peak: str) -> list[dict[str, Any]]:
     evaluation_root = RUNS_ROOT / "evaluation"
     matrix = protocol["matrix"]["evaluation"]
     items = [
-        train_item("1_core_training", run.format(peak=peak), machine)
-        for run in assignment["train"]
+        train_item("1_core_training", run, machine)
+        for run in resolve(assignment["train"], peak)
     ]
     det = protocol["matrix"]["determinism_check"]
     items.append(
@@ -157,7 +171,7 @@ def expand(machine: str, peak: str) -> list[dict[str, Any]]:
             RUNS_ROOT / "determinism" / machine,
         )
     )
-    conditions = [c.format(peak=peak) for c in assignment["core_conditions"]]
+    conditions = resolve(assignment["core_conditions"], peak)
     greedy = matrix["core_and_base_greedy"]
     items += [
         eval_item("3_core_greedy", c, b, p, "greedy", machine, evaluation_root)
@@ -176,7 +190,7 @@ def expand(machine: str, peak: str) -> list[dict[str, Any]]:
         for p, b in matrix["core_and_base_sc5"]
         for c in conditions
     ]
-    second = [c.format(peak=peak) for c in assignment["second_tier"]]
+    second = resolve(assignment["second_tier"], peak)
     items += [train_item("5_second_tier_training", run, machine) for run in second]
     items += [
         eval_item("6_second_tier_greedy", c, b, p, "greedy", machine, evaluation_root)
@@ -399,8 +413,13 @@ def run_item(item: dict[str, Any], machine: str) -> None:
         raise QueueError(msg)
 
 
-def print_plan(machine: str, peak: str) -> list[dict[str, Any]]:
+def print_plan(machine: str, requested_peak: str | None) -> list[dict[str, Any]]:
     """Print every item with its status and expected minutes."""
+    peak = effective_peak(machine, requested_peak)
+    if peak is None:
+        print(
+            "(peak not known yet: items that depend on the pilot's learning rate are not listed)"
+        )
     items = expand(machine, peak)
     total = remaining = 0
     for number, item in enumerate(items, start=1):
@@ -429,11 +448,38 @@ def short_command(item: dict[str, Any]) -> str:
     return f"`evaluate --condition-id {item['condition_id']} --benchmark {item['benchmark']} --prompt {item['prompt']} --mode {item['mode']}`"
 
 
-def report(machine: str, peak: str) -> str:
+def report(machine: str, requested_peak: str | None) -> str:
     """Return a plain-text progress report the students paste into an email."""
     head = git("rev-parse", "HEAD")
+    peak = effective_peak(machine, requested_peak)
     expected_rows = {"gsm8k": 1319, "gsm_hard": 1319, "multiarith": 180, "svamp": 300}
-    lines = [f"machine={machine} peak={peak} commit={head[:12]} at={utc_now()}"]
+    lines = []
+    if machine == load_queue()["pilot"]["machine"]:
+        decision = pilot_decision()
+        if decision:
+            tried = ", ".join(
+                f"{a['peak']} {a['decision']} (final val loss {a['final_validation_loss']})"
+                for a in decision["attempts"]
+            )
+            lines.append(f"pilot decision: {decision['peak']}  [{tried}]")
+        else:
+            lines.append("pilot decision: not yet (the pilot is the first item)")
+            for candidate in PEAKS:
+                item = train_item(
+                    "0_pilot",
+                    load_queue()["pilot"]["run"].format(peak=candidate),
+                    machine,
+                )
+                lines.append(f"  pilot at {candidate}: {item_status(item)}")
+            lines.append(
+                "The full item list appears once the pilot has decided the learning rate."
+            )
+            return "\n".join(lines)
+    elif load_queue()["machines"][machine]["second_tier"] and peak is None:
+        lines.append(
+            "peak: not given yet (needed only for the second tier, from isik's pilot decision)"
+        )
+    lines.append(f"machine={machine} peak={peak} commit={head[:12]} at={utc_now()}")
     counts = {"done": 0, "partial": 0, "pending": 0}
     for number, item in enumerate(expand(machine, peak), start=1):
         status = item_status(item)
@@ -459,6 +505,11 @@ def report(machine: str, peak: str) -> str:
                 ok = rows == expected_rows[item["benchmark"]] and same_commit
                 reasons = manifest.get("summary", {}).get("finish_reasons", {})
                 line += f" | rows {rows}/{expected_rows[item['benchmark']]} | finish {reasons}"
+                comparison_path = v1_comparison_path(machine)
+                if item["stage"] == "2_determinism" and comparison_path.is_file():
+                    comparison = json.loads(comparison_path.read_text("utf-8"))
+                    line += f" | vs v1: {comparison['status']}"
+                    ok = ok and comparison["status"] != "different"
             line += " | OK" if ok else " | CHECK"
         lines.append(line)
     lines.append(
@@ -485,54 +536,110 @@ def markdown_table(machine: str, peak: str) -> str:
     return "\n".join(lines)
 
 
-def pilot(peak: str) -> dict[str, Any]:
-    """Train the pilot run on the pilot machine and apply the acceptance rule."""
-    queue = load_queue()
-    machine = queue["pilot"]["machine"]
-    preconditions(machine, frozen=False)
-    item = train_item("0_pilot", queue["pilot"]["run"].format(peak=peak), machine)
-    if item_status(item) != "done":
-        run_item(item, machine)
-    result = subprocess.run(
-        [
-            sys.executable,
-            "-m",
-            "src.revision_v2.train",
-            "pilot-check",
-            "--run-dir",
-            item["run_dir"],
-        ],
-        cwd=REPOSITORY_ROOT,
-        capture_output=True,
-        text=True,
-        check=True,
+def pilot_decision() -> dict[str, Any] | None:
+    """Return the recorded pilot decision, if any."""
+    path = pilot_decision_path()
+    return json.loads(path.read_text("utf-8")) if path.is_file() else None
+
+
+def effective_peak(machine: str, requested: str | None) -> str | None:
+    """On the pilot machine the pilot decides the peak; elsewhere it comes from --peak."""
+    if machine != load_queue()["pilot"]["machine"]:
+        return requested
+    decision = pilot_decision()
+    decided = decision["peak"] if decision else None
+    if requested and decided and requested != decided:
+        msg = f"the pilot chose {decided}; do not pass --peak {requested} on {machine}"
+        raise QueueError(msg)
+    return decided
+
+
+def decide_pilot(machine: str) -> str:
+    """Run the pilot at 8e-5 and, only if it fails the rule, once at 4e-5."""
+    from src.revision_v2.train import pilot_check
+
+    decision = pilot_decision()
+    if decision:
+        return decision["peak"]
+    template = load_queue()["pilot"]["run"]
+    attempts = []
+    for peak in PEAKS:
+        item = train_item("0_pilot", template.format(peak=peak), machine)
+        if item_status(item) != "done":
+            print(f"\nPilot at peak {peak}: training Qwen3-0.6B Socratic.", flush=True)
+            run_item(item, machine)
+        check = pilot_check(REPOSITORY_ROOT / item["run_dir"])
+        attempts.append(
+            {
+                "peak": peak,
+                "decision": check["decision"],
+                "initial_validation_loss": check["initial_validation_loss"],
+                "final_validation_loss": check["final_validation_loss"],
+                "limit": check["v1_reference_final_validation_loss"],
+            }
+        )
+        log_event(machine, {"item": item["id"], "event": "pilot_check", **attempts[-1]})
+        print(
+            f"Pilot at peak {peak}: {check['decision']} (final validation loss "
+            f"{check['final_validation_loss']}, limit {check['v1_reference_final_validation_loss']})",
+            flush=True,
+        )
+        if check["decision"] == "accept":
+            write_json(
+                pilot_decision_path(),
+                {
+                    "peak": peak,
+                    "decided_at": utc_now(),
+                    "commit": git("rev-parse", "HEAD"),
+                    "rule": "first of 8e-5, then 4e-5, that passes the protocol's pilot rule",
+                    "attempts": attempts,
+                },
+            )
+            return peak
+    msg = (
+        "both pilot runs (8e-5 and 4e-5) failed the acceptance rule. Stop and send the PI "
+        "runs/revision_v2/training/qwen3_0.6b_socratic_lr8e-5/pilot_check.json and "
+        "runs/revision_v2/training/qwen3_0.6b_socratic_lr4e-5/pilot_check.json"
     )
-    decision = json.loads(result.stdout)
+    raise QueueError(msg)
+
+
+def v1_comparison_path(machine: str) -> Path:
+    """Where the determinism comparison with this machine's v1 run is written."""
+    return REPOSITORY_ROOT / RUNS_ROOT / "determinism" / machine / "v1_comparison.json"
+
+
+def compare_with_v1(machine: str, item: dict[str, Any]) -> dict[str, Any]:
+    """Compare the determinism run with this machine's v1 run of the same prompt."""
+    reference = (
+        REPOSITORY_ROOT / load_queue()["machines"][machine]["v1_determinism_reference"]
+    )
+    new = REPOSITORY_ROOT / item["run_dir"] / "predictions.jsonl"
+    if not reference.is_file():
+        result: dict[str, Any] = {
+            "status": "v1 reference not found",
+            "reference": str(reference),
+        }
+    else:
+        result = determinism(new, reference)
+        result["status"] = "identical" if result["identical"] else "different"
+    result["checked_at"] = utc_now()
+    write_json(v1_comparison_path(machine), result)
     log_event(
         machine,
-        {"item": item["id"], "event": "pilot_check", "decision": decision["decision"]},
+        {"item": item["id"], "event": "v1_comparison", "status": result["status"]},
     )
-    return decision
+    return result
 
 
-def run(machine: str, peak: str) -> None:
+def run(machine: str, requested_peak: str | None) -> None:
     """Run every unfinished item in order; stop on the first failure."""
     state = preconditions(machine, frozen=True)
-    queue = load_queue()
-    if machine == queue["pilot"]["machine"]:
-        check_path = (
-            REPOSITORY_ROOT
-            / RUNS_ROOT
-            / "training"
-            / queue["pilot"]["run"].format(peak=peak)
-            / "pilot_check.json"
-        )
-        if (
-            not check_path.is_file()
-            or json.loads(check_path.read_text("utf-8"))["decision"] != "accept"
-        ):
-            msg = f"no accepted pilot for peak {peak}; run the pilot first and wait for PI approval"
-            raise QueueError(msg)
+    if machine == load_queue()["pilot"]["machine"]:
+        effective_peak(machine, requested_peak)
+        peak: str | None = decide_pilot(machine)
+    else:
+        peak = requested_peak
     log_event(machine, {"event": "queue_start", "peak": peak, **state})
     for item in expand(machine, peak):
         if item_status(item) == "done":
@@ -544,15 +651,41 @@ def run(machine: str, peak: str) -> None:
                 msg = f"{item['run_dir']} is finished but was produced by a different commit; ask the PI"
                 raise QueueError(msg)
             print(f"skip (done)  {item['id']}")
-            continue
-        run_item(item, machine)
+        else:
+            run_item(item, machine)
+        if (
+            item["stage"] == "2_determinism"
+            and not v1_comparison_path(machine).is_file()
+        ):
+            result = compare_with_v1(machine, item)
+            print(
+                f"Determinism check against your v1 run: {result['status']}", flush=True
+            )
+    if peak is None and load_queue()["machines"][machine]["second_tier"]:
+        log_event(machine, {"event": "waiting_for_peak"})
+        print(
+            "\nCore items finished. The second tier needs the learning rate chosen by the "
+            "pilot on isik (the first line of isik's report, for example 'pilot decision: 8e-5').\n"
+            f"Start the queue again with: ./scripts/phase2_queue_{machine}.sh run --peak <that value>"
+        )
+        return
     log_event(machine, {"event": "queue_complete", "peak": peak})
     print("\nAll items finished. Run the package command next.")
 
 
-def package(machine: str, peak: str) -> Path:
+def package(machine: str, requested_peak: str | None) -> Path:
     """Build the return packet with SHA-256 for every file."""
+    peak = effective_peak(machine, requested_peak)
     items = expand(machine, peak)
+    if machine == load_queue()["pilot"]["machine"]:
+        pilots = [
+            train_item("0_pilot", load_queue()["pilot"]["run"].format(peak=p), machine)
+            for p in PEAKS
+        ]
+        items = [
+            *pilots,
+            *[i for i in items if i["run_dir"] not in {p["run_dir"] for p in pilots}],
+        ]
     files: list[Path] = []
     statuses = {}
     for item in items:
@@ -573,6 +706,9 @@ def package(machine: str, peak: str) -> Path:
         files += [run_dir / n for n in names if (run_dir / n).is_file()]
     log_dir = REPOSITORY_ROOT / RUNS_ROOT / "queue_logs" / machine
     files += sorted(p for p in log_dir.glob("*") if p.is_file())
+    files += [
+        p for p in (pilot_decision_path(), v1_comparison_path(machine)) if p.is_file()
+    ]
     files = [f for f in files if not f.name.startswith(".env")]
     stamp = utc_now().replace(":", "")
     out_dir = REPOSITORY_ROOT / RUNS_ROOT / "return"
@@ -662,9 +798,7 @@ def _parser() -> argparse.ArgumentParser:
     for name in ("plan", "status", "run", "package", "table", "report"):
         sub = commands.add_parser(name)
         sub.add_argument("--machine", choices=("chee", "isik"), required=True)
-        sub.add_argument("--peak", choices=PEAKS, required=True)
-    pilot_cmd = commands.add_parser("pilot")
-    pilot_cmd.add_argument("--peak", choices=PEAKS, required=True)
+        sub.add_argument("--peak", choices=PEAKS, default=None)
     det = commands.add_parser("determinism")
     det.add_argument("left", type=Path)
     det.add_argument("right", type=Path)
@@ -680,11 +814,9 @@ def main(argv: Sequence[str] | None = None) -> int:
         if args.command in {"plan", "status"}:
             print_plan(args.machine, args.peak)
         elif args.command == "table":
-            print(markdown_table(args.machine, args.peak))
+            print(markdown_table(args.machine, args.peak or PEAKS[0]))
         elif args.command == "report":
             print(report(args.machine, args.peak))
-        elif args.command == "pilot":
-            print(json.dumps(pilot(args.peak), indent=2))
         elif args.command == "run":
             run(args.machine, args.peak)
         elif args.command == "package":
