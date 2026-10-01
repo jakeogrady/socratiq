@@ -1,5 +1,5 @@
 {
-  "checked_at": "2026-10-01T23:35:27+00:00",
+  "checked_at": "2026-10-01T23:55:27+00:00",
   "required_fields": [
     "status",
     "protocol.sha256",
@@ -32,21 +32,21 @@
       "return_code": 0,
       "missing_fields": [],
       "rows": 5,
-      "stderr_tail": "\nFetching 7 files:   0%|          | 0/7 [00:00<?, ?it/s]\nFetching 7 files: 100%|██████████| 7/7 [00:00<00:00, 84126.44it/s]\n"
+      "stderr_tail": "\nFetching 7 files:   0%|          | 0/7 [00:00<?, ?it/s]\nFetching 7 files: 100%|██████████| 7/7 [00:00<00:00, 82472.27it/s]\n"
     },
     "qwen3_1.7b_base/gsm8k/P4_greedy": {
       "passed": true,
       "return_code": 0,
       "missing_fields": [],
       "rows": 5,
-      "stderr_tail": "\nFetching 7 files:   0%|          | 0/7 [00:00<?, ?it/s]\nFetching 7 files: 100%|██████████| 7/7 [00:00<00:00, 88970.08it/s]\n"
+      "stderr_tail": "\nFetching 7 files:   0%|          | 0/7 [00:00<?, ?it/s]\nFetching 7 files: 100%|██████████| 7/7 [00:00<00:00, 142524.89it/s]\n"
     },
     "qwen3_0.6b_base/gsm_hard/P0_greedy": {
       "passed": true,
       "return_code": 0,
       "missing_fields": [],
       "rows": 5,
-      "stderr_tail": "\nFetching 7 files:   0%|          | 0/7 [00:00<?, ?it/s]\nFetching 7 files: 100%|██████████| 7/7 [00:00<00:00, 137196.86it/s]\n"
+      "stderr_tail": "\nFetching 7 files:   0%|          | 0/7 [00:00<?, ?it/s]\nFetching 7 files: 100%|██████████| 7/7 [00:00<00:00, 114241.74it/s]\n"
     },
     "llama3.2_1b_base/multiarith/P0_sc5": {
       "passed": true,

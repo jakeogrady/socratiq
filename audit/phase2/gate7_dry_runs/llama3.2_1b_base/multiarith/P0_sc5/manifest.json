@@ -1,10 +1,10 @@
 {
   "schema_version": "2.0",
   "status": "dry_run_completed",
-  "started_at": "2026-10-01T23:35:24+00:00",
+  "started_at": "2026-10-01T23:55:24+00:00",
   "protocol": {
     "path": "configs/revision_v2/protocol.yaml",
-    "sha256": "878614c51df8066e655d828cecb2b409d4cc9103c825bfb26f4fc5a5e2ed7386"
+    "sha256": "c762989911cedbbf020266569365aca950f17a3a7f59f39991241394a588d0c5"
   },
   "configuration": {
     "evaluator": "src.revision_v2.evaluate",
@@ -17,7 +17,7 @@
       "first_marked",
       "last_marked_fallback_last_number"
     ],
-    "protocol_sha256": "878614c51df8066e655d828cecb2b409d4cc9103c825bfb26f4fc5a5e2ed7386",
+    "protocol_sha256": "c762989911cedbbf020266569365aca950f17a3a7f59f39991241394a588d0c5",
     "condition_id": "llama3.2_1b_base",
     "model": "meta-llama/Llama-3.2-1B-Instruct",
     "model_revision": null,
@@ -55,7 +55,7 @@
     "limit": 5,
     "dry_run": true
   },
-  "configuration_sha256": "7c1fa5e5028ca68dcef1aa9c9d41fc9901ec3d28b9b2a976a90a278d6868fae0",
+  "configuration_sha256": "cf6f0ec1e29c63ca3868e9ad85aa40ae9935c24a822b77d3b39b5a21d8f5237e",
   "base_model": {
     "identifier": "meta-llama/Llama-3.2-1B-Instruct",
     "key": "llama3.2_1b",
@@ -80,7 +80,7 @@
     "few_shot_fingerprint": null
   },
   "environment": {
-    "collected_at": "2026-10-01T23:35:24+00:00",
+    "collected_at": "2026-10-01T23:55:24+00:00",
     "platform": "macOS-14.6.1-arm64-arm-64bit-Mach-O",
     "system": "Darwin",
     "release": "23.6.0",
@@ -96,13 +96,13 @@
     "disk": {
       "path": "/Users/eir/Desktop/JOG-FYP-2526/socratiq",
       "total_bytes": 994662584320,
-      "used_bytes": 811838963712,
-      "free_bytes": 182823620608
+      "used_bytes": 811858677760,
+      "free_bytes": 182803906560
     },
     "git": {
-      "commit": "e6d6f88381db4a5b7e5264ddb6147c73e380844c",
+      "commit": "c2e41cae91b019cc5c4ddfd44bb6e2839a08e6d5",
       "branch": "revision-v2",
-      "status_porcelain_tracked_only": "M .DS_Store"
+      "status_porcelain_tracked_only": "M .DS_Store\n D audit/phase2/GATES.md\n M audit/phase2/gate1_schedule_replay.json\n M audit/phase2/gate3_llama_date_renders/index.json\n M audit/phase2/gate4_llama_base_vs_meta.json\n M audit/phase2/gate5_pairing_audit.json\n M audit/phase2/gate6_v1_equivalence.json\n D audit/phase2/gate7_dry_runs/index.json\n D audit/phase2/gate7_dry_runs/llama3.2_1b_base/multiarith/P0_sc5/manifest.json\n D audit/phase2/gate7_dry_runs/llama3.2_1b_base/multiarith/P0_sc5/predictions.jsonl\n M audit/phase2/gate7_dry_runs/qwen3_0.6b_base/gsm8k/P0_greedy/manifest.json\n M audit/phase2/gate7_dry_runs/qwen3_0.6b_base/gsm8k/P0_greedy/predictions.jsonl\n M audit/phase2/gate7_dry_runs/qwen3_0.6b_base/gsm_hard/P0_greedy/manifest.json\n M audit/phase2/gate7_dry_runs/qwen3_0.6b_base/gsm_hard/P0_greedy/predictions.jsonl\n M audit/phase2/gate7_dry_runs/qwen3_1.7b_base/gsm8k/P4_greedy/manifest.json\n M audit/phase2/gate7_dry_runs/qwen3_1.7b_base/gsm8k/P4_greedy/predictions.jsonl\n D audit/phase2/gate7_dry_runs/training_dry_run_llama3.2_1b_socratic_lr8e-5.json\n D audit/phase2/gates.json"
     },
     "hardware": {
       "machine_name": "MacBook Pro",
@@ -126,7 +126,7 @@
     "derivation": "sha256(base_seed, condition_id, benchmark, item_index, sample_index)[:4]"
   },
   "prediction_path": "audit/phase2/gate7_dry_runs/llama3.2_1b_base/multiarith/P0_sc5/predictions.jsonl",
-  "completed_at": "2026-10-01T23:35:24+00:00",
+  "completed_at": "2026-10-01T23:55:24+00:00",
   "range": {
     "start": 0,
     "stop": 5,
@@ -172,6 +172,6 @@
     },
     "tie_breaks_generated": 0
   },
-  "elapsed_seconds_this_invocation": 0.01509841624647379,
-  "prediction_sha256": "f74c7e0a6142ed7da799383a99ca05e564b38c22c805545f0a5ebe9d538b1782"
+  "elapsed_seconds_this_invocation": 0.015567624941468239,
+  "prediction_sha256": "dc86a05d32b456f90e6f95174984b81c187b08b806410634d2595a294a67c622"
 }

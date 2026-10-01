@@ -1,5 +1,5 @@
 {
-  "checked_at": "2026-10-01T23:34:43+00:00",
+  "checked_at": "2026-10-01T23:54:43+00:00",
   "convention": "update k (1-based) uses scheduler step s = k - 1",
   "runs": {
     "qwen3_0.6b_socratic_lr8e-5": {

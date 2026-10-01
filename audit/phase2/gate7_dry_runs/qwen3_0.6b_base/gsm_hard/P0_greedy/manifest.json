@@ -1,10 +1,10 @@
 {
   "schema_version": "2.0",
   "status": "dry_run_completed",
-  "started_at": "2026-10-01T23:35:19+00:00",
+  "started_at": "2026-10-01T23:55:19+00:00",
   "protocol": {
     "path": "configs/revision_v2/protocol.yaml",
-    "sha256": "878614c51df8066e655d828cecb2b409d4cc9103c825bfb26f4fc5a5e2ed7386"
+    "sha256": "c762989911cedbbf020266569365aca950f17a3a7f59f39991241394a588d0c5"
   },
   "configuration": {
     "evaluator": "src.revision_v2.evaluate",
@@ -17,7 +17,7 @@
       "first_marked",
       "last_marked_fallback_last_number"
     ],
-    "protocol_sha256": "878614c51df8066e655d828cecb2b409d4cc9103c825bfb26f4fc5a5e2ed7386",
+    "protocol_sha256": "c762989911cedbbf020266569365aca950f17a3a7f59f39991241394a588d0c5",
     "condition_id": "qwen3_0.6b_base",
     "model": "mlx-community/Qwen3-0.6B-bf16",
     "model_revision": "42096995f6402fde107068cf530136fe64b604f8",
@@ -55,7 +55,7 @@
     "limit": 5,
     "dry_run": true
   },
-  "configuration_sha256": "0b3f7a4e398fd172483ede279c754e81cff6344b234347f1578847d6daa86beb",
+  "configuration_sha256": "bc4f398f4ee6c0f5fc1ffa1ca6113e04bf9b3b5790e10c19ede477d3fce642f4",
   "base_model": {
     "identifier": "mlx-community/Qwen3-0.6B-bf16",
     "key": "qwen3_0.6b",
@@ -81,7 +81,7 @@
     "few_shot_fingerprint": null
   },
   "environment": {
-    "collected_at": "2026-10-01T23:35:19+00:00",
+    "collected_at": "2026-10-01T23:55:18+00:00",
     "platform": "macOS-14.6.1-arm64-arm-64bit-Mach-O",
     "system": "Darwin",
     "release": "23.6.0",
@@ -97,13 +97,13 @@
     "disk": {
       "path": "/Users/eir/Desktop/JOG-FYP-2526/socratiq",
       "total_bytes": 994662584320,
-      "used_bytes": 811838885888,
-      "free_bytes": 182823698432
+      "used_bytes": 811858681856,
+      "free_bytes": 182803902464
     },
     "git": {
-      "commit": "e6d6f88381db4a5b7e5264ddb6147c73e380844c",
+      "commit": "c2e41cae91b019cc5c4ddfd44bb6e2839a08e6d5",
       "branch": "revision-v2",
-      "status_porcelain_tracked_only": "M .DS_Store"
+      "status_porcelain_tracked_only": "M .DS_Store\n D audit/phase2/GATES.md\n M audit/phase2/gate1_schedule_replay.json\n M audit/phase2/gate3_llama_date_renders/index.json\n M audit/phase2/gate4_llama_base_vs_meta.json\n M audit/phase2/gate5_pairing_audit.json\n M audit/phase2/gate6_v1_equivalence.json\n D audit/phase2/gate7_dry_runs/index.json\n D audit/phase2/gate7_dry_runs/llama3.2_1b_base/multiarith/P0_sc5/manifest.json\n D audit/phase2/gate7_dry_runs/llama3.2_1b_base/multiarith/P0_sc5/predictions.jsonl\n M audit/phase2/gate7_dry_runs/qwen3_0.6b_base/gsm8k/P0_greedy/manifest.json\n M audit/phase2/gate7_dry_runs/qwen3_0.6b_base/gsm8k/P0_greedy/predictions.jsonl\n D audit/phase2/gate7_dry_runs/qwen3_0.6b_base/gsm_hard/P0_greedy/manifest.json\n D audit/phase2/gate7_dry_runs/qwen3_0.6b_base/gsm_hard/P0_greedy/predictions.jsonl\n M audit/phase2/gate7_dry_runs/qwen3_1.7b_base/gsm8k/P4_greedy/manifest.json\n M audit/phase2/gate7_dry_runs/qwen3_1.7b_base/gsm8k/P4_greedy/predictions.jsonl\n D audit/phase2/gate7_dry_runs/training_dry_run_llama3.2_1b_socratic_lr8e-5.json\n D audit/phase2/gates.json"
     },
     "hardware": {
       "machine_name": "MacBook Pro",
@@ -127,7 +127,7 @@
     "derivation": "sha256(base_seed, condition_id, benchmark, item_index, sample_index)[:4]"
   },
   "prediction_path": "audit/phase2/gate7_dry_runs/qwen3_0.6b_base/gsm_hard/P0_greedy/predictions.jsonl",
-  "completed_at": "2026-10-01T23:35:19+00:00",
+  "completed_at": "2026-10-01T23:55:19+00:00",
   "range": {
     "start": 0,
     "stop": 5,
@@ -173,6 +173,6 @@
     },
     "tie_breaks_generated": 0
   },
-  "elapsed_seconds_this_invocation": 0.015271082986146212,
-  "prediction_sha256": "10493bbd1dba196975b961a97dff0582ba27a9f1bb4cc70a5808bed9577128d3"
+  "elapsed_seconds_this_invocation": 0.014572791755199432,
+  "prediction_sha256": "305fea5ffbcc0567fa36fe004119a24b76c9e15772b6c188626fad0611e1c90a"
 }

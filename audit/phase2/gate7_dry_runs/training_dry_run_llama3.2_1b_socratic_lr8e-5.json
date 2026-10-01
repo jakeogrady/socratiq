@@ -2,7 +2,7 @@
   "schema_version": "2.0",
   "protocol": {
     "path": "configs/revision_v2/protocol.yaml",
-    "sha256": "878614c51df8066e655d828cecb2b409d4cc9103c825bfb26f4fc5a5e2ed7386"
+    "sha256": "c762989911cedbbf020266569365aca950f17a3a7f59f39991241394a588d0c5"
   },
   "run_id": "llama3.2_1b_socratic_lr8e-5",
   "tier": "core",
@@ -10,7 +10,7 @@
   "peak_variant": "default",
   "seed": 42,
   "status": "dry_run",
-  "created_at": "2026-10-01T23:35:27+00:00",
+  "created_at": "2026-10-01T23:55:27+00:00",
   "configuration_path": "configs/revision_v2/training/llama3.2_1b_socratic_lr8e-5.yaml",
   "configuration_file_sha256": "a4502cb00c99d4cb79ebae0e22b7ce15885da1deb73c0f030b188c6288d5f058",
   "configuration": {
@@ -107,7 +107,7 @@
     }
   },
   "environment": {
-    "collected_at": "2026-10-01T23:35:27+00:00",
+    "collected_at": "2026-10-01T23:55:26+00:00",
     "platform": "macOS-14.6.1-arm64-arm-64bit-Mach-O",
     "system": "Darwin",
     "release": "23.6.0",
@@ -123,13 +123,13 @@
     "disk": {
       "path": "/Users/eir/Desktop/JOG-FYP-2526/socratiq",
       "total_bytes": 994662584320,
-      "used_bytes": 811834445824,
-      "free_bytes": 182828138496
+      "used_bytes": 811858788352,
+      "free_bytes": 182803795968
     },
     "git": {
-      "commit": "e6d6f88381db4a5b7e5264ddb6147c73e380844c",
+      "commit": "c2e41cae91b019cc5c4ddfd44bb6e2839a08e6d5",
       "branch": "revision-v2",
-      "status_porcelain_tracked_only": "M .DS_Store"
+      "status_porcelain_tracked_only": "M .DS_Store\n D audit/phase2/GATES.md\n M audit/phase2/gate1_schedule_replay.json\n M audit/phase2/gate3_llama_date_renders/index.json\n M audit/phase2/gate4_llama_base_vs_meta.json\n M audit/phase2/gate5_pairing_audit.json\n M audit/phase2/gate6_v1_equivalence.json\n D audit/phase2/gate7_dry_runs/index.json\n M audit/phase2/gate7_dry_runs/llama3.2_1b_base/multiarith/P0_sc5/manifest.json\n M audit/phase2/gate7_dry_runs/llama3.2_1b_base/multiarith/P0_sc5/predictions.jsonl\n M audit/phase2/gate7_dry_runs/qwen3_0.6b_base/gsm8k/P0_greedy/manifest.json\n M audit/phase2/gate7_dry_runs/qwen3_0.6b_base/gsm8k/P0_greedy/predictions.jsonl\n M audit/phase2/gate7_dry_runs/qwen3_0.6b_base/gsm_hard/P0_greedy/manifest.json\n M audit/phase2/gate7_dry_runs/qwen3_0.6b_base/gsm_hard/P0_greedy/predictions.jsonl\n M audit/phase2/gate7_dry_runs/qwen3_1.7b_base/gsm8k/P4_greedy/manifest.json\n M audit/phase2/gate7_dry_runs/qwen3_1.7b_base/gsm8k/P4_greedy/predictions.jsonl\n D audit/phase2/gate7_dry_runs/training_dry_run_llama3.2_1b_socratic_lr8e-5.json\n D audit/phase2/gates.json"
     },
     "hardware": {
       "machine_name": "MacBook Pro",
