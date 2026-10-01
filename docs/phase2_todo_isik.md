@@ -1,8 +1,7 @@
 # Checklist for `isik` (revision-v2 runs)
 
-Work through the boxes in order. Each step gives the command, what you should
-see, and what to send the PI. Run every command in Terminal from the
-repository folder. Copy commands from this file, not from email, because email
+Work through the boxes in order. Each step gives the command and what you
+should see. Run every command in Terminal from the repository folder. Copy commands from this file, not from email, because email
 can change quote characters. The background is in `docs/phase2_runbook.md`.
 
 **Your machine runs** the pilot, then the Qwen3-0.6B pair, the Llama pair and
@@ -29,10 +28,10 @@ queue carries on.
   ```sh
   git fetch origin --tags
   git checkout protocol-v2-frozen
-  git log -1 --oneline
+  git describe --tags --exact-match
   ```
 
-  The last line must show the commit given in the PI's email.
+  The last command must print `protocol-v2-frozen`.
 
 - [ ] **3. Archive v1 (10–20 min)**
 
@@ -63,9 +62,6 @@ queue carries on.
 
   The last line must be `Setup passed on isik. No training or evaluation was started.`
 
-  ✉ **Send the PI:** the line in `~/Desktop/socratiq-v1-archive-isik.tar.sha256`
-  and the last 5 lines of the setup output.
-
 ## Run
 
 - [ ] **6. Start the queue**
@@ -82,8 +78,6 @@ queue carries on.
 
   Leave the window open and the Mac plugged in.
 
-  ✉ **Send the PI:** the first 5 lines on screen.
-
 - [ ] **7. Tell Chee the pilot's learning rate**
 
   After the pilot line appears, run:
@@ -94,15 +88,13 @@ queue carries on.
 
   The first line reads `pilot decision: 8e-5 …` (or `4e-5`).
 
-  ✉ **Email that line to Chee and the PI.** Chee's machine needs it later for its last runs.
+  ✉ **Email that line to Chee.** Chee's machine needs it later for its last runs.
 
-- [ ] **8. Send a report from time to time**
+- [ ] **8. Check progress whenever you like (optional)**
 
   ```sh
   ./scripts/phase2_queue_isik.sh report
   ```
-
-  ✉ **Send the PI** the whole output.
 
   - Every finished training line must end in `OK`, with
     `LR update16 8.000e-05 (expected 8.000e-05) update188 1.000e-06 (expected 1.000e-06)`.
@@ -113,33 +105,30 @@ queue carries on.
 
 - [ ] **9. Package and return**
 
-  When the report's last line says `done 45`, or when the PI asks you to stop
-  (press Ctrl-C once in the queue window and wait for the prompt), run:
+  When the queue window prints `All items finished`, run:
 
   ```sh
   ./scripts/phase2_queue_isik.sh package
-  ./scripts/phase2_queue_isik.sh report
   ```
+
+  If the PI asks you to stop early, press Ctrl-C once in the queue window,
+  wait for the prompt, and run the same command.
 
   This creates `runs/revision_v2/return/socratiq-v2-isik-<time>.tar.gz` and a
   `.sha256` file. Upload both to OneDrive, or copy them to an external drive.
 
-  ✉ **Send the PI:** the link or location, the `.sha256` line, and the final report.
+  ✉ **Send the PI:** the link or location and the `.sha256` line. Unless
+  something goes wrong, this is the only thing you send.
 
 ## If something goes wrong
 
 - **The queue prints `STOP:` or a report line says `CHECK`:** do not rerun,
-  edit, delete or move anything. Send the PI:
-  - the `STOP` message;
-  - the log path it names;
-  - `runs/revision_v2/queue_logs/isik/queue_events.jsonl`.
-
-  Restart only when the PI says so, with the same `run` command.
+  edit, delete or move anything. Send the PI the `STOP` message (or the
+  `CHECK` line) and attach the log file it names. Restart only when the PI
+  says so, with the same `run` command.
 - **The Mac restarted or lost power:** open the repository folder and run
   `./scripts/phase2_queue_isik.sh run` again.
   - Finished items, including the pilot and its decision, are kept.
   - An interrupted evaluation continues where it stopped.
   - An interrupted training run is set aside (never deleted) and restarted.
-
-  Tell the PI it happened.
 - **Never** edit code or configs, touch `runs/reviewer_rerun/`, or include `.env` in anything you send.

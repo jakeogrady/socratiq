@@ -2,7 +2,7 @@
 
 Reference for the two students running the revision-v2 experiments on the M4
 Pro machines. **Start with your checklist,** which lists your steps in order
-and what to send the PI after each one:
+and what you should see:
 
 - `isik`: `docs/phase2_todo_isik.md`
 - `chee`: `docs/phase2_todo_chee.md`
@@ -19,14 +19,14 @@ repository folder in Terminal.
 - on `chee` only, four extra Qwen3-0.6B runs on smaller data subsets (the second tier).
 
 The protocol is frozen in the tag `protocol-v2-frozen`. The code checks every
-setting itself, so your job is to start the queue, send reports, and return
-the results. Nothing requires waiting for approval.
+setting itself, so your job is to set up, start the queue, and return the
+results. Nothing requires waiting for approval or reporting along the way.
 
 ## 0. Rules
 
 1. **Never edit code, configs or data.** If anything looks wrong, stop and ask the PI.
 2. **Never touch `runs/reviewer_rerun/`.** The old (v1) results stay exactly as they are.
-3. **On any failure, stop.** Do not retry, delete or "fix" anything. Send the log (section 6).
+3. **On any failure, stop.** Do not retry, delete or "fix" anything. Send the PI the message and the log (section 6).
 4. **Keep `.env` out of every archive and transfer.** No step here needs it.
 5. **Run only the commands in your checklist and this file.** In particular, do not run `make phase2-gates`.
 

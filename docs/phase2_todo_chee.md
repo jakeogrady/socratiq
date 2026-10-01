@@ -1,8 +1,7 @@
 # Checklist for `chee` (revision-v2 runs)
 
-Work through the boxes in order. Each step gives the command, what you should
-see, and what to send the PI. Run every command in Terminal from the
-repository folder. Copy commands from this file, not from email, because email
+Work through the boxes in order. Each step gives the command and what you
+should see. Run every command in Terminal from the repository folder. Copy commands from this file, not from email, because email
 can change quote characters. The background is in `docs/phase2_runbook.md`.
 
 **Your machine runs** the Qwen3-1.7B pair, the Qwen3-1.7B and Llama base
@@ -30,10 +29,10 @@ queue tells you when.
   ```sh
   git fetch origin --tags
   git checkout protocol-v2-frozen
-  git log -1 --oneline
+  git describe --tags --exact-match
   ```
 
-  The last line must show the commit given in the PI's email.
+  The last command must print `protocol-v2-frozen`.
 
 - [ ] **3. Archive v1 (10–20 min)**
 
@@ -64,9 +63,6 @@ queue tells you when.
 
   The last line must be `Setup passed on chee. No training or evaluation was started.`
 
-  ✉ **Send the PI:** the line in `~/Desktop/socratiq-v1-archive-chee.tar.sha256`
-  and the last 5 lines of the setup output.
-
 ## Run
 
 - [ ] **6. Start the queue**
@@ -77,8 +73,6 @@ queue tells you when.
 
   The first item is `=== 1_core_training/qwen3_1.7b_socratic_lr1e-4 ===`
   (about 4 hours). Leave the window open and the Mac plugged in.
-
-  ✉ **Send the PI:** the first 5 lines on screen.
 
 - [ ] **7. Add the pilot's learning rate when the queue asks for it**
 
@@ -94,15 +88,13 @@ queue tells you when.
 
   Already-finished items are skipped, and the second tier (20 more items) starts.
 
-- [ ] **8. Send a report from time to time**
+- [ ] **8. Check progress whenever you like (optional)**
 
   ```sh
   ./scripts/phase2_queue_chee.sh report
   ```
 
   Once you know `PEAK`, add `--peak PEAK` to this command.
-
-  ✉ **Send the PI** the whole output.
 
   - Every finished training line must end in `OK`, with these values:
     - Qwen3-1.7B: `LR update16 9.844e-05 (expected 9.844e-05) update188 1.000e-06 (expected 1.000e-06)`.
@@ -113,33 +105,30 @@ queue tells you when.
 
 - [ ] **9. Package and return**
 
-  When the report's last line says `done 55`, or when the PI asks you to stop
-  (press Ctrl-C once in the queue window and wait for the prompt), run:
+  When the queue window prints `All items finished`, run:
 
   ```sh
   ./scripts/phase2_queue_chee.sh package --peak PEAK
-  ./scripts/phase2_queue_chee.sh report --peak PEAK
   ```
+
+  If the PI asks you to stop early, press Ctrl-C once in the queue window,
+  wait for the prompt, and run the same command.
 
   This creates `runs/revision_v2/return/socratiq-v2-chee-<time>.tar.gz` and a
   `.sha256` file. Upload both to OneDrive, or copy them to an external drive.
 
-  ✉ **Send the PI:** the link or location, the `.sha256` line, and the final report.
+  ✉ **Send the PI:** the link or location and the `.sha256` line. Unless
+  something goes wrong, this is the only thing you send.
 
 ## If something goes wrong
 
 - **The queue prints `STOP:` or a report line says `CHECK`:** do not rerun,
-  edit, delete or move anything. Send the PI:
-  - the `STOP` message;
-  - the log path it names;
-  - `runs/revision_v2/queue_logs/chee/queue_events.jsonl`.
-
-  Restart only when the PI says so, with the same `run` command.
+  edit, delete or move anything. Send the PI the `STOP` message (or the
+  `CHECK` line) and attach the log file it names. Restart only when the PI
+  says so, with the same `run` command.
 - **The Mac restarted or lost power:** open the repository folder and run the
   same `run` command again. Add `--peak PEAK` if you already have it.
   - Finished items are skipped.
   - An interrupted evaluation continues where it stopped.
   - An interrupted training run is set aside (never deleted) and restarted.
-
-  Tell the PI it happened.
 - **Never** edit code or configs, touch `runs/reviewer_rerun/`, or include `.env` in anything you send.
