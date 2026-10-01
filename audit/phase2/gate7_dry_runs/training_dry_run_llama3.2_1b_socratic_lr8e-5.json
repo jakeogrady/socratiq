@@ -1,0 +1,157 @@
+{
+  "schema_version": "2.0",
+  "protocol": {
+    "path": "configs/revision_v2/protocol.yaml",
+    "sha256": "878614c51df8066e655d828cecb2b409d4cc9103c825bfb26f4fc5a5e2ed7386"
+  },
+  "run_id": "llama3.2_1b_socratic_lr8e-5",
+  "tier": "core",
+  "arm": "socratic",
+  "peak_variant": "default",
+  "seed": 42,
+  "status": "dry_run",
+  "created_at": "2026-10-01T23:35:27+00:00",
+  "configuration_path": "configs/revision_v2/training/llama3.2_1b_socratic_lr8e-5.yaml",
+  "configuration_file_sha256": "a4502cb00c99d4cb79ebae0e22b7ce15885da1deb73c0f030b188c6288d5f058",
+  "configuration": {
+    "run_id": "llama3.2_1b_socratic_lr8e-5",
+    "model": "models/revision_v2/llama3.2-1b-instruct-meta-bf16",
+    "model_directory_sha256": "4990058eddea56ac54c5800131a87fdb128f69fbfa3a9a9d6bff7d047760e07a",
+    "model_precision": "bfloat16",
+    "train": true,
+    "fine_tune_type": "lora",
+    "optimizer": "adamw",
+    "optimizer_config": {
+      "adamw": {
+        "betas": [
+          0.9,
+          0.98
+        ],
+        "eps": 1e-06,
+        "weight_decay": 0.01
+      }
+    },
+    "learning_rate": 8e-05,
+    "lr_schedule": {
+      "name": "cosine_decay",
+      "arguments": [
+        8e-05,
+        171,
+        1e-06
+      ],
+      "warmup": 15,
+      "warmup_init": 5e-06
+    },
+    "iters": 6016,
+    "seed": 42,
+    "save_every": 200,
+    "steps_per_report": 10,
+    "steps_per_eval": 200,
+    "val_batches": 25,
+    "batch_size": 4,
+    "grad_accumulation_steps": 32,
+    "max_seq_length": 2048,
+    "num_layers": 16,
+    "grad_checkpoint": true,
+    "mask_prompt": false,
+    "data": "data/revision_v2/full/socratic",
+    "prompt_feature": "question",
+    "completion_feature": "answer",
+    "test": false,
+    "adapter_path": "runs/revision_v2/training/llama3.2_1b_socratic_lr8e-5/adapter",
+    "lora_parameters": {
+      "keys": [
+        "self_attn.q_proj",
+        "self_attn.k_proj",
+        "self_attn.v_proj",
+        "self_attn.o_proj",
+        "mlp.gate_proj",
+        "mlp.up_proj",
+        "mlp.down_proj"
+      ],
+      "rank": 16,
+      "scale": 24.0,
+      "dropout": 0.05
+    }
+  },
+  "configuration_sha256": "e559843de5c08cbb18bb985a67c94cee78f2637ac7eb968b846064dea8d60021",
+  "schedule_expectation": {
+    "optimizer_updates": 188,
+    "discarded_microbatches": 0,
+    "peak_lr": 7.999999797903001e-05,
+    "peak_updates": [
+      16,
+      17
+    ],
+    "lr_update_16": 7.999999797903001e-05,
+    "lr_update_188": 9.999999974752427e-07
+  },
+  "model": {
+    "identifier": "models/revision_v2/llama3.2-1b-instruct-meta-bf16",
+    "kind": "local",
+    "directory_sha256": "4990058eddea56ac54c5800131a87fdb128f69fbfa3a9a9d6bff7d047760e07a",
+    "load_path": "models/revision_v2/llama3.2-1b-instruct-meta-bf16"
+  },
+  "dataset": {
+    "train": {
+      "path": "data/revision_v2/full/socratic/train.jsonl",
+      "sha256": "0129baef8f4f75931ff8568e0036ad45894260e9d641d27353aa503f9ddcb775",
+      "expected_sha256": "0129baef8f4f75931ff8568e0036ad45894260e9d641d27353aa503f9ddcb775",
+      "rows": 18000
+    },
+    "valid": {
+      "path": "data/revision_v2/full/socratic/valid.jsonl",
+      "sha256": "3c0f45f2fadf4931780f16c3266ed3a03b66588bbfd0608ad6ca260d9fe479c6",
+      "expected_sha256": "3c0f45f2fadf4931780f16c3266ed3a03b66588bbfd0608ad6ca260d9fe479c6",
+      "rows": 2000
+    }
+  },
+  "environment": {
+    "collected_at": "2026-10-01T23:35:27+00:00",
+    "platform": "macOS-14.6.1-arm64-arm-64bit-Mach-O",
+    "system": "Darwin",
+    "release": "23.6.0",
+    "machine": {
+      "label": null,
+      "hostname": "MBPro-EIR",
+      "user": "eir",
+      "os": "macOS-14.6.1-arm64-arm-64bit-Mach-O"
+    },
+    "processor": "arm",
+    "python": "3.13.2 | packaged by Anaconda, Inc. | (main, Feb  6 2025, 12:55:35) [Clang 14.0.6 ]",
+    "python_executable": "/Users/eir/Desktop/JOG-FYP-2526/socratiq/.venv/bin/python",
+    "disk": {
+      "path": "/Users/eir/Desktop/JOG-FYP-2526/socratiq",
+      "total_bytes": 994662584320,
+      "used_bytes": 811834445824,
+      "free_bytes": 182828138496
+    },
+    "git": {
+      "commit": "e6d6f88381db4a5b7e5264ddb6147c73e380844c",
+      "branch": "revision-v2",
+      "status_porcelain_tracked_only": "M .DS_Store"
+    },
+    "hardware": {
+      "machine_name": "MacBook Pro",
+      "model": "Mac14,5",
+      "chip": "Apple M2 Max",
+      "physical_memory": "64 GB",
+      "memory_bytes": 68719476736,
+      "processors": "proc 12:8:4"
+    },
+    "packages": {
+      "mlx": "0.30.3",
+      "mlx-lm": "0.29.1",
+      "transformers": "4.57.3",
+      "datasets": "4.4.2",
+      "openai": "2.21.0",
+      "PyYAML": "6.0.3"
+    }
+  },
+  "command": [
+    "/Users/eir/Desktop/JOG-FYP-2526/socratiq/.venv/bin/mlx_lm.lora",
+    "--config",
+    "configs/revision_v2/training/llama3.2_1b_socratic_lr8e-5.yaml"
+  ],
+  "run_dir": "runs/revision_v2/training/llama3.2_1b_socratic_lr8e-5"
+}

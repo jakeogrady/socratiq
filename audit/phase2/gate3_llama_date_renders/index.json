@@ -1,0 +1,22 @@
+{
+  "checked_at": "2026-10-01T23:34:49+00:00",
+  "rendered_on_date": "2026-10-01",
+  "template_references_strftime_now": false,
+  "dates_found": {
+    "training_socratic": [
+      "26 Jul 2024"
+    ],
+    "training_non_socratic": [
+      "26 Jul 2024"
+    ],
+    "evaluation_P0_gsm8k": [
+      "26 Jul 2024"
+    ],
+    "evaluation_P0_multiarith": [
+      "26 Jul 2024"
+    ],
+    "evaluation_P4_gsm8k": [
+      "26 Jul 2024"
+    ]
+  }
+}

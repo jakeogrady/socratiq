@@ -1,0 +1,59 @@
+{
+  "gate1": {
+    "passed": true,
+    "evidence": "audit/phase2/gate1_schedule_replay.json",
+    "configs": 18,
+    "checked_at": "2026-10-01T23:34:43+00:00",
+    "git_commit": "e6d6f88381db4a5b7e5264ddb6147c73e380844c"
+  },
+  "gate2": {
+    "passed": true,
+    "evidence": "audit/phase2/gate2_training_renders/",
+    "renders": 6,
+    "checked_at": "2026-10-01T23:34:47+00:00",
+    "git_commit": "e6d6f88381db4a5b7e5264ddb6147c73e380844c"
+  },
+  "gate3": {
+    "passed": true,
+    "evidence": "audit/phase2/gate3_llama_date_renders/",
+    "dates_found": [
+      "26 Jul 2024"
+    ],
+    "checked_at": "2026-10-01T23:34:49+00:00",
+    "git_commit": "e6d6f88381db4a5b7e5264ddb6147c73e380844c"
+  },
+  "gate4": {
+    "passed": true,
+    "evidence": "audit/phase2/gate4_llama_base_vs_meta.json",
+    "tensors_bitwise_equal": "146/146",
+    "checked_at": "2026-10-01T23:34:59+00:00",
+    "git_commit": "e6d6f88381db4a5b7e5264ddb6147c73e380844c"
+  },
+  "gate5": {
+    "passed": true,
+    "evidence": "audit/phase2/gate5_pairing_audit.json",
+    "rows": 20000,
+    "non_socratic_identical_to_v1": 20000,
+    "socratic_identical_to_v1": 18419,
+    "socratic_differs_only_by_collapsed_question_marks": 20000,
+    "checked_at": "2026-10-01T23:35:08+00:00",
+    "git_commit": "e6d6f88381db4a5b7e5264ddb6147c73e380844c"
+  },
+  "gate6": {
+    "passed": true,
+    "evidence": "audit/phase2/gate6_scorer_tests.txt, audit/phase2/gate6_v1_equivalence.json",
+    "tests_run": 18,
+    "runs": 64,
+    "decisions": 49888,
+    "mismatches": 0,
+    "checked_at": "2026-10-01T23:35:09+00:00",
+    "git_commit": "e6d6f88381db4a5b7e5264ddb6147c73e380844c"
+  },
+  "gate7": {
+    "passed": true,
+    "evidence": "audit/phase2/gate7_dry_runs/",
+    "dry_runs": 4,
+    "checked_at": "2026-10-01T23:35:27+00:00",
+    "git_commit": "e6d6f88381db4a5b7e5264ddb6147c73e380844c"
+  }
+}

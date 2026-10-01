@@ -1,0 +1,16 @@
+<|begin_of_text|><|start_header_id|>system<|end_header_id|>
+
+Cutting Knowledge Date: December 2023
+Today Date: 26 Jul 2024
+
+<|eot_id|><|start_header_id|>user<|end_header_id|>
+
+Aisha was half her aunt's age when her aunt died. If her aunt were alive now, ten years later, she would have been 72. They lived on Maple Street. How old is Aisha currently?<|eot_id|><|start_header_id|>assistant<|end_header_id|>
+
+How old was the aunt when she died based on the age she would have been ten years later?
+The aunt would have been 72 ten years later, so she must have died 10 years before that, making her age at death 72 - 10 = 62 years old.
+How old was Aisha at the time of her aunt's death if she was half her aunt's age then?
+Aisha's age at that time was half of 62, so she was 1/2 × 62 = 31 years old when the aunt died.
+How old is Aisha now, ten years after the aunt's death?
+Ten years have passed since the aunt's death, so Aisha's current age is 31 + 10 = 41 years old.
+#### 41<|eot_id|>

@@ -1,0 +1,91 @@
+{
+  "checked_at": "2026-10-01T23:35:08+00:00",
+  "audit_of_written_files": {
+    "directories": {
+      "full": {
+        "train": {
+          "status": "passed",
+          "rows": 18000,
+          "guiding_questions_collapsed": 4057,
+          "problems": [],
+          "problem_count": 0,
+          "unique_example_ids": true
+        },
+        "valid": {
+          "status": "passed",
+          "rows": 2000,
+          "guiding_questions_collapsed": 478,
+          "problems": [],
+          "problem_count": 0,
+          "unique_example_ids": true
+        },
+        "train_subset_of_v1_train": true,
+        "valid_equals_v1_valid": true,
+        "sources_in_both_splits": 0,
+        "train_equals_v1_train": true,
+        "order_changed_from_v1": true
+      },
+      "subset_5k": {
+        "train": {
+          "status": "passed",
+          "rows": 5000,
+          "guiding_questions_collapsed": 1071,
+          "problems": [],
+          "problem_count": 0,
+          "unique_example_ids": true
+        },
+        "valid": {
+          "status": "passed",
+          "rows": 2000,
+          "guiding_questions_collapsed": 478,
+          "problems": [],
+          "problem_count": 0,
+          "unique_example_ids": true
+        },
+        "train_subset_of_v1_train": true,
+        "valid_equals_v1_valid": true,
+        "sources_in_both_splits": 0,
+        "whole_source_groups": true
+      },
+      "subset_10k": {
+        "train": {
+          "status": "passed",
+          "rows": 10000,
+          "guiding_questions_collapsed": 2250,
+          "problems": [],
+          "problem_count": 0,
+          "unique_example_ids": true
+        },
+        "valid": {
+          "status": "passed",
+          "rows": 2000,
+          "guiding_questions_collapsed": 478,
+          "problems": [],
+          "problem_count": 0,
+          "unique_example_ids": true
+        },
+        "train_subset_of_v1_train": true,
+        "valid_equals_v1_valid": true,
+        "sources_in_both_splits": 0,
+        "whole_source_groups": true
+      }
+    },
+    "subsets_nested": true,
+    "subset_rows": {
+      "5k": 5000,
+      "10k": 10000
+    },
+    "status": "passed"
+  },
+  "deterministic_rebuild": {
+    "status": "passed",
+    "mismatched_files": [],
+    "audit_status": "passed"
+  },
+  "cross_check_against_v1_files": {
+    "rows": 20000,
+    "non_socratic_identical_to_v1": 20000,
+    "socratic_identical_to_v1": 18419,
+    "socratic_differs_only_by_collapsed_question_marks": 20000
+  }
+}

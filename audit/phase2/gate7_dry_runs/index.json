@@ -1,0 +1,59 @@
+{
+  "checked_at": "2026-10-01T23:35:27+00:00",
+  "required_fields": [
+    "status",
+    "protocol.sha256",
+    "configuration.evaluator_code_sha256",
+    "configuration.scorer_code_sha256",
+    "configuration.prompt",
+    "configuration.mode",
+    "configuration.decoding",
+    "configuration.max_tokens",
+    "configuration_sha256",
+    "base_model",
+    "dataset.requested_revision",
+    "seeds.base_seed",
+    "environment.machine.hostname",
+    "environment.platform",
+    "environment.packages.mlx",
+    "environment.packages.mlx-lm",
+    "environment.git.commit",
+    "summary.rules.last_marked",
+    "summary.rules.first_marked",
+    "summary.rules.last_marked_fallback_last_number",
+    "summary.diagnostics_responses",
+    "summary.finish_reasons",
+    "summary.response_tokens",
+    "prediction_sha256"
+  ],
+  "runs": {
+    "qwen3_0.6b_base/gsm8k/P0_greedy": {
+      "passed": true,
+      "return_code": 0,
+      "missing_fields": [],
+      "rows": 5,
+      "stderr_tail": "\nFetching 7 files:   0%|          | 0/7 [00:00<?, ?it/s]\nFetching 7 files: 100%|██████████| 7/7 [00:00<00:00, 84126.44it/s]\n"
+    },
+    "qwen3_1.7b_base/gsm8k/P4_greedy": {
+      "passed": true,
+      "return_code": 0,
+      "missing_fields": [],
+      "rows": 5,
+      "stderr_tail": "\nFetching 7 files:   0%|          | 0/7 [00:00<?, ?it/s]\nFetching 7 files: 100%|██████████| 7/7 [00:00<00:00, 88970.08it/s]\n"
+    },
+    "qwen3_0.6b_base/gsm_hard/P0_greedy": {
+      "passed": true,
+      "return_code": 0,
+      "missing_fields": [],
+      "rows": 5,
+      "stderr_tail": "\nFetching 7 files:   0%|          | 0/7 [00:00<?, ?it/s]\nFetching 7 files: 100%|██████████| 7/7 [00:00<00:00, 137196.86it/s]\n"
+    },
+    "llama3.2_1b_base/multiarith/P0_sc5": {
+      "passed": true,
+      "return_code": 0,
+      "missing_fields": [],
+      "rows": 5,
+      "stderr_tail": ""
+    }
+  }
+}

@@ -1,0 +1,1601 @@
+{
+  "checked_at": "2026-10-01T23:34:59+00:00",
+  "meta_file_matches_published_sha256": true,
+  "checkpoint_verification": {
+    "path": "/Users/eir/Desktop/JOG-FYP-2526/socratiq/models/revision_v2/llama3.2-1b-instruct-meta-bf16",
+    "status": "passed",
+    "problems": [],
+    "directory_sha256": "4990058eddea56ac54c5800131a87fdb128f69fbfa3a9a9d6bff7d047760e07a"
+  },
+  "left": "/Users/eir/Desktop/JOG-FYP-2526/socratiq/audit/downloads/llama3.2_1b_meta_weights_via_unsloth_mirror@5a8abab/model.safetensors",
+  "right": "/Users/eir/Desktop/JOG-FYP-2526/socratiq/models/revision_v2/llama3.2-1b-instruct-meta-bf16/model.safetensors",
+  "left_sha256": "1ff795ff6a07e6a68085d206fb84417da2f083f68391c2843cd2b8ac6df8538f",
+  "right_sha256": "f5dc593b89368a9a44a8fc3b2dacd7a3d65e43acb4ffbd98a1a40fac9c2bd6da",
+  "left_header_metadata": {
+    "format": "pt"
+  },
+  "right_header_metadata": {
+    "format": "mlx"
+  },
+  "only_in_left": [],
+  "only_in_right": [],
+  "tensors_compared": 146,
+  "tensors_bytes_equal": 146,
+  "parameter_bytes_compared": 2471628800,
+  "all_tensors_bitwise_equal": true,
+  "tensors": [
+    {
+      "tensor": "model.embed_tokens.weight",
+      "dtype": "BF16",
+      "shape": [
+        128256,
+        2048
+      ],
+      "metadata_equal": true,
+      "bytes_equal": true,
+      "nbytes": 525336576
+    },
+    {
+      "tensor": "model.layers.0.input_layernorm.weight",
+      "dtype": "BF16",
+      "shape": [
+        2048
+      ],
+      "metadata_equal": true,
+      "bytes_equal": true,
+      "nbytes": 4096
+    },
+    {
+      "tensor": "model.layers.0.mlp.down_proj.weight",
+      "dtype": "BF16",
+      "shape": [
+        2048,
+        8192
+      ],
+      "metadata_equal": true,
+      "bytes_equal": true,
+      "nbytes": 33554432
+    },
+    {
+      "tensor": "model.layers.0.mlp.gate_proj.weight",
+      "dtype": "BF16",
+      "shape": [
+        8192,
+        2048
+      ],
+      "metadata_equal": true,
+      "bytes_equal": true,
+      "nbytes": 33554432
+    },
+    {
+      "tensor": "model.layers.0.mlp.up_proj.weight",
+      "dtype": "BF16",
+      "shape": [
+        8192,
+        2048
+      ],
+      "metadata_equal": true,
+      "bytes_equal": true,
+      "nbytes": 33554432
+    },
+    {
+      "tensor": "model.layers.0.post_attention_layernorm.weight",
+      "dtype": "BF16",
+      "shape": [
+        2048
+      ],
+      "metadata_equal": true,
+      "bytes_equal": true,
+      "nbytes": 4096
+    },
+    {
+      "tensor": "model.layers.0.self_attn.k_proj.weight",
+      "dtype": "BF16",
+      "shape": [
+        512,
+        2048
+      ],
+      "metadata_equal": true,
+      "bytes_equal": true,
+      "nbytes": 2097152
+    },
+    {
+      "tensor": "model.layers.0.self_attn.o_proj.weight",
+      "dtype": "BF16",
+      "shape": [
+        2048,
+        2048
+      ],
+      "metadata_equal": true,
+      "bytes_equal": true,
+      "nbytes": 8388608
+    },
+    {
+      "tensor": "model.layers.0.self_attn.q_proj.weight",
+      "dtype": "BF16",
+      "shape": [
+        2048,
+        2048
+      ],
+      "metadata_equal": true,
+      "bytes_equal": true,
+      "nbytes": 8388608
+    },
+    {
+      "tensor": "model.layers.0.self_attn.v_proj.weight",
+      "dtype": "BF16",
+      "shape": [
+        512,
+        2048
+      ],
+      "metadata_equal": true,
+      "bytes_equal": true,
+      "nbytes": 2097152
+    },
+    {
+      "tensor": "model.layers.1.input_layernorm.weight",
+      "dtype": "BF16",
+      "shape": [
+        2048
+      ],
+      "metadata_equal": true,
+      "bytes_equal": true,
+      "nbytes": 4096
+    },
+    {
+      "tensor": "model.layers.1.mlp.down_proj.weight",
+      "dtype": "BF16",
+      "shape": [
+        2048,
+        8192
+      ],
+      "metadata_equal": true,
+      "bytes_equal": true,
+      "nbytes": 33554432
+    },
+    {
+      "tensor": "model.layers.1.mlp.gate_proj.weight",
+      "dtype": "BF16",
+      "shape": [
+        8192,
+        2048
+      ],
+      "metadata_equal": true,
+      "bytes_equal": true,
+      "nbytes": 33554432
+    },
+    {
+      "tensor": "model.layers.1.mlp.up_proj.weight",
+      "dtype": "BF16",
+      "shape": [
+        8192,
+        2048
+      ],
+      "metadata_equal": true,
+      "bytes_equal": true,
+      "nbytes": 33554432
+    },
+    {
+      "tensor": "model.layers.1.post_attention_layernorm.weight",
+      "dtype": "BF16",
+      "shape": [
+        2048
+      ],
+      "metadata_equal": true,
+      "bytes_equal": true,
+      "nbytes": 4096
+    },
+    {
+      "tensor": "model.layers.1.self_attn.k_proj.weight",
+      "dtype": "BF16",
+      "shape": [
+        512,
+        2048
+      ],
+      "metadata_equal": true,
+      "bytes_equal": true,
+      "nbytes": 2097152
+    },
+    {
+      "tensor": "model.layers.1.self_attn.o_proj.weight",
+      "dtype": "BF16",
+      "shape": [
+        2048,
+        2048
+      ],
+      "metadata_equal": true,
+      "bytes_equal": true,
+      "nbytes": 8388608
+    },
+    {
+      "tensor": "model.layers.1.self_attn.q_proj.weight",
+      "dtype": "BF16",
+      "shape": [
+        2048,
+        2048
+      ],
+      "metadata_equal": true,
+      "bytes_equal": true,
+      "nbytes": 8388608
+    },
+    {
+      "tensor": "model.layers.1.self_attn.v_proj.weight",
+      "dtype": "BF16",
+      "shape": [
+        512,
+        2048
+      ],
+      "metadata_equal": true,
+      "bytes_equal": true,
+      "nbytes": 2097152
+    },
+    {
+      "tensor": "model.layers.10.input_layernorm.weight",
+      "dtype": "BF16",
+      "shape": [
+        2048
+      ],
+      "metadata_equal": true,
+      "bytes_equal": true,
+      "nbytes": 4096
+    },
+    {
+      "tensor": "model.layers.10.mlp.down_proj.weight",
+      "dtype": "BF16",
+      "shape": [
+        2048,
+        8192
+      ],
+      "metadata_equal": true,
+      "bytes_equal": true,
+      "nbytes": 33554432
+    },
+    {
+      "tensor": "model.layers.10.mlp.gate_proj.weight",
+      "dtype": "BF16",
+      "shape": [
+        8192,
+        2048
+      ],
+      "metadata_equal": true,
+      "bytes_equal": true,
+      "nbytes": 33554432
+    },
+    {
+      "tensor": "model.layers.10.mlp.up_proj.weight",
+      "dtype": "BF16",
+      "shape": [
+        8192,
+        2048
+      ],
+      "metadata_equal": true,
+      "bytes_equal": true,
+      "nbytes": 33554432
+    },
+    {
+      "tensor": "model.layers.10.post_attention_layernorm.weight",
+      "dtype": "BF16",
+      "shape": [
+        2048
+      ],
+      "metadata_equal": true,
+      "bytes_equal": true,
+      "nbytes": 4096
+    },
+    {
+      "tensor": "model.layers.10.self_attn.k_proj.weight",
+      "dtype": "BF16",
+      "shape": [
+        512,
+        2048
+      ],
+      "metadata_equal": true,
+      "bytes_equal": true,
+      "nbytes": 2097152
+    },
+    {
+      "tensor": "model.layers.10.self_attn.o_proj.weight",
+      "dtype": "BF16",
+      "shape": [
+        2048,
+        2048
+      ],
+      "metadata_equal": true,
+      "bytes_equal": true,
+      "nbytes": 8388608
+    },
+    {
+      "tensor": "model.layers.10.self_attn.q_proj.weight",
+      "dtype": "BF16",
+      "shape": [
+        2048,
+        2048
+      ],
+      "metadata_equal": true,
+      "bytes_equal": true,
+      "nbytes": 8388608
+    },
+    {
+      "tensor": "model.layers.10.self_attn.v_proj.weight",
+      "dtype": "BF16",
+      "shape": [
+        512,
+        2048
+      ],
+      "metadata_equal": true,
+      "bytes_equal": true,
+      "nbytes": 2097152
+    },
+    {
+      "tensor": "model.layers.11.input_layernorm.weight",
+      "dtype": "BF16",
+      "shape": [
+        2048
+      ],
+      "metadata_equal": true,
+      "bytes_equal": true,
+      "nbytes": 4096
+    },
+    {
+      "tensor": "model.layers.11.mlp.down_proj.weight",
+      "dtype": "BF16",
+      "shape": [
+        2048,
+        8192
+      ],
+      "metadata_equal": true,
+      "bytes_equal": true,
+      "nbytes": 33554432
+    },
+    {
+      "tensor": "model.layers.11.mlp.gate_proj.weight",
+      "dtype": "BF16",
+      "shape": [
+        8192,
+        2048
+      ],
+      "metadata_equal": true,
+      "bytes_equal": true,
+      "nbytes": 33554432
+    },
+    {
+      "tensor": "model.layers.11.mlp.up_proj.weight",
+      "dtype": "BF16",
+      "shape": [
+        8192,
+        2048
+      ],
+      "metadata_equal": true,
+      "bytes_equal": true,
+      "nbytes": 33554432
+    },
+    {
+      "tensor": "model.layers.11.post_attention_layernorm.weight",
+      "dtype": "BF16",
+      "shape": [
+        2048
+      ],
+      "metadata_equal": true,
+      "bytes_equal": true,
+      "nbytes": 4096
+    },
+    {
+      "tensor": "model.layers.11.self_attn.k_proj.weight",
+      "dtype": "BF16",
+      "shape": [
+        512,
+        2048
+      ],
+      "metadata_equal": true,
+      "bytes_equal": true,
+      "nbytes": 2097152
+    },
+    {
+      "tensor": "model.layers.11.self_attn.o_proj.weight",
+      "dtype": "BF16",
+      "shape": [
+        2048,
+        2048
+      ],
+      "metadata_equal": true,
+      "bytes_equal": true,
+      "nbytes": 8388608
+    },
+    {
+      "tensor": "model.layers.11.self_attn.q_proj.weight",
+      "dtype": "BF16",
+      "shape": [
+        2048,
+        2048
+      ],
+      "metadata_equal": true,
+      "bytes_equal": true,
+      "nbytes": 8388608
+    },
+    {
+      "tensor": "model.layers.11.self_attn.v_proj.weight",
+      "dtype": "BF16",
+      "shape": [
+        512,
+        2048
+      ],
+      "metadata_equal": true,
+      "bytes_equal": true,
+      "nbytes": 2097152
+    },
+    {
+      "tensor": "model.layers.12.input_layernorm.weight",
+      "dtype": "BF16",
+      "shape": [
+        2048
+      ],
+      "metadata_equal": true,
+      "bytes_equal": true,
+      "nbytes": 4096
+    },
+    {
+      "tensor": "model.layers.12.mlp.down_proj.weight",
+      "dtype": "BF16",
+      "shape": [
+        2048,
+        8192
+      ],
+      "metadata_equal": true,
+      "bytes_equal": true,
+      "nbytes": 33554432
+    },
+    {
+      "tensor": "model.layers.12.mlp.gate_proj.weight",
+      "dtype": "BF16",
+      "shape": [
+        8192,
+        2048
+      ],
+      "metadata_equal": true,
+      "bytes_equal": true,
+      "nbytes": 33554432
+    },
+    {
+      "tensor": "model.layers.12.mlp.up_proj.weight",
+      "dtype": "BF16",
+      "shape": [
+        8192,
+        2048
+      ],
+      "metadata_equal": true,
+      "bytes_equal": true,
+      "nbytes": 33554432
+    },
+    {
+      "tensor": "model.layers.12.post_attention_layernorm.weight",
+      "dtype": "BF16",
+      "shape": [
+        2048
+      ],
+      "metadata_equal": true,
+      "bytes_equal": true,
+      "nbytes": 4096
+    },
+    {
+      "tensor": "model.layers.12.self_attn.k_proj.weight",
+      "dtype": "BF16",
+      "shape": [
+        512,
+        2048
+      ],
+      "metadata_equal": true,
+      "bytes_equal": true,
+      "nbytes": 2097152
+    },
+    {
+      "tensor": "model.layers.12.self_attn.o_proj.weight",
+      "dtype": "BF16",
+      "shape": [
+        2048,
+        2048
+      ],
+      "metadata_equal": true,
+      "bytes_equal": true,
+      "nbytes": 8388608
+    },
+    {
+      "tensor": "model.layers.12.self_attn.q_proj.weight",
+      "dtype": "BF16",
+      "shape": [
+        2048,
+        2048
+      ],
+      "metadata_equal": true,
+      "bytes_equal": true,
+      "nbytes": 8388608
+    },
+    {
+      "tensor": "model.layers.12.self_attn.v_proj.weight",
+      "dtype": "BF16",
+      "shape": [
+        512,
+        2048
+      ],
+      "metadata_equal": true,
+      "bytes_equal": true,
+      "nbytes": 2097152
+    },
+    {
+      "tensor": "model.layers.13.input_layernorm.weight",
+      "dtype": "BF16",
+      "shape": [
+        2048
+      ],
+      "metadata_equal": true,
+      "bytes_equal": true,
+      "nbytes": 4096
+    },
+    {
+      "tensor": "model.layers.13.mlp.down_proj.weight",
+      "dtype": "BF16",
+      "shape": [
+        2048,
+        8192
+      ],
+      "metadata_equal": true,
+      "bytes_equal": true,
+      "nbytes": 33554432
+    },
+    {
+      "tensor": "model.layers.13.mlp.gate_proj.weight",
+      "dtype": "BF16",
+      "shape": [
+        8192,
+        2048
+      ],
+      "metadata_equal": true,
+      "bytes_equal": true,
+      "nbytes": 33554432
+    },
+    {
+      "tensor": "model.layers.13.mlp.up_proj.weight",
+      "dtype": "BF16",
+      "shape": [
+        8192,
+        2048
+      ],
+      "metadata_equal": true,
+      "bytes_equal": true,
+      "nbytes": 33554432
+    },
+    {
+      "tensor": "model.layers.13.post_attention_layernorm.weight",
+      "dtype": "BF16",
+      "shape": [
+        2048
+      ],
+      "metadata_equal": true,
+      "bytes_equal": true,
+      "nbytes": 4096
+    },
+    {
+      "tensor": "model.layers.13.self_attn.k_proj.weight",
+      "dtype": "BF16",
+      "shape": [
+        512,
+        2048
+      ],
+      "metadata_equal": true,
+      "bytes_equal": true,
+      "nbytes": 2097152
+    },
+    {
+      "tensor": "model.layers.13.self_attn.o_proj.weight",
+      "dtype": "BF16",
+      "shape": [
+        2048,
+        2048
+      ],
+      "metadata_equal": true,
+      "bytes_equal": true,
+      "nbytes": 8388608
+    },
+    {
+      "tensor": "model.layers.13.self_attn.q_proj.weight",
+      "dtype": "BF16",
+      "shape": [
+        2048,
+        2048
+      ],
+      "metadata_equal": true,
+      "bytes_equal": true,
+      "nbytes": 8388608
+    },
+    {
+      "tensor": "model.layers.13.self_attn.v_proj.weight",
+      "dtype": "BF16",
+      "shape": [
+        512,
+        2048
+      ],
+      "metadata_equal": true,
+      "bytes_equal": true,
+      "nbytes": 2097152
+    },
+    {
+      "tensor": "model.layers.14.input_layernorm.weight",
+      "dtype": "BF16",
+      "shape": [
+        2048
+      ],
+      "metadata_equal": true,
+      "bytes_equal": true,
+      "nbytes": 4096
+    },
+    {
+      "tensor": "model.layers.14.mlp.down_proj.weight",
+      "dtype": "BF16",
+      "shape": [
+        2048,
+        8192
+      ],
+      "metadata_equal": true,
+      "bytes_equal": true,
+      "nbytes": 33554432
+    },
+    {
+      "tensor": "model.layers.14.mlp.gate_proj.weight",
+      "dtype": "BF16",
+      "shape": [
+        8192,
+        2048
+      ],
+      "metadata_equal": true,
+      "bytes_equal": true,
+      "nbytes": 33554432
+    },
+    {
+      "tensor": "model.layers.14.mlp.up_proj.weight",
+      "dtype": "BF16",
+      "shape": [
+        8192,
+        2048
+      ],
+      "metadata_equal": true,
+      "bytes_equal": true,
+      "nbytes": 33554432
+    },
+    {
+      "tensor": "model.layers.14.post_attention_layernorm.weight",
+      "dtype": "BF16",
+      "shape": [
+        2048
+      ],
+      "metadata_equal": true,
+      "bytes_equal": true,
+      "nbytes": 4096
+    },
+    {
+      "tensor": "model.layers.14.self_attn.k_proj.weight",
+      "dtype": "BF16",
+      "shape": [
+        512,
+        2048
+      ],
+      "metadata_equal": true,
+      "bytes_equal": true,
+      "nbytes": 2097152
+    },
+    {
+      "tensor": "model.layers.14.self_attn.o_proj.weight",
+      "dtype": "BF16",
+      "shape": [
+        2048,
+        2048
+      ],
+      "metadata_equal": true,
+      "bytes_equal": true,
+      "nbytes": 8388608
+    },
+    {
+      "tensor": "model.layers.14.self_attn.q_proj.weight",
+      "dtype": "BF16",
+      "shape": [
+        2048,
+        2048
+      ],
+      "metadata_equal": true,
+      "bytes_equal": true,
+      "nbytes": 8388608
+    },
+    {
+      "tensor": "model.layers.14.self_attn.v_proj.weight",
+      "dtype": "BF16",
+      "shape": [
+        512,
+        2048
+      ],
+      "metadata_equal": true,
+      "bytes_equal": true,
+      "nbytes": 2097152
+    },
+    {
+      "tensor": "model.layers.15.input_layernorm.weight",
+      "dtype": "BF16",
+      "shape": [
+        2048
+      ],
+      "metadata_equal": true,
+      "bytes_equal": true,
+      "nbytes": 4096
+    },
+    {
+      "tensor": "model.layers.15.mlp.down_proj.weight",
+      "dtype": "BF16",
+      "shape": [
+        2048,
+        8192
+      ],
+      "metadata_equal": true,
+      "bytes_equal": true,
+      "nbytes": 33554432
+    },
+    {
+      "tensor": "model.layers.15.mlp.gate_proj.weight",
+      "dtype": "BF16",
+      "shape": [
+        8192,
+        2048
+      ],
+      "metadata_equal": true,
+      "bytes_equal": true,
+      "nbytes": 33554432
+    },
+    {
+      "tensor": "model.layers.15.mlp.up_proj.weight",
+      "dtype": "BF16",
+      "shape": [
+        8192,
+        2048
+      ],
+      "metadata_equal": true,
+      "bytes_equal": true,
+      "nbytes": 33554432
+    },
+    {
+      "tensor": "model.layers.15.post_attention_layernorm.weight",
+      "dtype": "BF16",
+      "shape": [
+        2048
+      ],
+      "metadata_equal": true,
+      "bytes_equal": true,
+      "nbytes": 4096
+    },
+    {
+      "tensor": "model.layers.15.self_attn.k_proj.weight",
+      "dtype": "BF16",
+      "shape": [
+        512,
+        2048
+      ],
+      "metadata_equal": true,
+      "bytes_equal": true,
+      "nbytes": 2097152
+    },
+    {
+      "tensor": "model.layers.15.self_attn.o_proj.weight",
+      "dtype": "BF16",
+      "shape": [
+        2048,
+        2048
+      ],
+      "metadata_equal": true,
+      "bytes_equal": true,
+      "nbytes": 8388608
+    },
+    {
+      "tensor": "model.layers.15.self_attn.q_proj.weight",
+      "dtype": "BF16",
+      "shape": [
+        2048,
+        2048
+      ],
+      "metadata_equal": true,
+      "bytes_equal": true,
+      "nbytes": 8388608
+    },
+    {
+      "tensor": "model.layers.15.self_attn.v_proj.weight",
+      "dtype": "BF16",
+      "shape": [
+        512,
+        2048
+      ],
+      "metadata_equal": true,
+      "bytes_equal": true,
+      "nbytes": 2097152
+    },
+    {
+      "tensor": "model.layers.2.input_layernorm.weight",
+      "dtype": "BF16",
+      "shape": [
+        2048
+      ],
+      "metadata_equal": true,
+      "bytes_equal": true,
+      "nbytes": 4096
+    },
+    {
+      "tensor": "model.layers.2.mlp.down_proj.weight",
+      "dtype": "BF16",
+      "shape": [
+        2048,
+        8192
+      ],
+      "metadata_equal": true,
+      "bytes_equal": true,
+      "nbytes": 33554432
+    },
+    {
+      "tensor": "model.layers.2.mlp.gate_proj.weight",
+      "dtype": "BF16",
+      "shape": [
+        8192,
+        2048
+      ],
+      "metadata_equal": true,
+      "bytes_equal": true,
+      "nbytes": 33554432
+    },
+    {
+      "tensor": "model.layers.2.mlp.up_proj.weight",
+      "dtype": "BF16",
+      "shape": [
+        8192,
+        2048
+      ],
+      "metadata_equal": true,
+      "bytes_equal": true,
+      "nbytes": 33554432
+    },
+    {
+      "tensor": "model.layers.2.post_attention_layernorm.weight",
+      "dtype": "BF16",
+      "shape": [
+        2048
+      ],
+      "metadata_equal": true,
+      "bytes_equal": true,
+      "nbytes": 4096
+    },
+    {
+      "tensor": "model.layers.2.self_attn.k_proj.weight",
+      "dtype": "BF16",
+      "shape": [
+        512,
+        2048
+      ],
+      "metadata_equal": true,
+      "bytes_equal": true,
+      "nbytes": 2097152
+    },
+    {
+      "tensor": "model.layers.2.self_attn.o_proj.weight",
+      "dtype": "BF16",
+      "shape": [
+        2048,
+        2048
+      ],
+      "metadata_equal": true,
+      "bytes_equal": true,
+      "nbytes": 8388608
+    },
+    {
+      "tensor": "model.layers.2.self_attn.q_proj.weight",
+      "dtype": "BF16",
+      "shape": [
+        2048,
+        2048
+      ],
+      "metadata_equal": true,
+      "bytes_equal": true,
+      "nbytes": 8388608
+    },
+    {
+      "tensor": "model.layers.2.self_attn.v_proj.weight",
+      "dtype": "BF16",
+      "shape": [
+        512,
+        2048
+      ],
+      "metadata_equal": true,
+      "bytes_equal": true,
+      "nbytes": 2097152
+    },
+    {
+      "tensor": "model.layers.3.input_layernorm.weight",
+      "dtype": "BF16",
+      "shape": [
+        2048
+      ],
+      "metadata_equal": true,
+      "bytes_equal": true,
+      "nbytes": 4096
+    },
+    {
+      "tensor": "model.layers.3.mlp.down_proj.weight",
+      "dtype": "BF16",
+      "shape": [
+        2048,
+        8192
+      ],
+      "metadata_equal": true,
+      "bytes_equal": true,
+      "nbytes": 33554432
+    },
+    {
+      "tensor": "model.layers.3.mlp.gate_proj.weight",
+      "dtype": "BF16",
+      "shape": [
+        8192,
+        2048
+      ],
+      "metadata_equal": true,
+      "bytes_equal": true,
+      "nbytes": 33554432
+    },
+    {
+      "tensor": "model.layers.3.mlp.up_proj.weight",
+      "dtype": "BF16",
+      "shape": [
+        8192,
+        2048
+      ],
+      "metadata_equal": true,
+      "bytes_equal": true,
+      "nbytes": 33554432
+    },
+    {
+      "tensor": "model.layers.3.post_attention_layernorm.weight",
+      "dtype": "BF16",
+      "shape": [
+        2048
+      ],
+      "metadata_equal": true,
+      "bytes_equal": true,
+      "nbytes": 4096
+    },
+    {
+      "tensor": "model.layers.3.self_attn.k_proj.weight",
+      "dtype": "BF16",
+      "shape": [
+        512,
+        2048
+      ],
+      "metadata_equal": true,
+      "bytes_equal": true,
+      "nbytes": 2097152
+    },
+    {
+      "tensor": "model.layers.3.self_attn.o_proj.weight",
+      "dtype": "BF16",
+      "shape": [
+        2048,
+        2048
+      ],
+      "metadata_equal": true,
+      "bytes_equal": true,
+      "nbytes": 8388608
+    },
+    {
+      "tensor": "model.layers.3.self_attn.q_proj.weight",
+      "dtype": "BF16",
+      "shape": [
+        2048,
+        2048
+      ],
+      "metadata_equal": true,
+      "bytes_equal": true,
+      "nbytes": 8388608
+    },
+    {
+      "tensor": "model.layers.3.self_attn.v_proj.weight",
+      "dtype": "BF16",
+      "shape": [
+        512,
+        2048
+      ],
+      "metadata_equal": true,
+      "bytes_equal": true,
+      "nbytes": 2097152
+    },
+    {
+      "tensor": "model.layers.4.input_layernorm.weight",
+      "dtype": "BF16",
+      "shape": [
+        2048
+      ],
+      "metadata_equal": true,
+      "bytes_equal": true,
+      "nbytes": 4096
+    },
+    {
+      "tensor": "model.layers.4.mlp.down_proj.weight",
+      "dtype": "BF16",
+      "shape": [
+        2048,
+        8192
+      ],
+      "metadata_equal": true,
+      "bytes_equal": true,
+      "nbytes": 33554432
+    },
+    {
+      "tensor": "model.layers.4.mlp.gate_proj.weight",
+      "dtype": "BF16",
+      "shape": [
+        8192,
+        2048
+      ],
+      "metadata_equal": true,
+      "bytes_equal": true,
+      "nbytes": 33554432
+    },
+    {
+      "tensor": "model.layers.4.mlp.up_proj.weight",
+      "dtype": "BF16",
+      "shape": [
+        8192,
+        2048
+      ],
+      "metadata_equal": true,
+      "bytes_equal": true,
+      "nbytes": 33554432
+    },
+    {
+      "tensor": "model.layers.4.post_attention_layernorm.weight",
+      "dtype": "BF16",
+      "shape": [
+        2048
+      ],
+      "metadata_equal": true,
+      "bytes_equal": true,
+      "nbytes": 4096
+    },
+    {
+      "tensor": "model.layers.4.self_attn.k_proj.weight",
+      "dtype": "BF16",
+      "shape": [
+        512,
+        2048
+      ],
+      "metadata_equal": true,
+      "bytes_equal": true,
+      "nbytes": 2097152
+    },
+    {
+      "tensor": "model.layers.4.self_attn.o_proj.weight",
+      "dtype": "BF16",
+      "shape": [
+        2048,
+        2048
+      ],
+      "metadata_equal": true,
+      "bytes_equal": true,
+      "nbytes": 8388608
+    },
+    {
+      "tensor": "model.layers.4.self_attn.q_proj.weight",
+      "dtype": "BF16",
+      "shape": [
+        2048,
+        2048
+      ],
+      "metadata_equal": true,
+      "bytes_equal": true,
+      "nbytes": 8388608
+    },
+    {
+      "tensor": "model.layers.4.self_attn.v_proj.weight",
+      "dtype": "BF16",
+      "shape": [
+        512,
+        2048
+      ],
+      "metadata_equal": true,
+      "bytes_equal": true,
+      "nbytes": 2097152
+    },
+    {
+      "tensor": "model.layers.5.input_layernorm.weight",
+      "dtype": "BF16",
+      "shape": [
+        2048
+      ],
+      "metadata_equal": true,
+      "bytes_equal": true,
+      "nbytes": 4096
+    },
+    {
+      "tensor": "model.layers.5.mlp.down_proj.weight",
+      "dtype": "BF16",
+      "shape": [
+        2048,
+        8192
+      ],
+      "metadata_equal": true,
+      "bytes_equal": true,
+      "nbytes": 33554432
+    },
+    {
+      "tensor": "model.layers.5.mlp.gate_proj.weight",
+      "dtype": "BF16",
+      "shape": [
+        8192,
+        2048
+      ],
+      "metadata_equal": true,
+      "bytes_equal": true,
+      "nbytes": 33554432
+    },
+    {
+      "tensor": "model.layers.5.mlp.up_proj.weight",
+      "dtype": "BF16",
+      "shape": [
+        8192,
+        2048
+      ],
+      "metadata_equal": true,
+      "bytes_equal": true,
+      "nbytes": 33554432
+    },
+    {
+      "tensor": "model.layers.5.post_attention_layernorm.weight",
+      "dtype": "BF16",
+      "shape": [
+        2048
+      ],
+      "metadata_equal": true,
+      "bytes_equal": true,
+      "nbytes": 4096
+    },
+    {
+      "tensor": "model.layers.5.self_attn.k_proj.weight",
+      "dtype": "BF16",
+      "shape": [
+        512,
+        2048
+      ],
+      "metadata_equal": true,
+      "bytes_equal": true,
+      "nbytes": 2097152
+    },
+    {
+      "tensor": "model.layers.5.self_attn.o_proj.weight",
+      "dtype": "BF16",
+      "shape": [
+        2048,
+        2048
+      ],
+      "metadata_equal": true,
+      "bytes_equal": true,
+      "nbytes": 8388608
+    },
+    {
+      "tensor": "model.layers.5.self_attn.q_proj.weight",
+      "dtype": "BF16",
+      "shape": [
+        2048,
+        2048
+      ],
+      "metadata_equal": true,
+      "bytes_equal": true,
+      "nbytes": 8388608
+    },
+    {
+      "tensor": "model.layers.5.self_attn.v_proj.weight",
+      "dtype": "BF16",
+      "shape": [
+        512,
+        2048
+      ],
+      "metadata_equal": true,
+      "bytes_equal": true,
+      "nbytes": 2097152
+    },
+    {
+      "tensor": "model.layers.6.input_layernorm.weight",
+      "dtype": "BF16",
+      "shape": [
+        2048
+      ],
+      "metadata_equal": true,
+      "bytes_equal": true,
+      "nbytes": 4096
+    },
+    {
+      "tensor": "model.layers.6.mlp.down_proj.weight",
+      "dtype": "BF16",
+      "shape": [
+        2048,
+        8192
+      ],
+      "metadata_equal": true,
+      "bytes_equal": true,
+      "nbytes": 33554432
+    },
+    {
+      "tensor": "model.layers.6.mlp.gate_proj.weight",
+      "dtype": "BF16",
+      "shape": [
+        8192,
+        2048
+      ],
+      "metadata_equal": true,
+      "bytes_equal": true,
+      "nbytes": 33554432
+    },
+    {
+      "tensor": "model.layers.6.mlp.up_proj.weight",
+      "dtype": "BF16",
+      "shape": [
+        8192,
+        2048
+      ],
+      "metadata_equal": true,
+      "bytes_equal": true,
+      "nbytes": 33554432
+    },
+    {
+      "tensor": "model.layers.6.post_attention_layernorm.weight",
+      "dtype": "BF16",
+      "shape": [
+        2048
+      ],
+      "metadata_equal": true,
+      "bytes_equal": true,
+      "nbytes": 4096
+    },
+    {
+      "tensor": "model.layers.6.self_attn.k_proj.weight",
+      "dtype": "BF16",
+      "shape": [
+        512,
+        2048
+      ],
+      "metadata_equal": true,
+      "bytes_equal": true,
+      "nbytes": 2097152
+    },
+    {
+      "tensor": "model.layers.6.self_attn.o_proj.weight",
+      "dtype": "BF16",
+      "shape": [
+        2048,
+        2048
+      ],
+      "metadata_equal": true,
+      "bytes_equal": true,
+      "nbytes": 8388608
+    },
+    {
+      "tensor": "model.layers.6.self_attn.q_proj.weight",
+      "dtype": "BF16",
+      "shape": [
+        2048,
+        2048
+      ],
+      "metadata_equal": true,
+      "bytes_equal": true,
+      "nbytes": 8388608
+    },
+    {
+      "tensor": "model.layers.6.self_attn.v_proj.weight",
+      "dtype": "BF16",
+      "shape": [
+        512,
+        2048
+      ],
+      "metadata_equal": true,
+      "bytes_equal": true,
+      "nbytes": 2097152
+    },
+    {
+      "tensor": "model.layers.7.input_layernorm.weight",
+      "dtype": "BF16",
+      "shape": [
+        2048
+      ],
+      "metadata_equal": true,
+      "bytes_equal": true,
+      "nbytes": 4096
+    },
+    {
+      "tensor": "model.layers.7.mlp.down_proj.weight",
+      "dtype": "BF16",
+      "shape": [
+        2048,
+        8192
+      ],
+      "metadata_equal": true,
+      "bytes_equal": true,
+      "nbytes": 33554432
+    },
+    {
+      "tensor": "model.layers.7.mlp.gate_proj.weight",
+      "dtype": "BF16",
+      "shape": [
+        8192,
+        2048
+      ],
+      "metadata_equal": true,
+      "bytes_equal": true,
+      "nbytes": 33554432
+    },
+    {
+      "tensor": "model.layers.7.mlp.up_proj.weight",
+      "dtype": "BF16",
+      "shape": [
+        8192,
+        2048
+      ],
+      "metadata_equal": true,
+      "bytes_equal": true,
+      "nbytes": 33554432
+    },
+    {
+      "tensor": "model.layers.7.post_attention_layernorm.weight",
+      "dtype": "BF16",
+      "shape": [
+        2048
+      ],
+      "metadata_equal": true,
+      "bytes_equal": true,
+      "nbytes": 4096
+    },
+    {
+      "tensor": "model.layers.7.self_attn.k_proj.weight",
+      "dtype": "BF16",
+      "shape": [
+        512,
+        2048
+      ],
+      "metadata_equal": true,
+      "bytes_equal": true,
+      "nbytes": 2097152
+    },
+    {
+      "tensor": "model.layers.7.self_attn.o_proj.weight",
+      "dtype": "BF16",
+      "shape": [
+        2048,
+        2048
+      ],
+      "metadata_equal": true,
+      "bytes_equal": true,
+      "nbytes": 8388608
+    },
+    {
+      "tensor": "model.layers.7.self_attn.q_proj.weight",
+      "dtype": "BF16",
+      "shape": [
+        2048,
+        2048
+      ],
+      "metadata_equal": true,
+      "bytes_equal": true,
+      "nbytes": 8388608
+    },
+    {
+      "tensor": "model.layers.7.self_attn.v_proj.weight",
+      "dtype": "BF16",
+      "shape": [
+        512,
+        2048
+      ],
+      "metadata_equal": true,
+      "bytes_equal": true,
+      "nbytes": 2097152
+    },
+    {
+      "tensor": "model.layers.8.input_layernorm.weight",
+      "dtype": "BF16",
+      "shape": [
+        2048
+      ],
+      "metadata_equal": true,
+      "bytes_equal": true,
+      "nbytes": 4096
+    },
+    {
+      "tensor": "model.layers.8.mlp.down_proj.weight",
+      "dtype": "BF16",
+      "shape": [
+        2048,
+        8192
+      ],
+      "metadata_equal": true,
+      "bytes_equal": true,
+      "nbytes": 33554432
+    },
+    {
+      "tensor": "model.layers.8.mlp.gate_proj.weight",
+      "dtype": "BF16",
+      "shape": [
+        8192,
+        2048
+      ],
+      "metadata_equal": true,
+      "bytes_equal": true,
+      "nbytes": 33554432
+    },
+    {
+      "tensor": "model.layers.8.mlp.up_proj.weight",
+      "dtype": "BF16",
+      "shape": [
+        8192,
+        2048
+      ],
+      "metadata_equal": true,
+      "bytes_equal": true,
+      "nbytes": 33554432
+    },
+    {
+      "tensor": "model.layers.8.post_attention_layernorm.weight",
+      "dtype": "BF16",
+      "shape": [
+        2048
+      ],
+      "metadata_equal": true,
+      "bytes_equal": true,
+      "nbytes": 4096
+    },
+    {
+      "tensor": "model.layers.8.self_attn.k_proj.weight",
+      "dtype": "BF16",
+      "shape": [
+        512,
+        2048
+      ],
+      "metadata_equal": true,
+      "bytes_equal": true,
+      "nbytes": 2097152
+    },
+    {
+      "tensor": "model.layers.8.self_attn.o_proj.weight",
+      "dtype": "BF16",
+      "shape": [
+        2048,
+        2048
+      ],
+      "metadata_equal": true,
+      "bytes_equal": true,
+      "nbytes": 8388608
+    },
+    {
+      "tensor": "model.layers.8.self_attn.q_proj.weight",
+      "dtype": "BF16",
+      "shape": [
+        2048,
+        2048
+      ],
+      "metadata_equal": true,
+      "bytes_equal": true,
+      "nbytes": 8388608
+    },
+    {
+      "tensor": "model.layers.8.self_attn.v_proj.weight",
+      "dtype": "BF16",
+      "shape": [
+        512,
+        2048
+      ],
+      "metadata_equal": true,
+      "bytes_equal": true,
+      "nbytes": 2097152
+    },
+    {
+      "tensor": "model.layers.9.input_layernorm.weight",
+      "dtype": "BF16",
+      "shape": [
+        2048
+      ],
+      "metadata_equal": true,
+      "bytes_equal": true,
+      "nbytes": 4096
+    },
+    {
+      "tensor": "model.layers.9.mlp.down_proj.weight",
+      "dtype": "BF16",
+      "shape": [
+        2048,
+        8192
+      ],
+      "metadata_equal": true,
+      "bytes_equal": true,
+      "nbytes": 33554432
+    },
+    {
+      "tensor": "model.layers.9.mlp.gate_proj.weight",
+      "dtype": "BF16",
+      "shape": [
+        8192,
+        2048
+      ],
+      "metadata_equal": true,
+      "bytes_equal": true,
+      "nbytes": 33554432
+    },
+    {
+      "tensor": "model.layers.9.mlp.up_proj.weight",
+      "dtype": "BF16",
+      "shape": [
+        8192,
+        2048
+      ],
+      "metadata_equal": true,
+      "bytes_equal": true,
+      "nbytes": 33554432
+    },
+    {
+      "tensor": "model.layers.9.post_attention_layernorm.weight",
+      "dtype": "BF16",
+      "shape": [
+        2048
+      ],
+      "metadata_equal": true,
+      "bytes_equal": true,
+      "nbytes": 4096
+    },
+    {
+      "tensor": "model.layers.9.self_attn.k_proj.weight",
+      "dtype": "BF16",
+      "shape": [
+        512,
+        2048
+      ],
+      "metadata_equal": true,
+      "bytes_equal": true,
+      "nbytes": 2097152
+    },
+    {
+      "tensor": "model.layers.9.self_attn.o_proj.weight",
+      "dtype": "BF16",
+      "shape": [
+        2048,
+        2048
+      ],
+      "metadata_equal": true,
+      "bytes_equal": true,
+      "nbytes": 8388608
+    },
+    {
+      "tensor": "model.layers.9.self_attn.q_proj.weight",
+      "dtype": "BF16",
+      "shape": [
+        2048,
+        2048
+      ],
+      "metadata_equal": true,
+      "bytes_equal": true,
+      "nbytes": 8388608
+    },
+    {
+      "tensor": "model.layers.9.self_attn.v_proj.weight",
+      "dtype": "BF16",
+      "shape": [
+        512,
+        2048
+      ],
+      "metadata_equal": true,
+      "bytes_equal": true,
+      "nbytes": 2097152
+    },
+    {
+      "tensor": "model.norm.weight",
+      "dtype": "BF16",
+      "shape": [
+        2048
+      ],
+      "metadata_equal": true,
+      "bytes_equal": true,
+      "nbytes": 4096
+    }
+  ]
+}

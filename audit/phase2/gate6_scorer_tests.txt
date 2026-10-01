@@ -1,0 +1,23 @@
+test_primary_rule_matches_v1_on_generated_text (tests.test_revision_v2_scoring.AgreementWithV1Tests.test_primary_rule_matches_v1_on_generated_text) ... ok
+test_vote_matches_v1 (tests.test_revision_v2_scoring.AgreementWithV1Tests.test_vote_matches_v1) ... ok
+test_exact_decimal_comparison (tests.test_revision_v2_scoring.ComparisonAndVoteTests.test_exact_decimal_comparison) ... ok
+test_vote_prefers_majority_then_greedy_then_numeric (tests.test_revision_v2_scoring.ComparisonAndVoteTests.test_vote_prefers_majority_then_greedy_then_numeric) ... ok
+test_bare_answer (tests.test_revision_v2_scoring.DiagnosticTests.test_bare_answer) ... ok
+test_question_lines_and_limit (tests.test_revision_v2_scoring.DiagnosticTests.test_question_lines_and_limit) ... ok
+test_repetition_loop (tests.test_revision_v2_scoring.DiagnosticTests.test_repetition_loop) ... ok
+test_commas_decimals_and_signs_normalise (tests.test_revision_v2_scoring.PrimaryRuleTests.test_commas_decimals_and_signs_normalise) ... ok
+test_huge_integers_do_not_crash (tests.test_revision_v2_scoring.PrimaryRuleTests.test_huge_integers_do_not_crash) ... ok
+test_last_marked_answer_anywhere (tests.test_revision_v2_scoring.PrimaryRuleTests.test_last_marked_answer_anywhere) ... ok
+test_marker_without_number_is_invalid (tests.test_revision_v2_scoring.PrimaryRuleTests.test_marker_without_number_is_invalid) ... ok
+test_no_marker_means_no_answer (tests.test_revision_v2_scoring.PrimaryRuleTests.test_no_marker_means_no_answer) ... ok
+test_trailing_text_and_question_mark_do_not_invalidate (tests.test_revision_v2_scoring.PrimaryRuleTests.test_trailing_text_and_question_mark_do_not_invalidate) ... ok
+test_all_three_rules_are_registered (tests.test_revision_v2_scoring.SensitivityRuleTests.test_all_three_rules_are_registered) ... ok
+test_fallback_does_not_read_a_hyphen_as_a_sign (tests.test_revision_v2_scoring.SensitivityRuleTests.test_fallback_does_not_read_a_hyphen_as_a_sign) ... ok
+test_fallback_uses_last_number_when_no_marker (tests.test_revision_v2_scoring.SensitivityRuleTests.test_fallback_uses_last_number_when_no_marker) ... ok
+test_fallback_uses_marked_answer_when_present (tests.test_revision_v2_scoring.SensitivityRuleTests.test_fallback_uses_marked_answer_when_present) ... ok
+test_first_marked_takes_the_first_answer (tests.test_revision_v2_scoring.SensitivityRuleTests.test_first_marked_takes_the_first_answer) ... ok
+
+----------------------------------------------------------------------
+Ran 18 tests in 0.021s
+
+OK

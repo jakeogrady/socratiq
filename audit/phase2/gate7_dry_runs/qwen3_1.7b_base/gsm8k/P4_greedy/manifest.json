@@ -1,0 +1,188 @@
+{
+  "schema_version": "2.0",
+  "status": "dry_run_completed",
+  "started_at": "2026-10-01T23:35:16+00:00",
+  "protocol": {
+    "path": "configs/revision_v2/protocol.yaml",
+    "sha256": "878614c51df8066e655d828cecb2b409d4cc9103c825bfb26f4fc5a5e2ed7386"
+  },
+  "configuration": {
+    "evaluator": "src.revision_v2.evaluate",
+    "evaluator_code_sha256": "715bcea526b1967b6a099d5eed85d99b65628d54c6e194542e89bd40b291fbf5",
+    "scorer_version": "revision-v2-scorer-1.0",
+    "scorer_code_sha256": "8086dc6e5f0153c56169fade31da47aac0d2e4b7bca7f7fef4f5d3c64791f9b7",
+    "primary_rule": "last_marked",
+    "rules": [
+      "last_marked",
+      "first_marked",
+      "last_marked_fallback_last_number"
+    ],
+    "protocol_sha256": "878614c51df8066e655d828cecb2b409d4cc9103c825bfb26f4fc5a5e2ed7386",
+    "condition_id": "qwen3_1.7b_base",
+    "model": "mlx-community/Qwen3-1.7B-4bit",
+    "model_revision": "3b1b1768f8f8cf8351c712464f906e86c2b8269e",
+    "model_directory_sha256": null,
+    "adapter_weights_sha256": null,
+    "benchmark": {
+      "key": "gsm8k",
+      "dataset": "openai/gsm8k",
+      "config": "main",
+      "target_split": "test",
+      "few_shot_split": "train",
+      "few_shot_indices": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "expected_rows": 1319,
+      "question_column": "question",
+      "answer_column": "answer",
+      "revision": "740312add88f781978c0658806c59bc2815b9866",
+      "few_shot_dataset": null,
+      "few_shot_config": null,
+      "few_shot_revision": null,
+      "few_shot_question_column": null,
+      "few_shot_answer_column": null
+    },
+    "prompt": "P4",
+    "mode": "greedy",
+    "decoding": {
+      "samples": 1,
+      "temperature": 0.0,
+      "top_p": 1.0,
+      "top_k": 0
+    },
+    "max_tokens": 512,
+    "base_seed": 42,
+    "enable_thinking": false,
+    "start_index": 0,
+    "limit": 5,
+    "dry_run": true
+  },
+  "configuration_sha256": "6c6506b9e84895777ea8105c99d8ded9a29d8e5847632ceff5bf8ce25a9e1a86",
+  "base_model": {
+    "identifier": "mlx-community/Qwen3-1.7B-4bit",
+    "key": "qwen3_1.7b",
+    "requested_revision": "3b1b1768f8f8cf8351c712464f906e86c2b8269e",
+    "resolved_revision": "3b1b1768f8f8cf8351c712464f906e86c2b8269e",
+    "materialized_path": "/Users/eir/.cache/huggingface/hub/models--mlx-community--Qwen3-1.7B-4bit/snapshots/3b1b1768f8f8cf8351c712464f906e86c2b8269e"
+  },
+  "adapter": null,
+  "dataset": {
+    "dataset": "openai/gsm8k",
+    "config": "main",
+    "requested_revision": "740312add88f781978c0658806c59bc2815b9866",
+    "target_split": "test",
+    "target_rows": 1319,
+    "target_fingerprint": "59ec1b7f9357c7a2",
+    "few_shot_dataset": "openai/gsm8k",
+    "few_shot_config": "main",
+    "few_shot_revision": "740312add88f781978c0658806c59bc2815b9866",
+    "few_shot_split": "train",
+    "few_shot_indices": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "few_shot_question_column": "question",
+    "few_shot_answer_column": "answer",
+    "few_shot_fingerprint": "c6f812ae33c9159d"
+  },
+  "environment": {
+    "collected_at": "2026-10-01T23:35:16+00:00",
+    "platform": "macOS-14.6.1-arm64-arm-64bit-Mach-O",
+    "system": "Darwin",
+    "release": "23.6.0",
+    "machine": {
+      "label": null,
+      "hostname": "MBPro-EIR",
+      "user": "eir",
+      "os": "macOS-14.6.1-arm64-arm-64bit-Mach-O"
+    },
+    "processor": "arm",
+    "python": "3.13.2 | packaged by Anaconda, Inc. | (main, Feb  6 2025, 12:55:35) [Clang 14.0.6 ]",
+    "python_executable": "/Users/eir/Desktop/JOG-FYP-2526/socratiq/.venv/bin/python",
+    "disk": {
+      "path": "/Users/eir/Desktop/JOG-FYP-2526/socratiq",
+      "total_bytes": 994662584320,
+      "used_bytes": 811841978368,
+      "free_bytes": 182820605952
+    },
+    "git": {
+      "commit": "e6d6f88381db4a5b7e5264ddb6147c73e380844c",
+      "branch": "revision-v2",
+      "status_porcelain_tracked_only": "M .DS_Store"
+    },
+    "hardware": {
+      "machine_name": "MacBook Pro",
+      "model": "Mac14,5",
+      "chip": "Apple M2 Max",
+      "physical_memory": "64 GB",
+      "memory_bytes": 68719476736,
+      "processors": "proc 12:8:4"
+    },
+    "packages": {
+      "mlx": "0.30.3",
+      "mlx-lm": "0.29.1",
+      "transformers": "4.57.3",
+      "datasets": "4.4.2",
+      "openai": "2.21.0",
+      "PyYAML": "6.0.3"
+    }
+  },
+  "seeds": {
+    "base_seed": 42,
+    "derivation": "sha256(base_seed, condition_id, benchmark, item_index, sample_index)[:4]"
+  },
+  "prediction_path": "audit/phase2/gate7_dry_runs/qwen3_1.7b_base/gsm8k/P4_greedy/predictions.jsonl",
+  "completed_at": "2026-10-01T23:35:16+00:00",
+  "range": {
+    "start": 0,
+    "stop": 5,
+    "expected_rows": 5
+  },
+  "observed_rows": 5,
+  "summary": {
+    "items": 5,
+    "responses": 5,
+    "rules": {
+      "last_marked": {
+        "correct": 0,
+        "valid": 5,
+        "invalid": 0,
+        "accuracy": 0.0
+      },
+      "first_marked": {
+        "correct": 0,
+        "valid": 5,
+        "invalid": 0,
+        "accuracy": 0.0
+      },
+      "last_marked_fallback_last_number": {
+        "correct": 0,
+        "valid": 5,
+        "invalid": 0,
+        "accuracy": 0.0
+      }
+    },
+    "diagnostics_responses": {
+      "bare_answer": 0,
+      "limit_hit": 0,
+      "repetition_loop": 0,
+      "question_lines": 0,
+      "invalid_primary": 0
+    },
+    "finish_reasons": {
+      "dry_run": 5
+    },
+    "response_tokens": {
+      "mean": 17.0,
+      "max": 17
+    },
+    "tie_breaks_generated": 0
+  },
+  "elapsed_seconds_this_invocation": 0.01684654224663973,
+  "prediction_sha256": "fb36e9c396ff4ca26fa8017fce5eebc8e79eb68e8e9fbed36fd0ff59fcc495bf"
+}
