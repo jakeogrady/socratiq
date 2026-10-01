@@ -188,3 +188,25 @@ rerun-smoke-reports:
 		--training-root runs/reviewer_rerun/smoke/training \
 		--output-root results/reviewer_rerun/smoke \
 		--allow-partial
+
+# Revision-v2 (Phase 2). See docs/phase2_runbook.md.
+phase2-test:
+	$(RERUN_PYTHON) -m unittest discover -s tests
+
+phase2-lint:
+	$(RERUN_RUFF) format --check src/revision_v2 tests
+	$(RERUN_RUFF) check src/revision_v2 tests
+
+phase2-configs:
+	$(RERUN_PYTHON) -m src.revision_v2.configs generate --check
+	$(RERUN_PYTHON) -m src.revision_v2.train validate configs/revision_v2/training/*.yaml
+
+phase2-data:
+	$(RERUN_PYTHON) -m src.revision_v2.data build
+	$(RERUN_PYTHON) -m src.revision_v2.data verify
+
+phase2-check: phase2-test phase2-lint phase2-configs
+
+# PI machine only: writes evidence to audit/phase2/.
+phase2-gates:
+	$(RERUN_PYTHON) -m src.revision_v2.gates

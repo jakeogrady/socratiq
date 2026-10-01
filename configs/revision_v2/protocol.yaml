@@ -1,0 +1,178 @@
+# Revision-v2 protocol (MLWA-D-26-00734). Frozen by the tag protocol-v2-frozen.
+# Every training and evaluation manifest records this file's SHA-256.
+# Changes after the freeze need a dated amendment approved by the PI.
+protocol_version: "2.0"
+experiment_family: "revision-v2-2026"
+freeze_tag: "protocol-v2-frozen"
+v1_protocol:
+  path: "configs/reviewer_rerun/protocol.yaml"
+  sha256: "be66a73d43e4ceb34cd599fdbec9a4cd60dec6324d394a79292873fe9624d924"
+
+data:
+  canonical_input:
+    path: "data/reviewer_rerun/canonical/accepted.jsonl"
+    sha256: "85098647cc0ecc06596e1536eb6dea4b2f97abd46342df2c033541a0b949611d"
+    rows: 20000
+  v1_dataset_manifest:
+    path: "data/reviewer_rerun/manifests/dataset_manifest.json"
+    train_rows: 18000
+    valid_rows: 2000
+  output_root: "data/revision_v2"
+  render:
+    collapse_terminal_question_marks: true
+  row_order_seed: 2026
+  subsets:
+    by: "source_id"
+    nested: true
+    seed: 2027
+    sizes: [5000, 10000]
+    validation: "full"
+
+models:
+  qwen3_0.6b:
+    identifier: "mlx-community/Qwen3-0.6B-bf16"
+    revision: "42096995f6402fde107068cf530136fe64b604f8"
+    precision: "bfloat16"
+    num_layers: 28
+    lora_scale: 24.0
+    schedule: "warmup_cosine"
+  qwen3_1.7b:
+    identifier: "mlx-community/Qwen3-1.7B-4bit"
+    revision: "3b1b1768f8f8cf8351c712464f906e86c2b8269e"
+    precision: "4-bit"
+    num_layers: 28
+    lora_scale: 8.0
+    schedule: "cosine_only"
+  llama3.2_1b:
+    identifier: "meta-llama/Llama-3.2-1B-Instruct"
+    local_path: "models/revision_v2/llama3.2-1b-instruct-meta-bf16"
+    manifest: "configs/revision_v2/llama_base_manifest.json"
+    directory_sha256: "4990058eddea56ac54c5800131a87fdb128f69fbfa3a9a9d6bff7d047760e07a"
+    precision: "bfloat16"
+    num_layers: 16
+    lora_scale: 24.0
+    schedule: "warmup_cosine"
+    fixed_date_string: "26 Jul 2024"
+
+training:
+  seed: 42
+  iters: 6016
+  batch_size: 4
+  grad_accumulation_steps: 32
+  optimizer_updates: 188
+  max_seq_length: 2048
+  lora_rank: 16
+  lora_dropout: 0.05
+  lora_keys:
+    - "self_attn.q_proj"
+    - "self_attn.k_proj"
+    - "self_attn.v_proj"
+    - "self_attn.o_proj"
+    - "mlp.gate_proj"
+    - "mlp.up_proj"
+    - "mlp.down_proj"
+  optimizer: "adamw"
+  adamw: {betas: [0.9, 0.98], eps: 1.0e-6, weight_decay: 0.01}
+  mask_prompt: false
+  grad_checkpoint: true
+  steps_per_report: 10
+  steps_per_eval: 200
+  val_batches: 25
+  save_every: 200
+  checkpoint_selection: "final_adapter_after_last_iteration"
+  # mlx-lm evaluates the schedule on the optimizer-update counter s = 0..187;
+  # update k (1-based) uses s = k - 1. Values below are in those units.
+  schedules:
+    warmup_cosine:
+      description: "linear warm-up over updates 1-16 (k/16 of peak), peak at update 16, cosine decay to 1e-6 at update 188"
+      peaks: {default: 8.0e-5, halved: 4.0e-5}
+      warmup: 15
+      warmup_init_fraction: 0.0625
+      decay_steps: 171
+      end: 1.0e-6
+    cosine_only:
+      description: "no warm-up, cosine decay from 1e-4 at update 1 (s = 0) to 1e-6 at update 188"
+      peaks: {fixed: 1.0e-4}
+      warmup: 0
+      decay_steps: 187
+      end: 1.0e-6
+  pilot:
+    run: "qwen3_0.6b_socratic"
+    accept:
+      all_validation_losses_finite: true
+      final_below_initial: true
+      final_at_most: 0.949
+    v1_reference:
+      source: "results/add-runs/reviewer-rerun-clean-v1-results/runs/reviewer_rerun/training/qwen3_0.6b_socratic/manifest.json"
+      iteration: 6000
+      validation_loss: 0.949
+    on_failure: "halve the peak to 4e-5 once and repeat; decide on validation loss only"
+    applies_to: ["qwen3_0.6b", "llama3.2_1b"]
+
+evaluation:
+  benchmarks: ["gsm8k", "multiarith", "svamp", "gsm_hard"]
+  benchmark_revisions:
+    gsm8k: "740312add88f781978c0658806c59bc2815b9866"
+    multiarith: "144d44c3fb87c0b9097ac9593c789e716a282e3e"
+    svamp: "5e0bf1e5e7c0e9c4bc39180d224f41f3f801b7ef"
+    gsm_hard: "960448f73503112d4226baeb8eb41d3fb5ae2506"
+  prompts:
+    P0: {description: "zero-shot, v1 task instruction, model chat template", benchmarks: ["gsm8k", "multiarith", "svamp", "gsm_hard"], shots: 0}
+    P4: {description: "v1 four-shot GSM8K prompt (train indices 0-3), unchanged; continuity and format diagnostic", benchmarks: ["gsm8k"], shots: 4}
+  qwen_enable_thinking: false
+  max_new_tokens: 512
+  base_seed: 42
+  greedy: {samples: 1, temperature: 0.0, top_p: 1.0, top_k: 0}
+  self_consistency:
+    samples: 5
+    temperature: 0.7
+    top_p: 0.95
+    top_k: 20
+    tie_break: "greedy_then_numeric_lexical"
+    tie_break_generation: "one greedy response is generated when the vote of any of the three rules ties; each rule breaks its tie with its own reading of that response"
+    prompt: "P0"
+    benchmarks: ["gsm8k", "multiarith", "svamp"]
+  record_per_response: ["response", "finish_reason", "response_tokens", "prompt_tokens", "generation_seconds", "seed"]
+  scorer:
+    frozen: true
+    primary: "last_marked"
+    rules:
+      last_marked: "last ####-marked integer or decimal anywhere in the response; no fallback (v1 rule)"
+      first_marked: "first ####-marked integer or decimal; no fallback (sensitivity)"
+      last_marked_fallback_last_number: "last ####-marked number; if none, the last number anywhere in the response (sensitivity)"
+    numeric_comparison: "commas removed, exact finite-decimal equality (8.0 == 8)"
+  diagnostics:
+    invalid: "no answer under the rule being reported"
+    bare_answer: "at least one ####-marked line and no other non-blank text"
+    limit_hit: "finish_reason == length (512 generated tokens)"
+    repetition_loop: "among the last 20 non-blank lines, one line occurs at least 5 times and in at least half of them"
+    question_lines: "at least one non-blank line ending in '?' (reported for every condition; interpreted for Socratic adapters)"
+
+statistics:
+  primary_family:
+    comparison: "Socratic minus non-Socratic, same items"
+    decoding: "greedy"
+    prompt: "P0"
+    models: ["qwen3_0.6b", "qwen3_1.7b", "llama3.2_1b"]
+    benchmarks: ["gsm8k", "multiarith", "svamp", "gsm_hard"]
+    tests: 12
+    test: "exact two-sided McNemar (binomial on discordant pairs)"
+    interval: "Newcombe (1998) method 10, 95%"
+    multiplicity: "Holm across the 12 primary tests"
+  base_vs_finetuned: "Wilson 95% intervals beside the format diagnostics; no causal language"
+  seeds: "one training seed (42) per condition; between-seed variation is not estimated"
+
+matrix:
+  core:
+    - {model: "qwen3_0.6b", arms: ["socratic", "non_socratic"], data: "full"}
+    - {model: "qwen3_1.7b", arms: ["socratic", "non_socratic"], data: "full"}
+    - {model: "llama3.2_1b", arms: ["socratic", "non_socratic"], data: "full"}
+  second_tier:
+    - {model: "qwen3_0.6b", arms: ["socratic", "non_socratic"], data: "subset_5k"}
+    - {model: "qwen3_0.6b", arms: ["socratic", "non_socratic"], data: "subset_10k"}
+  base_models: ["qwen3_0.6b", "qwen3_1.7b", "llama3.2_1b"]
+  evaluation:
+    core_and_base_greedy: [["P0", "gsm8k"], ["P0", "multiarith"], ["P0", "svamp"], ["P0", "gsm_hard"], ["P4", "gsm8k"]]
+    core_and_base_sc5: [["P0", "gsm8k"], ["P0", "multiarith"], ["P0", "svamp"]]
+    second_tier_greedy: [["P0", "gsm8k"], ["P0", "multiarith"], ["P0", "svamp"], ["P0", "gsm_hard"]]
+  determinism_check: {condition: "qwen3_0.6b_base", benchmark: "multiarith", prompt: "P0", mode: "greedy"}

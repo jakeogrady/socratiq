@@ -108,6 +108,22 @@ dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
     "TRY003",
     "TRY004",
 ]
+# Revision-v2 CLIs follow the same conventions as the reviewer-rerun modules.
+"src/revision_v2/*.py" = [
+    "ANN401",
+    "C901",
+    "EM101",
+    "EM102",
+    "PLC0415",
+    "PLR0912",
+    "PLR0915",
+    "S311",
+    "S603",
+    "S607",
+    "T201",
+    "TC003",
+    "TRY003",
+]
 # The preparation suite uses stdlib unittest so it runs in the minimal Python
 # 3.13 environment before the full locked ML stack is installed.
 "tests/**/*.py" = [

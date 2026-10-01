@@ -1,0 +1,36 @@
+{
+  "schema_version": "1.0",
+  "created_at": "2026-10-01T23:02:30+00:00",
+  "purpose": "revision-v2 Llama base: Meta weights in MLX bf16, fixed chat-template date",
+  "local_path": "models/revision_v2/llama3.2-1b-instruct-meta-bf16",
+  "meta_reference": {
+    "repo": "meta-llama/Llama-3.2-1B-Instruct",
+    "revision": "9213176726f574b556790deb65791e0c5aa438b6",
+    "model_safetensors_sha256": "1ff795ff6a07e6a68085d206fb84417da2f083f68391c2843cd2b8ac6df8538f",
+    "model_safetensors_bytes": 2471645608,
+    "obtained_via": "unsloth/Llama-3.2-1B-Instruct@5a8abab4a5d6f164389b1079fb721cfab8d7126c (ungated mirror; file SHA-256 equals the hash published by Meta)"
+  },
+  "weights_source": {
+    "repo": "mlx-community/Llama-3.2-1B-Instruct-bf16",
+    "revision": "863c846a9ac6fad4e49e1743d52984dff262e953",
+    "model_safetensors_sha256": "f5dc593b89368a9a44a8fc3b2dacd7a3d65e43acb4ffbd98a1a40fac9c2bd6da",
+    "note": "tokenizer.json, tokenizer_config.json and special_tokens_map.json have the same git blob IDs as Meta's repository at 9213176"
+  },
+  "weights_bitwise_equal_to_meta": true,
+  "tensors_compared": 146,
+  "chat_template_patch": {
+    "fixed_date_string": "26 Jul 2024",
+    "original_block": "{%- if not date_string is defined %}\n    {%- if strftime_now is defined %}\n        {%- set date_string = strftime_now(\"%d %b %Y\") %}\n    {%- else %}\n        {%- set date_string = \"26 Jul 2024\" %}\n    {%- endif %}\n{%- endif %}",
+    "patched_block": "{#- revision-v2: fixed system date for training and evaluation #}\n{%- set date_string = \"26 Jul 2024\" %}",
+    "original_tokenizer_config_sha256": "9823dcfdc1121869029da45192238e85cf44f0b232a6d9dc20e4fe6f4242a14e",
+    "other_keys_unchanged": true
+  },
+  "files": {
+    "config.json": "8d40f9098d80a1510565233591a58ccf4dadba6a94934c1a514bf95201621efa",
+    "model.safetensors": "f5dc593b89368a9a44a8fc3b2dacd7a3d65e43acb4ffbd98a1a40fac9c2bd6da",
+    "special_tokens_map.json": "6f38c73729248f6c127296386e3cdde96e254636cc58b4169d3fd32328d9a8ec",
+    "tokenizer.json": "79e3e522635f3171300913bb421464a87de6222182a0570b9b2ccba2a964b2b4",
+    "tokenizer_config.json": "ca2b2ff05a86a76d2df403ece038d6fc33973e5a1f41794d16cd4af555dc27ee"
+  },
+  "directory_sha256": "4990058eddea56ac54c5800131a87fdb128f69fbfa3a9a9d6bff7d047760e07a"
+}

@@ -1,0 +1,63 @@
+# Machine assignment for the revision-v2 runs (Phase 2b).
+# Expanded into ordered items by src.revision_v2.queue. Order on each machine:
+# core training, determinism check, core greedy evaluation, SC@5, second tier.
+# "{peak}" is the accepted Qwen3-0.6B / Llama peak label (8e-5 or 4e-5).
+#
+# Split: the PI default (chee: Qwen3-1.7B pair and base, then the second tier;
+# isik: pilot, Qwen3-0.6B pair, Llama pair and their bases), rebalanced from the
+# v1 timings by moving only the Llama BASE-model evaluations to chee. Each
+# matched pair is still trained and evaluated on one machine.
+
+machines:
+  isik:
+    train: ["qwen3_0.6b_socratic_lr{peak}", "qwen3_0.6b_non_socratic_lr{peak}", "llama3.2_1b_socratic_lr{peak}", "llama3.2_1b_non_socratic_lr{peak}"]
+    core_conditions: ["qwen3_0.6b_socratic_lr{peak}", "qwen3_0.6b_non_socratic_lr{peak}", "llama3.2_1b_socratic_lr{peak}", "llama3.2_1b_non_socratic_lr{peak}", "qwen3_0.6b_base"]
+    second_tier: []
+    needs_llama_checkpoint: true
+  chee:
+    train: ["qwen3_1.7b_socratic_lr1e-4", "qwen3_1.7b_non_socratic_lr1e-4"]
+    core_conditions: ["qwen3_1.7b_socratic_lr1e-4", "qwen3_1.7b_non_socratic_lr1e-4", "qwen3_1.7b_base", "llama3.2_1b_base"]
+    second_tier: ["qwen3_0.6b_socratic_5k_lr{peak}", "qwen3_0.6b_non_socratic_5k_lr{peak}", "qwen3_0.6b_socratic_10k_lr{peak}", "qwen3_0.6b_non_socratic_10k_lr{peak}"]
+    needs_llama_checkpoint: true
+
+pilot:
+  machine: "isik"
+  run: "qwen3_0.6b_socratic_lr{peak}"
+
+base_conditions:
+  qwen3_0.6b_base: "qwen3_0.6b"
+  qwen3_1.7b_base: "qwen3_1.7b"
+  llama3.2_1b_base: "llama3.2_1b"
+
+# Expected minutes, from the v1 manifests (clean-v1 and GSM-Hard packets).
+# Training: chee v1 elapsed; isik is about 15% slower for training (v1 isik
+# manifests). Evaluation: v1 timings were similar on both machines. P0 GSM8K and
+# GSM-Hard use the v1 four-shot timings as an upper estimate. Items marked
+# "estimate" had no v1 counterpart and are scaled from the closest v1 run.
+expected_minutes:
+  train:
+    qwen3_0.6b_socratic: {chee: 90, isik: 103}
+    qwen3_0.6b_non_socratic: {chee: 74, isik: 85}
+    qwen3_1.7b_socratic: {chee: 240, isik: 276}
+    qwen3_1.7b_non_socratic: {chee: 193, isik: 222}
+    llama3.2_1b_socratic: {chee: 141, isik: 162}
+    llama3.2_1b_non_socratic: {chee: 116, isik: 133, estimate: true}
+    qwen3_0.6b_socratic_5k: {chee: 90, isik: 103, estimate: true}
+    qwen3_0.6b_non_socratic_5k: {chee: 74, isik: 85, estimate: true}
+    qwen3_0.6b_socratic_10k: {chee: 90, isik: 103, estimate: true}
+    qwen3_0.6b_non_socratic_10k: {chee: 74, isik: 85, estimate: true}
+  evaluate:
+    # keys: benchmark_prompt_mode
+    qwen3_0.6b_base: {gsm8k_P0_greedy: 18, multiarith_P0_greedy: 2, svamp_P0_greedy: 3, gsm_hard_P0_greedy: 21, gsm8k_P4_greedy: 18, gsm8k_P0_sc5: 96, multiarith_P0_sc5: 9, svamp_P0_sc5: 15}
+    qwen3_0.6b_socratic: {gsm8k_P0_greedy: 46, multiarith_P0_greedy: 4, svamp_P0_greedy: 7, gsm_hard_P0_greedy: 62, gsm8k_P4_greedy: 46, gsm8k_P0_sc5: 258, multiarith_P0_sc5: 21, svamp_P0_sc5: 38}
+    qwen3_0.6b_non_socratic: {gsm8k_P0_greedy: 35, multiarith_P0_greedy: 3, svamp_P0_greedy: 5, gsm_hard_P0_greedy: 47, gsm8k_P4_greedy: 35, gsm8k_P0_sc5: 192, multiarith_P0_sc5: 14, svamp_P0_sc5: 28}
+    qwen3_1.7b_base: {gsm8k_P0_greedy: 16, multiarith_P0_greedy: 1, svamp_P0_greedy: 2, gsm_hard_P0_greedy: 19, gsm8k_P4_greedy: 16, gsm8k_P0_sc5: 85, multiarith_P0_sc5: 7, svamp_P0_sc5: 12}
+    qwen3_1.7b_socratic: {gsm8k_P0_greedy: 54, multiarith_P0_greedy: 4, svamp_P0_greedy: 6, gsm_hard_P0_greedy: 75, gsm8k_P4_greedy: 54, gsm8k_P0_sc5: 298, multiarith_P0_sc5: 18, svamp_P0_sc5: 32}
+    qwen3_1.7b_non_socratic: {gsm8k_P0_greedy: 43, multiarith_P0_greedy: 3, svamp_P0_greedy: 5, gsm_hard_P0_greedy: 63, gsm8k_P4_greedy: 43, gsm8k_P0_sc5: 242, multiarith_P0_sc5: 15, svamp_P0_sc5: 25}
+    llama3.2_1b_base: {gsm8k_P0_greedy: 35, multiarith_P0_greedy: 1, svamp_P0_greedy: 3, gsm_hard_P0_greedy: 37, gsm8k_P4_greedy: 35, gsm8k_P0_sc5: 184, multiarith_P0_sc5: 9, svamp_P0_sc5: 17}
+    llama3.2_1b_socratic: {gsm8k_P0_greedy: 63, multiarith_P0_greedy: 4, svamp_P0_greedy: 6, gsm_hard_P0_greedy: 75, gsm8k_P4_greedy: 63, gsm8k_P0_sc5: 263, multiarith_P0_sc5: 22, svamp_P0_sc5: 34}
+    llama3.2_1b_non_socratic: {gsm8k_P0_greedy: 50, multiarith_P0_greedy: 3, svamp_P0_greedy: 5, gsm_hard_P0_greedy: 60, gsm8k_P4_greedy: 50, gsm8k_P0_sc5: 210, multiarith_P0_sc5: 18, svamp_P0_sc5: 27, estimate: true}
+    qwen3_0.6b_socratic_5k: {gsm8k_P0_greedy: 46, multiarith_P0_greedy: 4, svamp_P0_greedy: 7, gsm_hard_P0_greedy: 62, estimate: true}
+    qwen3_0.6b_non_socratic_5k: {gsm8k_P0_greedy: 35, multiarith_P0_greedy: 3, svamp_P0_greedy: 5, gsm_hard_P0_greedy: 47, estimate: true}
+    qwen3_0.6b_socratic_10k: {gsm8k_P0_greedy: 46, multiarith_P0_greedy: 4, svamp_P0_greedy: 7, gsm_hard_P0_greedy: 62, estimate: true}
+    qwen3_0.6b_non_socratic_10k: {gsm8k_P0_greedy: 35, multiarith_P0_greedy: 3, svamp_P0_greedy: 5, gsm_hard_P0_greedy: 47, estimate: true}

@@ -1,0 +1,48 @@
+# Generated from configs/revision_v2/protocol.yaml by src.revision_v2.configs. Do not edit.
+run_id: "llama3.2_1b_socratic_lr8e-5"
+model: "models/revision_v2/llama3.2-1b-instruct-meta-bf16"
+model_directory_sha256: "4990058eddea56ac54c5800131a87fdb128f69fbfa3a9a9d6bff7d047760e07a"
+model_precision: "bfloat16"
+train: true
+fine_tune_type: lora
+optimizer: adamw
+optimizer_config:
+  adamw:
+    betas: [0.9, 0.98]
+    eps: 1.0e-06
+    weight_decay: 0.01
+learning_rate: 8.0e-05
+lr_schedule:
+  name: cosine_decay
+  arguments: [8.0e-05, 171, 1.0e-06]
+  warmup: 15
+  warmup_init: 5.0e-06
+iters: 6016
+seed: 42
+save_every: 200
+steps_per_report: 10
+steps_per_eval: 200
+val_batches: 25
+batch_size: 4
+grad_accumulation_steps: 32
+max_seq_length: 2048
+num_layers: 16
+grad_checkpoint: true
+mask_prompt: false
+data: "data/revision_v2/full/socratic"
+prompt_feature: "question"
+completion_feature: "answer"
+test: false
+adapter_path: "runs/revision_v2/training/llama3.2_1b_socratic_lr8e-5/adapter"
+lora_parameters:
+  keys:
+    - "self_attn.q_proj"
+    - "self_attn.k_proj"
+    - "self_attn.v_proj"
+    - "self_attn.o_proj"
+    - "mlp.gate_proj"
+    - "mlp.up_proj"
+    - "mlp.down_proj"
+  rank: 16
+  scale: 24.0
+  dropout: 0.05

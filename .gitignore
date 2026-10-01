@@ -53,3 +53,11 @@ runs/reviewer_rerun/**/*.safetensors
 runs/reviewer_rerun/**/predictions.jsonl
 runs/reviewer_rerun/**/*.tmp
 results/reviewer_rerun/**/*.jsonl
+
+# Revision-v2 (Phase 2). Weights, data files and run outputs stay local and
+# travel by return packet; their hashes are tracked under configs/revision_v2/.
+# Gate evidence under audit/phase2/ is tracked, including its small JSONL files.
+models/
+runs/revision_v2/
+audit/downloads/
+!audit/phase2/**/*.jsonl

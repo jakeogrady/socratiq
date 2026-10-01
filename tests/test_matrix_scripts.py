@@ -11,7 +11,22 @@ CLEAN_EVALUATION_SCRIPT = REPOSITORY_ROOT / "scripts/run_clean_evaluation_matrix
 GSMHARD_EVALUATION_SCRIPT = REPOSITORY_ROOT / "scripts/run_gsmhard_evaluation_matrix.sh"
 
 
+def on_reviewer_rerun_branch() -> bool:
+    """Report whether HEAD is on reviewer-rerun; v1 scripts refuse to run elsewhere."""
+    completed = subprocess.run(
+        ["git", "branch", "--show-current"],  # noqa: S607
+        cwd=REPOSITORY_ROOT,
+        check=False,
+        capture_output=True,
+        text=True,
+    )
+    return completed.stdout.strip() == "reviewer-rerun"
+
+
 def run_plan(script: Path, *arguments: str) -> str:
+    if not on_reviewer_rerun_branch():
+        msg = "v1 matrix plans run only on branch reviewer-rerun"
+        raise unittest.SkipTest(msg)
     completed = subprocess.run(  # noqa: S603 - repository-owned fixed script
         [str(script), *arguments, "--plan"],
         cwd=REPOSITORY_ROOT,

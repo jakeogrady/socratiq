@@ -11,6 +11,18 @@ REPOSITORY_ROOT = Path(__file__).resolve().parents[1]
 BOOTSTRAP = REPOSITORY_ROOT / "scripts/bootstrap_m4.sh"
 
 
+def on_reviewer_rerun_branch() -> bool:
+    """Report whether HEAD is on reviewer-rerun; v1 scripts refuse to run elsewhere."""
+    completed = subprocess.run(
+        ["git", "branch", "--show-current"],  # noqa: S607
+        cwd=REPOSITORY_ROOT,
+        check=False,
+        capture_output=True,
+        text=True,
+    )
+    return completed.stdout.strip() == "reviewer-rerun"
+
+
 class BootstrapScriptTests(unittest.TestCase):
     def test_shell_syntax_is_valid(self) -> None:
         completed = subprocess.run(  # noqa: S603 - repository-owned fixed command
@@ -21,6 +33,9 @@ class BootstrapScriptTests(unittest.TestCase):
         )
         self.assertEqual(completed.returncode, 0, completed.stderr)
 
+    @unittest.skipUnless(
+        on_reviewer_rerun_branch(), "v1 bootstrap runs only on branch reviewer-rerun"
+    )
     def test_check_only_validates_pinned_uv_without_writing(self) -> None:
         uv_binary = os.environ.get("SOCRATIQ_UV_BIN") or shutil.which("uv")
         if uv_binary is None:
