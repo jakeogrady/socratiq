@@ -51,7 +51,7 @@ queue carries on.
 
   This downloads Meta's Llama-3.2-1B-Instruct weights (pinned, about 2.5 GB),
   applies the fixed date, and checks every file against the hashes in the
-  repository. It must end with `"status": "passed"` and
+  repository. The output must include `"status": "passed"` and
   `"directory_sha256": "4990058eddea56ac54c5800131a87fdb128f69fbfa3a9a9d6bff7d047760e07a"`.
 
 - [ ] **5. Setup check (about 10 min)**
@@ -80,7 +80,8 @@ queue carries on.
 
 - [ ] **7. Tell Chee the pilot's learning rate**
 
-  After the pilot line appears, run:
+  The pilot is the first thing your queue does. Once its `Pilot at peak …: accept`
+  line has appeared, run (in a second Terminal window, leaving the queue running):
 
   ```sh
   ./scripts/phase2_queue_isik.sh report
@@ -88,7 +89,8 @@ queue carries on.
 
   The first line reads `pilot decision: 8e-5 …` (or `4e-5`).
 
-  ✉ **Email that line to Chee.** Chee's machine needs it later for its last runs.
+  ✉ **Email that line to Chee.** Chee's queue needs the value for its last 20
+  items. Your own queue needs nothing from you; leave it running.
 
 - [ ] **8. Check progress whenever you like (optional)**
 

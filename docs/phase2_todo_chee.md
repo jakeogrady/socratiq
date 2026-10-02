@@ -52,7 +52,7 @@ queue tells you when.
 
   This downloads Meta's Llama-3.2-1B-Instruct weights (pinned, about 2.5 GB),
   applies the fixed date, and checks every file against the hashes in the
-  repository. It must end with `"status": "passed"` and
+  repository. The output must include `"status": "passed"` and
   `"directory_sha256": "4990058eddea56ac54c5800131a87fdb128f69fbfa3a9a9d6bff7d047760e07a"`.
 
 - [ ] **5. Setup check (about 10 min)**
@@ -77,7 +77,8 @@ queue tells you when.
 - [ ] **7. Add the pilot's learning rate when the queue asks for it**
 
   Asena will email you a line like `pilot decision: 8e-5`. Keep that value;
-  `PEAK` below means it.
+  `PEAK` below means it. When the email arrives, do nothing yet: do not stop
+  or restart your queue.
   - When your queue has finished its first 35 items, it prints
     `Core items finished. The second tier needs the learning rate …` and stops.
   - Start it again with the value:
