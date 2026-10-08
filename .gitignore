@@ -61,3 +61,6 @@ models/
 runs/revision_v2/
 audit/downloads/
 !audit/phase2/**/*.jsonl
+
+# Zenodo deposit archives (built by src.revision_v2.deposit)
+deposit/zenodo-v2/

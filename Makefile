@@ -210,3 +210,7 @@ phase2-check: phase2-test phase2-lint phase2-configs
 # PI machine only: writes evidence to audit/phase2/.
 phase2-gates:
 	$(RERUN_PYTHON) -m src.revision_v2.gates
+
+# Revision-v2 (Phase 3), PI machine: every manuscript number from runs/revision_v2/.
+phase3-evidence:
+	$(RERUN_PYTHON) -m src.revision_v2.tables build
