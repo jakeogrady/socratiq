@@ -32,9 +32,10 @@ LICENSE_TEXTS = REPOSITORY_ROOT / "deposit/licenses"
 README = REPOSITORY_ROOT / "deposit/README_ZENODO.md"
 RUNS = Path("runs/revision_v2")
 FIXED_TIMESTAMP = (2026, 10, 7, 0, 0, 0)
-# A value that looks like a real API key or token (OpenAI, Hugging Face, or long hex/base64).
+# An uncommented KEY=value line whose value looks like a real API key or token
+# (OpenAI, Hugging Face, or a long opaque string). Comments and paths are ignored.
 REAL_SECRET = re.compile(
-    r"=\s*(?:sk-[A-Za-z0-9_-]{20,}|hf_[A-Za-z0-9]{20,}|[A-Za-z0-9_/+-]{32,})\s*$",
+    r"^\s*[A-Z][A-Z0-9_]*\s*=\s*(?:sk-[A-Za-z0-9_-]{20,}|hf_[A-Za-z0-9]{20,}|[A-Za-z0-9_+-]{32,})\s*$",
     re.MULTILINE,
 )
 LLAMA_NOTICE = (
