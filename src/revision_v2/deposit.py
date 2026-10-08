@@ -18,6 +18,7 @@ from __future__ import annotations
 
 import argparse
 import hashlib
+import re
 import subprocess
 import sys
 import zipfile
@@ -31,6 +32,11 @@ LICENSE_TEXTS = REPOSITORY_ROOT / "deposit/licenses"
 README = REPOSITORY_ROOT / "deposit/README_ZENODO.md"
 RUNS = Path("runs/revision_v2")
 FIXED_TIMESTAMP = (2026, 10, 7, 0, 0, 0)
+# A value that looks like a real API key or token (OpenAI, Hugging Face, or long hex/base64).
+REAL_SECRET = re.compile(
+    r"=\s*(?:sk-[A-Za-z0-9_-]{20,}|hf_[A-Za-z0-9]{20,}|[A-Za-z0-9_/+-]{32,})\s*$",
+    re.MULTILINE,
+)
 LLAMA_NOTICE = (
     "Llama 3.2 is licensed under the Llama 3.2 Community License, "
     "Copyright © Meta Platforms, Inc. All Rights Reserved.\n"
@@ -202,9 +208,16 @@ def build_code(tag: str) -> Path:
         check=True,
     )
     with zipfile.ZipFile(target) as archive:
-        if any(Path(n).name.startswith(".env") for n in archive.namelist()):
+        for name in archive.namelist():
+            if not Path(name).name.startswith(".env"):
+                continue
+            # Templates such as .env.example may ship, but only with placeholder values.
+            if Path(name).name.endswith(".example") and not REAL_SECRET.search(
+                archive.read(name).decode("utf-8", errors="replace")
+            ):
+                continue
             target.unlink()
-            raise DepositError(f"tag {tag} tracks a .env file")
+            raise DepositError(f"tag {tag} tracks {name}, which may hold a secret")
     return target
 
 
