@@ -1,0 +1,69 @@
+{
+  "rule": {
+    "question": "text ending in '?' after the previous '.', '!', '?' or line break",
+    "solution_text": "the rendered solution with the '####' answer line removed",
+    "char_share": "non-whitespace characters in question sentences / non-whitespace solution characters",
+    "line_count": "lines whose stripped text ends in '?'"
+  },
+  "revision_v2": {
+    "train": {
+      "solutions": 18000,
+      "questions_per_solution_mean": 3.245,
+      "questions_per_solution_median": 3.0,
+      "questions_per_solution_min": 2,
+      "questions_per_solution_max": 9,
+      "share_with_no_question": 0.0,
+      "share_with_3_or_more": 0.7404,
+      "share_ending_with_question": 0.0002,
+      "question_lines_per_solution_mean": 3.244,
+      "question_char_share_mean": 0.3873,
+      "question_char_share_pooled": 0.3874,
+      "source": "data/revision_v2/full/socratic/train.jsonl"
+    },
+    "valid": {
+      "solutions": 2000,
+      "questions_per_solution_mean": 3.24,
+      "questions_per_solution_median": 3.0,
+      "questions_per_solution_min": 2,
+      "questions_per_solution_max": 6,
+      "share_with_no_question": 0.0,
+      "share_with_3_or_more": 0.7305,
+      "share_ending_with_question": 0.0,
+      "question_lines_per_solution_mean": 3.24,
+      "question_char_share_mean": 0.3823,
+      "question_char_share_pooled": 0.3829,
+      "source": "data/revision_v2/full/socratic/valid.jsonl"
+    }
+  },
+  "original_submission": {
+    "commit": "806d5a2",
+    "train": {
+      "solutions": 19125,
+      "questions_per_solution_mean": 1.049,
+      "questions_per_solution_median": 1,
+      "questions_per_solution_min": 0,
+      "questions_per_solution_max": 5,
+      "share_with_no_question": 0.0246,
+      "share_with_3_or_more": 0.003,
+      "share_ending_with_question": 0.6042,
+      "question_lines_per_solution_mean": 0.606,
+      "question_char_share_mean": 0.2802,
+      "question_char_share_pooled": 0.2649,
+      "source": "train.jsonl"
+    },
+    "valid": {
+      "solutions": 2125,
+      "questions_per_solution_mean": 1.041,
+      "questions_per_solution_median": 1,
+      "questions_per_solution_min": 0,
+      "questions_per_solution_max": 4,
+      "share_with_no_question": 0.0226,
+      "share_with_3_or_more": 0.0024,
+      "share_ending_with_question": 0.6056,
+      "question_lines_per_solution_mean": 0.607,
+      "question_char_share_mean": 0.2788,
+      "question_char_share_pooled": 0.2625,
+      "source": "valid.jsonl"
+    }
+  }
+}

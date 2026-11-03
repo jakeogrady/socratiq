@@ -1,4 +1,4 @@
-"""Evidence for the revision-v2 manuscript: every reported number, from the returned runs.
+"""Evidence for the revised manuscript: every reported number, from the returned runs.
 
 Reads runs/revision_v2/ (both machines' return packets unpacked together) and
 writes to the evidence directory:
@@ -53,7 +53,8 @@ from src.revision_v2.protocol import (
     protocol_identity,
 )
 
-DEFAULT_OUTPUT = REPOSITORY_ROOT / "manuscript/revision-v2/evidence"
+# The current revision. manuscript/revision-v2/evidence is the record of the R1 submission.
+DEFAULT_OUTPUT = REPOSITORY_ROOT / "manuscript/revision-v3/evidence"
 PACKET_DIRECTORY = REPOSITORY_ROOT / "results/reviewer-rerun-v2"
 FREEZE_TAG = "protocol-v2-frozen"
 FROZEN_CODE = ("src/revision_v2/evaluate.py", "src/revision_v2/scoring.py")
@@ -868,9 +869,26 @@ def table_primary(paired: list[dict[str, Any]]) -> str:
 
 
 def table_accuracy(
-    accuracy: list[dict[str, Any]], prompt: str, mode: str, *, intervals: bool
+    accuracy: list[dict[str, Any]],
+    prompt: str,
+    mode: str,
+    *,
+    intervals: bool,
+    rule: str = PRIMARY,
 ) -> str:
-    """Accuracy (primary rule) by condition and benchmark, optionally with Wilson intervals."""
+    """Accuracy under one rule by condition and benchmark, optionally with Wilson intervals."""
+    return tabular(*accuracy_parts(accuracy, prompt, mode, intervals=intervals, rule=rule))
+
+
+def accuracy_parts(
+    accuracy: list[dict[str, Any]],
+    prompt: str,
+    mode: str,
+    *,
+    intervals: bool,
+    rule: str,
+) -> tuple[str, list[str], list[str]]:
+    """Column spec, header and body of an accuracy table under one rule."""
     benchmarks = [
         b
         for b in BENCHMARKS
@@ -889,7 +907,7 @@ def table_accuracy(
                 benchmark=b,
                 prompt=prompt,
                 mode=mode,
-                rule=PRIMARY,
+                rule=rule,
             )
             cells.append(
                 r["accuracy"]
@@ -907,13 +925,41 @@ def table_accuracy(
         + r" \\"
     ]
     spec = "ll" + ("c" if intervals else "r") * len(benchmarks)
-    return tabular(
-        spec, header, model_blocks(conditions(accuracy, prompt, mode), render)
+    return spec, header, model_blocks(conditions(accuracy, prompt, mode), render)
+
+
+def table_accuracy_panels(
+    accuracy: list[dict[str, Any]], prompt: str, mode: str
+) -> str:
+    """Accuracy with Wilson intervals in two panels: (A) the primary rule, (B) the fallback rule."""
+    spec, header, primary = accuracy_parts(
+        accuracy, prompt, mode, intervals=True, rule=PRIMARY
     )
+    _, _, fallback = accuracy_parts(accuracy, prompt, mode, intervals=True, rule=FALLBACK)
+    columns = len(spec)
+
+    def panel(title: str) -> str:
+        return rf"\multicolumn{{{columns}}}{{l}}{{\textit{{{title}}}}} \\"
+
+    body = [
+        panel("A. Primary scorer, marked answer required"),
+        r"\midrule",
+        *primary,
+        r"\midrule",
+        panel("B. Fallback rule, last number also accepted"),
+        r"\midrule",
+        *fallback,
+    ]
+    return tabular(spec, header, body)
 
 
-def table_format(accuracy: list[dict[str, Any]], prompt: str, mode: str) -> str:
-    """Invalid answers (primary rule) and fallback-rule accuracy by condition and benchmark."""
+def table_format(
+    accuracy: list[dict[str, Any]],
+    diagnostics: list[dict[str, Any]],
+    prompt: str,
+    mode: str,
+) -> str:
+    """Invalid answers (primary rule) and token-limit hits by condition and benchmark."""
     benchmarks = [
         b
         for b in BENCHMARKS
@@ -933,7 +979,7 @@ def table_format(accuracy: list[dict[str, Any]], prompt: str, mode: str) -> str:
                 "mode": mode,
             }
             cells.append(str(lookup(accuracy, rule=PRIMARY, **where)["invalid"]))
-            cells.append(lookup(accuracy, rule=FALLBACK, **where)["accuracy"])
+            cells.append(str(lookup(diagnostics, **where)["limit_hit"]))
         return label(c, position) + " & " + " & ".join(cells) + r" \\"
 
     header = [
@@ -946,7 +992,7 @@ def table_format(accuracy: list[dict[str, Any]], prompt: str, mode: str) -> str:
             rf"\cmidrule(lr){{{3 + 2 * i}-{4 + 2 * i}}}" for i in range(len(benchmarks))
         ),
         r"\textbf{Model} & \textbf{Condition} & "
-        + " & ".join(r"\textbf{Invalid} & \textbf{Fallback}" for _ in benchmarks)
+        + " & ".join(r"\textbf{Invalid} & \textbf{Limit}" for _ in benchmarks)
         + r" \\",
     ]
     return tabular(
@@ -1263,12 +1309,13 @@ def build(runs_root: Path, output: Path) -> dict[str, Any]:
         "accuracy_p0_greedy_plain": table_accuracy(
             accuracy, "P0", "greedy", intervals=False
         ),
-        "format_p0_greedy": table_format(accuracy, "P0", "greedy"),
+        "accuracy_p0_greedy_panels": table_accuracy_panels(accuracy, "P0", "greedy"),
+        "format_p0_greedy": table_format(accuracy, diagnostics, "P0", "greedy"),
         "resources": table_resources(training),
         "configurations": table_configurations(training),
         "accuracy_p0_sc5": table_accuracy(accuracy, "P0", "sc5", intervals=True),
         "accuracy_p4_greedy": table_accuracy(accuracy, "P4", "greedy", intervals=True),
-        "format_p4_greedy": table_format(accuracy, "P4", "greedy"),
+        "format_p4_greedy": table_format(accuracy, diagnostics, "P4", "greedy"),
         "second_tier": table_second_tier(accuracy),
         "secondary_paired": table_secondary_paired(paired),
         "sensitivity": table_sensitivity(paired),

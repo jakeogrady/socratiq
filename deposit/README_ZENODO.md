@@ -2,7 +2,7 @@
 
 Supporting data, adapters, predictions and code for the article *Low-Cost LoRA
 Fine-Tuning of Small Language Models for Multi-Step Arithmetic Reasoning* by
-Jake O'Grady, Asena Isik Gürhan, Chee Fong Ting and Effirul Ramlan
+Jake O'Grady, Asena Isik Gürhan, Fong Ting Chee and Effirul I. Ramlan
 (University of Galway).
 
 Cite this record: https://doi.org/10.5281/zenodo.23236018
@@ -80,4 +80,4 @@ Socratic and non-Socratic file of each directory. Answers end with
   License, Copyright © Meta Platforms, Inc. All Rights Reserved.
 - Code: MIT.
 
-Contact: Effirul Ramlan, effirul.ramlan@universityofgalway.ie
+Contact: Effirul I. Ramlan, effirul.ramlan@universityofgalway.ie

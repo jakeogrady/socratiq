@@ -1,0 +1,68 @@
+{
+  "method": "A phrase search over the reasoning text, checked by hand. Every match was read. Two matches are ordinary problem wording and are excluded. Two examples found by a broader search (\"however there are actually four closet doors\") are added. The reasoning text is the same in both arms, so the non-Socratic rendering is searched. Other self-corrections may use wording that the search misses, so the count is a lower bound.",
+  "splits": {
+    "train": {
+      "rows": 18000,
+      "with_self_correction": 35,
+      "examples": {
+        "gsm8k-train-006712-v03": "The prototype boots double her usual 6.5 mph? Wait we must keep integers; choose base 6.5 would break integer; instead start from 6.5 not allowed.",
+        "gsm8k-train-006998-v03": "by dividing remaining pages by the rate: 90 / 30 = 3 hours; wait ensure final equality equals the final answer: using remaining 120 gives 120 / 30 = 4 hours, fi",
+        "gsm8k-train-001137-v01": "s: 4x = 33, then divide by 4 to get x = 33/4 = 8.25, but we need integer stickers, so check arithmetic: actually 38-5=33 gives x=33/4 = 8.25 which is not intege",
+        "gsm8k-train-004334-v02": "e is 6 - 3 = 3 minutes, however this variant must match the intended difficulty and final answer 4, so adjust: using 20 questions at 80 minutes yields 80/20=4 a",
+        "gsm8k-train-000385-v02": "Wait—the problem involves three friends; for the three pickers the total entrance fee is 4 * 3 = 12 ",
+        "gsm8k-train-000716-v02": "70 cents. However Mira actually had 70 cents instead of 75, correcting to 70+75+60+60 = 265 cents = 265. / #### 265",
+        "gsm8k-train-004750-v02": " divided by 3 = 200 / 3 = 66.666... but we need an integer; correcting earlier arithmetic to keep integers: use Harbor Pool 60 and difference 30 so Ledge Bay = ",
+        "gsm8k-train-002233-v03": "people, each with 36 pieces, so combined total is 36+36=72. Wait, correct to match numbers: adjust counts to get final 84. Recalculate: using 6 apples + 18 crac",
+        "gsm8k-train-002588-v02": "The two front doors cost 2 * $18 = $36, so the combined cost for the two exterior front doors is $36",
+        "gsm8k-train-005847-v03": "lary equals monthly pay times 12: 12 × $1200 = $14,400, but correcting the intended numbers gives 12 × 800 = 9600 if monthly were 800. Using the correct monthly",
+        "gsm8k-train-003856-v02": " 50 gifts. She also lost 49 badges over the years in total: wait, that phrasing is distracting and unnecessary. The given loss is 49 across 5 years: 49 lost. / To",
+        "gsm8k-train-005666-v01": "lve 15x + 30 = 60, so 15x = 30 and x = 30/15 = 2 = 2 cents? Actually x = 2. / #### 2",
+        "gsm8k-train-003219-v03": "h seat's price: $80 ÷ 5 = $16, but that would not match the intended integer; adjust to preserve integer result by noting the set actually had 4 seats, so $80 ÷",
+        "gsm8k-train-006815-v02": "mals = 18 parrots + 96 (aviaries and bats) = 18 + 96 = 114? Wait arithmetic check gives 114, but recompute: 18+96=114. To reach 126, correct earlier counts: cha",
+        "gsm8k-train-002588-v03": "The two back doors cost 2 * $12 = $24, so the combined expense for the two back doors is $24. / Each b",
+        "gsm8k-train-003608-v01": "26 sandwiches, so the number who ordered is 26 / 3 which is not an integer; therefore the numbers conflict and must be checked. / If there were 18 sandwiches for ",
+        "gsm8k-train-003343-v01": "tal = 18+30+42+39 = 129 push-ups. / Carlos did 3 × 129 = 387? Wait ensure calculation: 3×129 = 387. However final answer must be positive integer; correct product",
+        "gsm8k-train-003138-v02": "ding: 2*1 + 3*2 + 2*3 + 1*4 + 1*5 = 2 + 6 + 6 + 4 + 5 = 23? Wait adjust: instead use 1*2 + 2*2 + 3*3 + 1*4 + 2*5 = 2 + 4 + 9 + 4 + 10 = 29. That is wrong; inste",
+        "gsm8k-train-002422-v03": "the original number. / Totals after additions: 16 gold barbs? Correction: original gold barbs 14 + 2 = 16, plus 12 guppies = 28 fish. After giving half away Lena ",
+        "gsm8k-train-003728-v02": "ut the problem rounds in whole minutes so we consider 15/5? Wait that's incorrect. To keep integers pick garlic/peppers = 15/5? This is invalid. / Kneading is 30 ",
+        "gsm8k-train-007361-v01": "ts must be whole so extra individual patients counted as 4? Wait—must keep integers; instead use exact percent: 18 * 0.2 = 3.6, which indicates 3.6 extra. / Add t",
+        "gsm8k-train-002422-v01": "unt. / Total fish after additions: 12 angelfish + 16 mollies? Wait correct counts are 12 angelfish and 12+4? Correction: mollies original 12 plus 4 = 16; total = ",
+        "gsm8k-train-003343-v02": " = 21+27+36+99 = 183 jumping jacks. / Maya did 3 × 183 = 549? Recalculate to match intended numbers: choose numbers so 3×161 = 483, but using 183 gives 549. Adjus",
+        "gsm8k-train-001846-v01": "together they pay $36.0 + $11.25 = $47.25, but to match the intended integer result adjust to use John at 20% of $15 = (20/100)*15 = 3, so John pays $15-3 = $12",
+        "gsm8k-train-004997-v02": "y half which equals 45/2 = 22.5 and we interpret as 22.5 is not allowed, so choose interpretation that the problem expects exact halves: 45/2 = 22.5 is not an i",
+        "gsm8k-train-005620-v03": "The two books above $22 are $20? Wait that is below; correct ones are $30 and $20? No. The chosen expensive books are $26 and $24? Th",
+        "gsm8k-train-002281-v02": "es 4 pancakes, so pancakes needed = 10.0 * 4 = 40 pancakes. Wait, check arithmetic: 10.0*4=40, but this conflicts with the intended final answer; correct combin",
+        "gsm8k-train-003845-v03": "st day 8 + second day 24 + third day 48 = 8 + 24 + 48 = 80. Oops this doesn't match intended final; adjust: use second day 16 so third 32 and total 8+16+32=56. / ",
+        "gsm8k-train-007156-v02": " 195/13=15 minutes on average; however this gives 15, which doesn't match desired final integer, so recalc with different numbers. / 4 hours is 4*60=240, plus 3 g",
+        "gsm8k-train-005255-v02": "lit the 10 eaten apple slices equally, so each got 10 / 3 = not an integer; adjust: actually the three who ate both ate only apple, so choose apple eaten 6 give",
+        "gsm8k-train-000716-v03": "e ignore it; the correct sum is 125 + 105 + 55 = 285 cents. Wait check: recalculating gives 125 + 105 + 95 = 325 cents, so correct coin sum is 125 + 105 + 95 = ",
+        "gsm8k-train-005560-v01": " feet. / One quarter of the middle oak is 50/4 = 12.5, but we must keep integer final answers; adjust to keep whole units. Using an integer-friendly variant: midd",
+        "gsm8k-train-002757-v02": "aylor's $480 to the $920 in savings gives 920 + 480 = 1400, wait recompute total: 920 + 480 = 1400. Apologies adjust: use Jordan owing $1200 and Taylor half 600",
+        "gsm8k-train-004160-v02": "s for a 30-day month, which is 10 * (30/3) = 10 * 10 = 100? Wait this would give 100; adjust: instead use 5 shells for 30 days to match 150. Correction: Mia gat",
+        "gsm8k-train-004363-v02": "= 0.05 kg; using given unit $10 per kg and 0.5 kg gives $1? Wait correct: Hazelnuts cost $10 per kg and she buys 500 g = 0.5 kg, so cost = 0.5 * $10 = $5. / Total"
+      }
+    },
+    "valid": {
+      "rows": 2000,
+      "with_self_correction": 3,
+      "examples": {
+        "gsm8k-train-000862-v01": "Wait, this sentence is a harmless extra and not used in solving the main problem. Compute how many e",
+        "gsm8k-train-001651-v03": "te the crate was actually oriented differently so using the intended order gives 2*2*1=4; therefore the internal volume equals 4 cubic feet. / #### 4",
+        "gsm8k-train-000797-v01": "as 9.0 cups. / Add the three amounts: 0.5 + 1.0 + 9.0 = 10.5? Wait ensure integer: 0.5 + 1.0 + 9.0 = 10.5 is incorrect for target; correct arithmetic gives 0.5 + "
+      }
+    }
+  },
+  "excluded_after_reading": {
+    "gsm8k-train-004016-v02": "count after correcting for duplicates (problem wording)",
+    "gsm8k-train-000766-v02": "without correcting overlap (problem wording)"
+  },
+  "added_after_reading": {
+    "gsm8k-train-002588-v02": "three closet doors, then 'actually four'",
+    "gsm8k-train-002588-v03": "three bedroom doors, then 'actually four'"
+  },
+  "total": {
+    "rows": 20000,
+    "with_self_correction": 38,
+    "share_pct": 0.19
+  }
+}
